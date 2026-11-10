@@ -11,3 +11,5 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 1 | Login and onboarding | 1 | 196808 | KAN-10 | KAN-11 FE, KAN-12 BE |
 | 2 | Offline sync | 1 | 524289 | KAN-13 | KAN-14 FE test, KAN-15 FE, KAN-16 BE |
 | 3 | Create a trip | 1 | 557057 | KAN-17 | KAN-18 FE, KAN-19 BE |
+| 4 | Profile, settings and account deletion | 1 | 426017 | KAN-20 | KAN-21 FE, KAN-22 BE |
+| 5 | Smart checklist | 1 | 98543 | KAN-23 | KAN-24 FE, KAN-25 BE, KAN-26 AI |
