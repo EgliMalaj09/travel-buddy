@@ -133,7 +133,7 @@ These must be decided before building starts on that part.
 
 ## Jira structure (AGREED, 10 Nov 2026)
 
-Site: travel-app-couple.atlassian.net. Jira project: `KAN`. Confluence space: **Travel App** (`TA`). Tickets are created through the Jira connection.
+Site: travel-app-couple.atlassian.net. Jira project: `KAN`. Epics: KAN-4 (Part 1), KAN-5 (Part 2), KAN-6 (Part 3). Confluence space: **Travel App** (`TA`). Tickets are created through the Jira connection.
 
 | Jira level | Used for | Example |
 | --- | --- | --- |
