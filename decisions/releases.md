@@ -139,11 +139,11 @@ Tasks are the cards on the board, so the real work items are Tasks:
 
 | Jira level | Used for | Example |
 | --- | --- | --- |
-| Release (fix version) | One per part | `Part 1: Journal`, `Part 2: Share and remember`, `Part 3: Memories` |
+| Label | One per part (`part-1`, `part-2`, `part-3`). Jira releases for the parts exist but are not used for now (the Fix versions field is not enabled) | `part-1` |
 | Epic | One per feature | `Login and onboarding` |
 | Task | One per kind of work, named with a prefix. These are the board cards | `FE - Login and onboarding` |
 
-Labels: `part-1`, `part-2`, `part-3` and `FE`, `BE`, `Template`, `AI`, so the board can be filtered.
+Every ticket also gets a type label: `FE`, `BE`, `Template` or `AI`, so the board can be filtered.
 
 Board columns: To Do, In Progress, In Review, Done.
 
