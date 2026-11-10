@@ -58,8 +58,8 @@ Because of L3, `User.authProvider` is replaced by `authProviders` (a list) in th
 
 ## Jira
 
-- Epic KAN-4 `Part 1: Journal`
-- Task KAN-7 `Login and onboarding`
-- Sub-tasks KAN-8 `FE - Login and onboarding`, KAN-9 `BE - Login and onboarding`
+- Epic KAN-10 `Login and onboarding` (Part 1, label `part-1`)
+- Task KAN-11 `FE - Login and onboarding`
+- Task KAN-12 `BE - Login and onboarding`
 
 Confluence: Travel App space → Features → Part 1: Journal → Login and onboarding.

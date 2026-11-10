@@ -131,28 +131,33 @@ These must be decided before building starts on that part.
 
 ---
 
-## Jira structure (AGREED, 10 Nov 2026)
+## Jira structure (AGREED, 10 Nov 2026, revised)
 
-Site: travel-app-couple.atlassian.net. Jira project: `KAN`. Epics: KAN-4 (Part 1), KAN-5 (Part 2), KAN-6 (Part 3). Confluence space: **Travel App** (`TA`). Tickets are created through the Jira connection.
+Site: travel-app-couple.atlassian.net. Jira project: `KAN`. Confluence space: **Travel App** (`TA`).
+
+Tasks are the cards on the board, so the real work items are Tasks:
 
 | Jira level | Used for | Example |
 | --- | --- | --- |
-| Project | Travel App | |
-| Epic | One per part | `Part 1: Journal`, `Part 2: Share and remember`, `Part 3: Memories` |
-| Task | One per feature | `Smart checklist` |
-| Sub-task | One per kind of work, named with a prefix | `FE - Smart checklist` |
+| Release (fix version) | One per part | `Part 1: Journal`, `Part 2: Share and remember`, `Part 3: Memories` |
+| Epic | One per feature | `Login and onboarding` |
+| Task | One per kind of work, named with a prefix. These are the board cards | `FE - Login and onboarding` |
 
-Sub-task prefixes:
+Labels: `part-1`, `part-2`, `part-3` and `FE`, `BE`, `Template`, `AI`, so the board can be filtered.
+
+Board columns: To Do, In Progress, In Review, Done.
+
+Task prefixes:
 - `FE -` mobile app (React Native)
 - `BE -` backend (.NET)
 - `Template -` templates (trip video, postcards, diary, album)
 - `AI -` AI work (checklist generation, diary, postcards)
 
-A feature only gets the sub-tasks it needs. These are decided when the feature is discussed, not from a fixed list.
+A feature only gets the tasks it needs. These are decided when the feature is discussed, not from a fixed list.
 
-Documentation: the explanation of each feature and its technical documentation live in **Confluence**. Each Jira task links to its Confluence page.
+Documentation: each feature has a Confluence page under Features → Part N. The feature's epic links to its page.
 
 How each feature is prepared:
 1. Discuss the feature (behaviour, screens, edge cases).
 2. Write the Confluence page: feature explanation and technical documentation (data, endpoints, offline behaviour).
-3. Create the Jira task and its sub-tasks.
+3. Create the epic and its tasks.
