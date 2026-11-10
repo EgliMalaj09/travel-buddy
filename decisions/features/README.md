@@ -26,3 +26,5 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 16 | Back office (Part 1) | 1 | 131090 | KAN-54 | KAN-55 BE |
 | 17 | App foundation (do first) | 1 | 426065 | KAN-56 | KAN-57 FE, KAN-58 BE |
 | 18 | Ship Part 1 to devices | 1 | 98575 | KAN-59 | KAN-60 FE, KAN-61 BE, KAN-62 AI legal |
+| 19 | Shared trips | 2 | 98592 | KAN-63 | KAN-64 FE, KAN-65 BE |
+| 20 | Shared expenses and splitting (D6 open) | 2 | 524331 | KAN-66 | KAN-67 FE, KAN-68 BE |
