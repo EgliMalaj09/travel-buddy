@@ -1,26 +1,23 @@
-# Egli releases
+# Egli V1: release plan
 
-Version 0.1, 10 Nov 2026. Status: **PROPOSED**. Waiting for the owner's decisions (R1 to R6 at the bottom).
+Version 0.2, 10 Nov 2026. Status: **PROPOSED**.
 
-## The idea in one line
+V1 is **one release**. It is built and shipped in **3 parts**. Each part is a working build installed on real phones (TestFlight on iOS, internal testing on Google Play) and tested in real use before the next part starts. The public launch is a separate decision (see the questions at the bottom).
 
-Release 1 is a working journal for one traveler. Release 2 adds friends, the trip video and payments before the summer season. Release 3 adds the memory products (diary, postcards, printed album, yearly recap) for autumn and Christmas.
-
-| | Release 1: Journal | Release 2: Share and remember | Release 3: Memories |
+| | Part 1: Journal | Part 2: Share and remember | Part 3: Memories |
 | --- | --- | --- | --- |
-| Goal | Prove the core: prepare a trip, use it while travelling, see it on the map | Make it social and start earning before summer | Products people keep, share and pay for |
-| Beta | Friends, February 2027 | Friends, April 2027 | September 2027 |
-| Public | March 2027 | June 2027 (before summer trips) | October 2027 (yearly recap in December) |
-| Money | Free | Free trip, then paid | Plus printed albums |
+| Goal | The core works for one traveler: prepare a trip, use it while travelling, see it on the map | Friends, the trip video and payments | The memory products: diary, postcards, printed album, recap |
+| Test on devices | Owner and partner, then friends | Friends on a real shared trip | Friends with finished trips |
+| Done when | A real trip is prepared, travelled offline and finished on both iOS and Android without losing data | A shared trip with 2+ people works end to end and a purchase works in the store sandbox | An album order and a diary are made from a real trip |
 
 Why this order:
-- March is not travel season. Few users will finish a trip before summer, so the video and payments are not needed on day one. They are needed before June.
-- Shared trips make sync, permissions and expenses much harder. Building them second means the sync engine is already proven with one user.
-- The yearly recap only makes sense in December, and printed albums sell best before Christmas.
+- Every later part depends on sync working. Part 1 proves it with one user.
+- Shared trips make sync, permissions and expenses much harder, so they come after sync is proven.
+- Diary, postcards and the album need finished trips with real photos, which Part 1 and 2 testing will produce.
 
 ---
 
-## Release 1: Journal (solo trips)
+## Part 1: Journal (solo trips)
 
 **Account and settings**
 - Login with Google, Apple and email. Onboarding: first name, passport country, residence country, home currency, "I am 16 or older", terms and privacy.
@@ -52,7 +49,7 @@ Why this order:
 
 ---
 
-## Release 2: Share and remember
+## Part 2: Share and remember
 
 **Shared trips**
 - Invite friends by link. Owner removes members. Members leave.
@@ -76,7 +73,7 @@ Why this order:
 
 ---
 
-## Release 3: Memories
+## Part 3: Memories
 
 - **AI trip diary**: one entry per day plus a summary, editable, with a designed template (D10, D11).
 - **Postcards**: one per country per trip, AI style and the classic style (D9).
@@ -93,31 +90,31 @@ Why this order:
 
 ---
 
-## Later (V2, after the 3 releases)
+## Later (V2, after V1)
 
 Social feed and community, creators, AI travel guides, business ads, marketplace, offline map regions (paid), companions without the app, more languages.
 
 ---
 
-## Decisions blocking each release
+## Decisions blocking each part
 
-These must be decided before building starts on that release.
+These must be decided before building starts on that part.
 
-| Release | Decision | Source |
+| Part | Decision | Source |
 | --- | --- | --- |
-| R1 | Database and sync engine (PowerSync or custom) | Handoff 9.4 |
-| R1 | Expo or bare React Native | Handoff 9.12 |
-| R1 | Globe: Mapbox globe or 3D model | Handoff 9.5 |
-| R1 | Photo compression details | Handoff 9.6 |
-| R1 | Weather API and FX API | New |
-| R1 | Terms, privacy, entry-rule disclaimer drafts | Handoff 9.13 |
-| R2 | Pricing, and the Apple and Google purchase rules | Handoff 9.7 |
-| R2 | Where the video is rendered, music source | Handoff 9.3 |
-| R2 | Expense splitting | D6 |
-| R3 | Diary template and per-member diary | D10, D11 |
-| R3 | Auto-capture details | Handoff 9.9 |
-| R3 | Print sizes, prices, FedEx process | Handoff 9.10 |
-| R3 | Yearly recap reward | Handoff 9.8 |
+| 1 | Database and sync engine (PowerSync or custom) | Handoff 9.4 |
+| 1 | Expo or bare React Native | Handoff 9.12 |
+| 1 | Globe: Mapbox globe or 3D model | Handoff 9.5 |
+| 1 | Photo compression details | Handoff 9.6 |
+| 1 | Weather API and FX API | New |
+| 1 | Terms, privacy, entry-rule disclaimer drafts | Handoff 9.13 |
+| 2 | Pricing, and the Apple and Google purchase rules | Handoff 9.7 |
+| 2 | Where the video is rendered, music source | Handoff 9.3 |
+| 2 | Expense splitting | D6 |
+| 3 | Diary template and per-member diary | D10, D11 |
+| 3 | Auto-capture details | Handoff 9.9 |
+| 3 | Print sizes, prices, FedEx process | Handoff 9.10 |
+| 3 | Yearly recap reward | Handoff 9.8 |
 
 ---
 
@@ -125,9 +122,45 @@ These must be decided before building starts on that release.
 
 | # | Question | Recommendation | Alternative |
 | --- | --- | --- | --- |
-| R1 | Is this 3-release order right? | Yes: solo journal, then share and video and payments, then memories | Shared trips in Release 1 |
-| R2 | Public launch with Release 1 (free) in March? | Yes. Payments come in June, before most people finish a second trip | Wait and launch publicly with Release 2 in June |
-| R3 | Trip video in Release 1? | No, Release 2. It is the heaviest feature and the render location is still open | Yes, a simple version in Release 1 for marketing |
-| R4 | Entry rules in Release 1 | Rules written by the owner for European destinations. Paid visa API later | Paid API from the start |
-| R5 | Postcards in Release 2 or 3? | Release 3, with the diary (both use AI generation) | Classic-style postcards in Release 2 |
-| R6 | Badges in Release 2? | Yes, they are cheap and help people come back | Release 3 |
+| R1 | Is the order of the 3 parts right? | Yes: solo journal, then sharing, video and payments, then memories | Shared trips in Part 1 |
+| R2 | When is the public launch? | After Part 2 (payments and video are in, Part 3 follows as an update) | After Part 1 (free), or after Part 3 (everything) |
+| R3 | Trip video in Part 1? | No, Part 2. It is the heaviest feature and the render location is still open | A simple version in Part 1 |
+| R4 | Entry rules in Part 1 | Rules written by the owner for European destinations. Paid visa API later | Paid API from the start |
+| R5 | Postcards in Part 2 or 3? | Part 3, with the diary (both use AI generation) | Classic-style postcards in Part 2 |
+| R6 | Badges in Part 2? | Yes, they are cheap and help people come back | Part 3 |
+
+---
+
+## Jira structure (PROPOSED, to discuss)
+
+Tickets will be created through the Jira connection once it is set up.
+
+| Jira level | Used for | Example |
+| --- | --- | --- |
+| Project | Egli | `EGLI` |
+| Fix version (release) | V1 | `1.0` |
+| Epic | One per part | `Part 1: Journal` |
+| Task | One per feature | `Smart checklist` |
+| Sub-task | One piece of work | `Checklist screen with mock data` |
+
+Each task gets a component: `Mobile`, `Backend` or `Both`. Labels mark the area (`sync`, `photos`, `expenses` and so on) so the board can be filtered.
+
+Standard sub-tasks for a mobile feature (the owner's work):
+1. Screens with plain UI, using the theme file and shared components
+2. Local data (SQLite tables and data layer) with mock data
+3. Offline behaviour and outbox
+4. Connect to the real API (after the backend endpoint exists)
+5. Test on a real iPhone and Android phone
+
+Each part ends with one extra task: **Ship Part N to devices** (build, TestFlight, Google internal testing, test checklist, fix list).
+
+Example:
+
+- Epic: **Part 1: Journal**
+  - Task: **Smart checklist** (component: Both, label: checklist)
+    - Sub-task: Checklist screen (tasks and packing tabs)
+    - Sub-task: ChecklistItem table and data layer with mock data
+    - Sub-task: Tick, add, edit, delete offline
+    - Sub-task: Regenerate when dates, stops or activities change (with undo)
+    - Sub-task: Connect to the checklist generation endpoint
+    - Sub-task: Test on devices
