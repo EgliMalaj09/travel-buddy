@@ -1,6 +1,6 @@
 # Feature: Create a trip
 
-Part 1. Status: **DRAFT, in discussion**.
+Part 1. Status: **AGREED as recommended** (10 Nov 2026), re-confirm before starting. Confluence page 557057. Jira: epic KAN-17, KAN-18 (FE), KAN-19 (BE).
 
 Creating and editing a trip: where (stops), when (dates and flights), what (activities) and its name. The checklist, packing list, reminders, places and expenses all hang off a trip; they are separate features.
 
