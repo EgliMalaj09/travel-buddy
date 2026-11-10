@@ -30,3 +30,5 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 20 | Shared expenses and splitting (D6 open) | 2 | 524331 | KAN-66 | KAN-67 FE, KAN-68 BE |
 | 21 | Trip video | 2 | 655361 | KAN-69 | KAN-70 FE, KAN-71 BE, KAN-72 Template |
 | 22 | Anniversary reminder and library | 2 | 196827 | KAN-73 | KAN-74 FE, KAN-75 BE |
+| 23 | Badges | 2 | 65956 | KAN-76 | KAN-77 FE, KAN-78 BE, KAN-79 Template |
+| 24 | Plans and payments (pricing open) | 2 | 164001 | KAN-80 | KAN-81 FE, KAN-82 BE |
