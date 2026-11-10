@@ -19,3 +19,5 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 9 | Map | 1 | 557074 | KAN-36 | KAN-37 FE |
 | 10 | Photos and notes | 1 | 524314 | KAN-38 | KAN-39 FE, KAN-40 BE |
 | 11 | Expenses | 1 | 98559 | KAN-41 | KAN-42 FE, KAN-43 BE |
+| 12 | Today suggestion | 1 | 131074 | KAN-44 | KAN-45 FE |
+| 13 | Finish trip | 1 | 426049 | KAN-46 | KAN-47 FE |
