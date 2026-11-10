@@ -1,6 +1,6 @@
 # Feature: Login and onboarding
 
-Part 1. Status: **DRAFT, in discussion**. Will move to Confluence once connected.
+Part 1. Status: **AGREED** (10 Nov 2026). Published in Confluence (space Travel App).
 
 ## What the user sees
 
@@ -43,15 +43,19 @@ Notification permission is **not** asked here. It is asked when the first trip w
 - The app stores tokens in the phone's secure storage (Keychain or Keystore).
 - Endpoints (draft): `POST /auth/google`, `POST /auth/apple`, `POST /auth/email/start`, `POST /auth/email/verify`, `POST /auth/refresh`, `POST /auth/logout`, `GET /me`, `PATCH /me`, `POST /me/onboarding`.
 
-## Questions for the owner
+## Decisions (AGREED, 10 Nov 2026)
 
-| # | Question | Recommendation | Alternative |
-| --- | --- | --- | --- |
-| L1 | Email login | One-time 6-digit code | Email and password |
-| L2 | Who runs login | Own .NET backend (ASP.NET Identity, tokens checked by us, data stays in the EU) | A login service (Firebase Auth, Auth0, Microsoft Entra External ID) |
-| L3 | Same email via Google and via email code | Same account (linked automatically when the email is verified) | Separate accounts |
-| L4 | Email sending service | Azure Communication Services (same Azure account) | Brevo, Postmark |
-| L5 | Onboarding steps | 3 short steps as above | Everything on one screen |
-| L6 | Intro slides before the welcome screen | None for now (add with the designer) | 3 slides |
+| # | Question | Decision |
+| --- | --- | --- |
+| L1 | Email login | One-time 6-digit code, no password |
+| L2 | Who runs login | Own .NET backend (ASP.NET Identity, data stays in the EU) |
+| L3 | Same email via Google and via email code | Same account, linked automatically when the email is verified |
+| L4 | Email sending service | Azure Communication Services |
+| L5 | Onboarding steps | 3 short steps |
+| L6 | Intro slides | None for now (add with the designer) |
 
-If L3 is accepted, `User.authProvider` becomes a list (`authProviders`), since one account can have several login methods.
+Because of L3, `User.authProvider` is replaced by `authProviders` (a list) in the data model.
+
+## Jira
+
+Task `Login and onboarding` in epic `Part 1: Journal`, with sub-tasks `FE - Login and onboarding` and `BE - Login and onboarding`.

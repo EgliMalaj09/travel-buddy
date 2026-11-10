@@ -80,7 +80,7 @@ erDiagram
 | `id` | UUID | yes | server |
 | `email` | string | yes | Unique. server |
 | `emailVerified` | boolean | yes | server |
-| `authProvider` | enum: google, apple, email | yes | server |
+| `authProviders` | list of enum: google, apple, email | yes | server. One account can have several login methods (L3) |
 | `firstName` | string | yes | Max 60 |
 | `lastName` | string | no | Asked only when needed (album order or payment) |
 | `displayName` | string | no | Defaults to first name |

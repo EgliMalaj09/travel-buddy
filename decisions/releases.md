@@ -133,12 +133,12 @@ These must be decided before building starts on that part.
 
 ## Jira structure (AGREED, 10 Nov 2026)
 
-Project: **Travel App**. Tickets are created through the Jira connection.
+Site: travel-app-couple.atlassian.net. Jira project: `KAN`. Confluence space: **Travel App** (`TA`). Tickets are created through the Jira connection.
 
 | Jira level | Used for | Example |
 | --- | --- | --- |
 | Project | Travel App | |
-| Epic | V1 (to confirm: one epic for all of V1, or one per part) | `V1` |
+| Epic | One per part | `Part 1: Journal`, `Part 2: Share and remember`, `Part 3: Memories` |
 | Task | One per feature | `Smart checklist` |
 | Sub-task | One per kind of work, named with a prefix | `FE - Smart checklist` |
 
