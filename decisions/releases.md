@@ -1,6 +1,6 @@
 # Egli V1: release plan
 
-Version 0.2, 10 Nov 2026. Status: **PROPOSED**.
+Version 0.2, 10 Nov 2026. Status: **AGREED**.
 
 V1 is **one release**. It is built and shipped in **3 parts**. Each part is a working build installed on real phones (TestFlight on iOS, internal testing on Google Play) and tested in real use before the next part starts. The public launch is after Part 3 (AGREED).
 
@@ -118,16 +118,16 @@ These must be decided before building starts on that part.
 
 ---
 
-## Decisions for the owner
+## Decisions (AGREED, 10 Nov 2026)
 
-| # | Question | Recommendation | Alternative |
-| --- | --- | --- | --- |
-| R1 | Is the order of the 3 parts right? | Yes: solo journal, then sharing, video and payments, then memories | Shared trips in Part 1 |
-| R2 | When is the public launch? | **AGREED: after Part 3**, when all of V1 is done | |
-| R3 | Trip video in Part 1? | No, Part 2. It is the heaviest feature and the render location is still open | A simple version in Part 1 |
-| R4 | Entry rules in Part 1 | Rules written by the owner for European destinations. Paid visa API later | Paid API from the start |
-| R5 | Postcards in Part 2 or 3? | Part 3, with the diary (both use AI generation) | Classic-style postcards in Part 2 |
-| R6 | Badges in Part 2? | Yes, they are cheap and help people come back | Part 3 |
+| # | Question | Decision |
+| --- | --- | --- |
+| R1 | Order of the parts | As above. The 3 parts are for organizing the work only; all of V1 ships as one public release |
+| R2 | Public launch | After Part 3 |
+| R3 | Trip video | Part 2 |
+| R4 | Entry rules in Part 1 | Rules written by the owner for European destinations. Paid visa API later |
+| R5 | Postcards | Part 3, with the diary |
+| R6 | Badges | Part 2 |
 
 ---
 
