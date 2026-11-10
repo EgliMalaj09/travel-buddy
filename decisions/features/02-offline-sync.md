@@ -1,6 +1,6 @@
 # Feature: Offline sync
 
-Part 1. Status: **DRAFT, in discussion**.
+Part 1. Status: **AGREED** (10 Nov 2026). Jira: epic KAN-13, tasks KAN-14 (FE test), KAN-15 (FE), KAN-16 (BE).
 
 Offline sync is not a screen. It is the layer under every other feature: trips, checklist, places, photos and expenses are saved on the phone first and synced with the server when possible.
 
@@ -50,12 +50,12 @@ Photo files are uploaded separately in the background (see the Photos feature). 
 - Pull: the phone sends its cursor (the last sequence number it has seen). The server returns everything the user may see with a higher number, plus the new cursor. Sequence numbers are used, not clock times, so nothing is missed when phone clocks are wrong.
 - The user only ever receives their own data (in Part 2: plus the shared trips they are a member of).
 
-**Endpoints (if we build our own sync, see S1)**
+**Fallback: our own sync endpoints (only if the PowerSync test fails)**
 - `POST /sync/push`: list of changes `{ table, id, op (upsert or delete), fields, clientChangedAt }`. Returns one result per change (ok, or rejected with a reason).
 - `GET /sync/pull?cursor=…&limit=…`: changes and `nextCursor`, `hasMore`.
 - First sync on a new phone: the same pull with no cursor, page by page.
 
-**With PowerSync instead (see S1)**
+**With PowerSync (S1, agreed)**
 - PowerSync keeps the local SQLite and the server in step, and handles the cursor, paging and live updates.
 - Writes still go to **our .NET API**: the PowerSync app library hands us the outbox and we send it to our endpoint. So business rules and conflict handling stay in our backend.
 - Which rows each user receives is set by "sync rules" on the PowerSync service (for example: all rows where `ownerId` = this user).
@@ -71,20 +71,26 @@ Photo files are uploaded separately in the background (see the Photos feature). 
 4. Kill the app in the middle of a sync and check it recovers.
 5. Reinstall and check everything comes back.
 
-## Questions for the owner
+## Cost
 
-| # | Question | Recommendation | Alternatives |
-| --- | --- | --- | --- |
-| S1 | Sync engine | **PowerSync**, confirmed by the airplane-mode test before building other features. It saves weeks of tricky work (cursor, paging, live updates, retries) and writes still go through our .NET API | Our own sync (two endpoints above, more work, full control). WatermelonDB (its sync protocol must still be built on the backend) |
-| S2 | Database | **PostgreSQL** (Azure Database for PostgreSQL, EU region). Required by PowerSync, good with .NET | Azure SQL (only works with our own sync) |
-| S3 | PowerSync hosting (if S1 = PowerSync) | **PowerSync Cloud in an EU region to start** (free tier for development and beta), self-host later if cost grows. Needs a data processing agreement for GDPR | Self-host the PowerSync service on Azure from day one (no third party, more setup) |
-| S4 | Conflict rule detail | **Per field, the change that reaches the server last wins.** Phone clocks can be wrong, so the server's order is safer | Per field, the change with the latest phone time wins |
-| S5 | Sync indicator | **Small icon in the top bar, details on tap** | A banner at the top when offline |
-| S6 | A phone that has not synced for a very long time | **Deleted records are kept on the server for 1 year. A phone offline for longer downloads everything again** (its waiting changes are still sent first) | Keep deleted records forever |
+- **Development: €0.** PostgreSQL and the PowerSync Open Edition (free, self-hosted) run in Docker on the laptop next to the .NET backend. Phones on the same Wi-Fi connect to the laptop.
+- **Beta: €0 if small.** PowerSync Cloud free plan (soft limits) and Azure Database for PostgreSQL on the Azure free account (12 months, 750 hours a month of a B1MS server, 32 GB storage; card needed at sign-up, watch the free-usage meter).
+- **After launch:** PowerSync Cloud paid plan (about $49 a month, check the official price) or the free Open Edition self-hosted on Azure (pay only for the server). Decide near launch.
 
-## Proposed Jira
+## Decisions (AGREED, 10 Nov 2026)
 
-- Epic: `Offline sync` (label `part-1`)
-  - `FE - Sync engine test (airplane mode)`: small test app for S1, run for one week
-  - `FE - Offline sync`: local database, outbox, sync job, sync indicator, new-phone download, logout cleanup
-  - `BE - Offline sync`: PostgreSQL, push endpoint (applies changes per field), pull or PowerSync sync rules, sequence numbers, tombstone cleanup
+| # | Question | Decision |
+| --- | --- | --- |
+| S1 | Sync engine | PowerSync, confirmed by the one-week airplane-mode test before other features are built. Fallback: our own sync |
+| S2 | Database | PostgreSQL (Azure Database for PostgreSQL, EU region) |
+| S3 | PowerSync hosting | Local Open Edition for development; PowerSync Cloud (EU region) free plan for the beta; self-host later if cost grows. Data processing agreement for GDPR |
+| S4 | Conflict rule | Per field, the change that reaches the server last wins |
+| S5 | Sync indicator | Small icon in the top bar, details on tap |
+| S6 | Phone offline for a very long time | Deleted records kept 1 year on the server; a phone offline longer downloads everything again (its waiting changes are sent first) |
+
+## Jira
+
+- Epic KAN-13 `Offline sync` (label `part-1`)
+- KAN-14 `FE - Sync engine test (airplane mode)`: do this first
+- KAN-15 `FE - Offline sync`
+- KAN-16 `BE - Offline sync`

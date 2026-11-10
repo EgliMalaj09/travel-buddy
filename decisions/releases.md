@@ -102,7 +102,7 @@ These must be decided before building starts on that part.
 
 | Part | Decision | Source |
 | --- | --- | --- |
-| 1 | Database and sync engine (PowerSync or custom) | Handoff 9.4 |
+| 1 | ~~Database and sync engine~~ Decided: PostgreSQL + PowerSync (S1, S2), pending the airplane-mode test | Handoff 9.4 |
 | 1 | Expo or bare React Native | Handoff 9.12 |
 | 1 | Globe: Mapbox globe or 3D model | Handoff 9.5 |
 | 1 | Photo compression details | Handoff 9.6 |
