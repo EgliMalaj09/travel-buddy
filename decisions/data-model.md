@@ -11,11 +11,11 @@ Labels:
 
 ## Decisions
 
-Answered by the owner on 10 Nov 2026, unless marked OPEN.
+Answered by the owner on 10 Nov 2026. Items marked OPEN are postponed and will be decided later.
 
 | # | Question | Decision | Status |
 | --- | --- | --- | --- |
-| D1 | Place: one entity for bucket list, planned and visited? | Being discussed | OPEN |
+| D1 | Place: one entity for bucket list, planned and visited? | Yes. One record follows a place from bucket list to planned to visited. A repeat visit on a new trip gets a new record | AGREED |
 | D2 | Removed member: what happens to their pins and photos? | Others keep the originals. The removed person gets personal copies | AGREED |
 | D3 | Who owns a photo in a shared trip? | The person who added it. A shared photo is visible to every member. If anyone deletes it, it is hidden only for that person; the others keep it | AGREED |
 | D4 | When can others see a shared photo? | The record syncs first; others see a grey placeholder until the file is uploaded | AGREED |
@@ -177,7 +177,7 @@ Rules: in shared trips, tasks are shared and packing items are personal. When da
 
 ---
 
-## 11. Place (PROPOSED, D2 agreed, D1 open)
+## 11. Place (AGREED: D1, D2)
 
 Pins, planned places and bucket-list items in one entity.
 
@@ -208,6 +208,7 @@ Rules:
 - Marking visited is manual in V1. Auto-capture only suggests.
 - Adding a bucket item to a shared trip sets `scope` to the user's default.
 - A visited place cannot go back to bucket. It can go back to planned.
+- Repeat visit: adding a place that already belongs to another trip creates a new record for the new trip. The old one is not changed.
 
 ## 12. Media (AGREED: D3, D4, D16)
 
