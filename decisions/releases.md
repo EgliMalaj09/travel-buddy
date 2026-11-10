@@ -2,7 +2,7 @@
 
 Version 0.2, 10 Nov 2026. Status: **PROPOSED**.
 
-V1 is **one release**. It is built and shipped in **3 parts**. Each part is a working build installed on real phones (TestFlight on iOS, internal testing on Google Play) and tested in real use before the next part starts. The public launch is a separate decision (see the questions at the bottom).
+V1 is **one release**. It is built and shipped in **3 parts**. Each part is a working build installed on real phones (TestFlight on iOS, internal testing on Google Play) and tested in real use before the next part starts. The public launch is after Part 3 (AGREED).
 
 | | Part 1: Journal | Part 2: Share and remember | Part 3: Memories |
 | --- | --- | --- | --- |
@@ -123,7 +123,7 @@ These must be decided before building starts on that part.
 | # | Question | Recommendation | Alternative |
 | --- | --- | --- | --- |
 | R1 | Is the order of the 3 parts right? | Yes: solo journal, then sharing, video and payments, then memories | Shared trips in Part 1 |
-| R2 | When is the public launch? | After Part 2 (payments and video are in, Part 3 follows as an update) | After Part 1 (free), or after Part 3 (everything) |
+| R2 | When is the public launch? | **AGREED: after Part 3**, when all of V1 is done | |
 | R3 | Trip video in Part 1? | No, Part 2. It is the heaviest feature and the render location is still open | A simple version in Part 1 |
 | R4 | Entry rules in Part 1 | Rules written by the owner for European destinations. Paid visa API later | Paid API from the start |
 | R5 | Postcards in Part 2 or 3? | Part 3, with the diary (both use AI generation) | Classic-style postcards in Part 2 |
@@ -131,36 +131,28 @@ These must be decided before building starts on that part.
 
 ---
 
-## Jira structure (PROPOSED, to discuss)
+## Jira structure (AGREED, 10 Nov 2026)
 
-Tickets will be created through the Jira connection once it is set up.
+Project: **Travel App**. Tickets are created through the Jira connection.
 
 | Jira level | Used for | Example |
 | --- | --- | --- |
-| Project | Egli | `EGLI` |
-| Fix version (release) | V1 | `1.0` |
-| Epic | One per part | `Part 1: Journal` |
+| Project | Travel App | |
+| Epic | V1 (to confirm: one epic for all of V1, or one per part) | `V1` |
 | Task | One per feature | `Smart checklist` |
-| Sub-task | One piece of work | `Checklist screen with mock data` |
+| Sub-task | One per kind of work, named with a prefix | `FE - Smart checklist` |
 
-Each task gets a component: `Mobile`, `Backend` or `Both`. Labels mark the area (`sync`, `photos`, `expenses` and so on) so the board can be filtered.
+Sub-task prefixes:
+- `FE -` mobile app (React Native)
+- `BE -` backend (.NET)
+- `Template -` templates (trip video, postcards, diary, album)
+- `AI -` AI work (checklist generation, diary, postcards)
 
-Standard sub-tasks for a mobile feature (the owner's work):
-1. Screens with plain UI, using the theme file and shared components
-2. Local data (SQLite tables and data layer) with mock data
-3. Offline behaviour and outbox
-4. Connect to the real API (after the backend endpoint exists)
-5. Test on a real iPhone and Android phone
+A feature only gets the sub-tasks it needs. These are decided when the feature is discussed, not from a fixed list.
 
-Each part ends with one extra task: **Ship Part N to devices** (build, TestFlight, Google internal testing, test checklist, fix list).
+Documentation: the explanation of each feature and its technical documentation live in **Confluence**. Each Jira task links to its Confluence page.
 
-Example:
-
-- Epic: **Part 1: Journal**
-  - Task: **Smart checklist** (component: Both, label: checklist)
-    - Sub-task: Checklist screen (tasks and packing tabs)
-    - Sub-task: ChecklistItem table and data layer with mock data
-    - Sub-task: Tick, add, edit, delete offline
-    - Sub-task: Regenerate when dates, stops or activities change (with undo)
-    - Sub-task: Connect to the checklist generation endpoint
-    - Sub-task: Test on devices
+How each feature is prepared:
+1. Discuss the feature (behaviour, screens, edge cases).
+2. Write the Confluence page: feature explanation and technical documentation (data, endpoints, offline behaviour).
+3. Create the Jira task and its sub-tasks.
