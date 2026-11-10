@@ -21,3 +21,5 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 11 | Expenses | 1 | 98559 | KAN-41 | KAN-42 FE, KAN-43 BE |
 | 12 | Today suggestion | 1 | 131074 | KAN-44 | KAN-45 FE |
 | 13 | Finish trip | 1 | 426049 | KAN-46 | KAN-47 FE |
+| 14 | Globe and lifetime stats | 1 | 557090 | KAN-48 | KAN-49 FE test, KAN-50 FE, KAN-51 Template |
+| 15 | Trip page | 1 | 491538 | KAN-52 | KAN-53 FE |
