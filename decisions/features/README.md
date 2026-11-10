@@ -32,3 +32,5 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 22 | Anniversary reminder and library | 2 | 196827 | KAN-73 | KAN-74 FE, KAN-75 BE |
 | 23 | Badges | 2 | 65956 | KAN-76 | KAN-77 FE, KAN-78 BE, KAN-79 Template |
 | 24 | Plans and payments (pricing open) | 2 | 164001 | KAN-80 | KAN-81 FE, KAN-82 BE |
+| 25 | Back office (Part 2) | 2 | 622609 | KAN-83 | KAN-85 BE |
+| 26 | Ship Part 2 to devices | 2 | 622626 | KAN-84 | KAN-86 FE, KAN-87 AI legal |
