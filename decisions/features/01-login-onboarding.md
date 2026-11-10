@@ -35,7 +35,7 @@ Notification permission is **not** asked here. It is asked when the first trip w
 - Log out with changes not yet synced: warning "You have changes saved only on this phone. Log out anyway?"
 - Log out removes all trip data from the phone.
 
-## Technical (proposed)
+## Technical
 
 - Google and Apple: the app uses the phone's native sign-in, gets an ID token, sends it to the backend. The backend checks it and returns its own tokens.
 - Email: the backend sends the code by email and checks it.
