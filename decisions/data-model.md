@@ -1,6 +1,6 @@
 # Egli data model
 
-Version 0.2, 9 Nov 2026. This file is the source of truth for the data model. It replaces section 8 of the handoff document.
+Version 0.3, 10 Nov 2026. This file is the source of truth for the data model. It replaces section 8 of the handoff document.
 
 Labels:
 - **AGREED**: confirmed by the owner. Do not change without a new decision.
@@ -9,28 +9,28 @@ Labels:
 
 ---
 
-## Decisions needed
+## Decisions
 
-Answer these and the PROPOSED entities become AGREED. Each line gives Claude's recommendation first.
+Answered by the owner on 10 Nov 2026, unless marked OPEN.
 
-| # | Question | Recommendation | Alternative |
+| # | Question | Decision | Status |
 | --- | --- | --- | --- |
-| D1 | Place: one entity for bucket list, planned and visited? | Yes, one record moves through its life | Three separate entities |
-| D2 | Removed member: what happens to their pins and photos? | Others keep the originals. The removed person gets personal copies | Their content disappears for everyone |
-| D3 | Who owns a photo in a shared trip? | The person who added it | The trip owner |
-| D4 | Photo upload: when can others see a shared photo? | Record syncs first, others see a grey placeholder until the file is uploaded | Record syncs only after the file is uploaded |
-| D5 | Shared trip expenses: which currency are totals in? | The trip's home currency (the owner's). Each expense keeps its original amount too | Each member sees their own home currency (needs a daily rate table on the server) |
-| D6 | Expense splitting in V1 | "Paid by" plus an equal split between chosen members, with a "who owes whom" summary | No splitting in V1, only "paid by" |
-| D7 | Personal expenses in a shared trip (only you see them)? | Yes, same `scope` field as places | All expenses in a shared trip are shared |
-| D8 | Who fills in the exchange rate when the expense was added offline? | The server, during sync, using the expense date | The phone, when it is back online |
-| D9 | Postcards: one per country or per trip? | One per country per trip (a trip to Italy and France gives 2) | One per trip, or one per country for life |
-| D10 | Diary: what does it contain? | One entry per day (AI text the user can edit, with photos and places), plus a short trip summary | One block of text for the whole trip |
-| D11 | Diary in a shared trip | Each member gets their own diary | One diary for the whole group |
-| D12 | Who awards badges? | The server, during sync (the phone shows the celebration after sync) | The phone, offline |
-| D13 | Does joining someone's shared trip use up your free trip? | No, only trips you own count | Yes, every trip counts |
-| D14 | Does a deleted trip still count toward the free limit? | Yes, after 24 hours (stops create-and-delete abuse) | No, deleted trips never count |
-| D15 | Offline grace for paid plans | Paid features keep working offline for 7 days after the last check (set in the back office) | Always trust the cached plan until it expires |
-| D16 | Videos from the photo library (not only photos) in V1? | No, photos only in V1 | Yes |
+| D1 | Place: one entity for bucket list, planned and visited? | Being discussed | OPEN |
+| D2 | Removed member: what happens to their pins and photos? | Others keep the originals. The removed person gets personal copies | AGREED |
+| D3 | Who owns a photo in a shared trip? | The person who added it. A shared photo is visible to every member. If anyone deletes it, it is hidden only for that person; the others keep it | AGREED |
+| D4 | When can others see a shared photo? | The record syncs first; others see a grey placeholder until the file is uploaded | AGREED |
+| D5 | Expense currency | The user picks the currency for each expense. Default is the local currency of the current stop (Morocco gives MAD). Each person sees the amount converted to their own home currency | AGREED |
+| D6 | Expense splitting | To be defined in detail later | OPEN |
+| D7 | Personal expenses in a shared trip (only you see them)? | Yes | AGREED |
+| D8 | Who fills in the exchange rate when the expense was added offline? | Resolved by D5: rates come from a daily rate table, so the expense date fixes the rate (see Expense) | AGREED |
+| D9 | Postcards | One per country per trip | AGREED |
+| D10 | Diary contents | One entry per day plus a trip summary, editable. The look (an HTML-style template) is still to be designed | AGREED (template OPEN) |
+| D11 | Diary in a shared trip: one per member or one for the group? | Not answered yet. Recommendation: one per member | OPEN |
+| D12 | Who awards badges? | The server, during sync | AGREED |
+| D13 | Does joining someone's shared trip use up your free trip? | Yes. Creating a trip or joining one both use the free trip | AGREED |
+| D14 | Does a deleted trip still count toward the free limit? | Yes, after 24 hours | AGREED |
+| D15 | Paid features while offline | Trust the cached plan until its expiry date | AGREED |
+| D16 | Videos from the photo library | Yes, but in a later release (needs server-side processing). V1 is photos only. The data model already allows videos | AGREED |
 
 ---
 
@@ -121,7 +121,7 @@ erDiagram
 
 `photoQualityByPlan`, `maxPhotoSizeMB`, `minAppVersion`, feature flags (for example `printAlbumEnabled`), `freeTripLimit`.
 
-PROPOSED additions: `offlineGraceDays` (7, see D15), `staticDataVersion` and `staticDataUrl` (to update countries and currencies without an app release).
+PROPOSED additions: `staticDataVersion` and `staticDataUrl` (to update countries and currencies without an app release).
 
 ## 7. Trip (AGREED)
 
@@ -138,7 +138,7 @@ PROPOSED additions: `offlineGraceDays` (7, see D15), `staticDataVersion` and `st
 | `finishedAt` | timestamp | no | Set by "Finish trip" |
 | `coverMediaId` | UUID | no | |
 | `passportCountrySnapshot` | ISO country | yes | Copied from the user at creation |
-| `homeCurrencySnapshot` | ISO currency | yes | Also the currency of shared expense totals (D5) |
+| `homeCurrencySnapshot` | ISO currency | yes | The owner's home currency at creation. Not used for expense conversion; each person sees their own home currency (D5) |
 | `checklistGeneratedAt`, `checklistRulesVersion` | timestamp, string | no | |
 | `anniversaryEnabled` | boolean | yes | Default true |
 | sync fields | | yes | |
@@ -177,7 +177,7 @@ Rules: in shared trips, tasks are shared and packing items are personal. When da
 
 ---
 
-## 11. Place (PROPOSED, needs D1 and D2)
+## 11. Place (PROPOSED, D2 agreed, D1 open)
 
 Pins, planned places and bucket-list items in one entity.
 
@@ -209,9 +209,9 @@ Rules:
 - Adding a bucket item to a shared trip sets `scope` to the user's default.
 - A visited place cannot go back to bucket. It can go back to planned.
 
-## 12. Media (PROPOSED, needs D3, D4, D16)
+## 12. Media (AGREED: D3, D4, D16)
 
-Photos. Also used for avatars.
+Photos (V1) and videos (later release, D16). Also used for avatars.
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -219,6 +219,7 @@ Photos. Also used for avatars.
 | `ownerUserId` | UUID | yes | The person who added it (D3) |
 | `tripId` | UUID | no | Empty for an avatar |
 | `placeId` | UUID | no | A photo belongs to at most one place |
+| `mediaType` | enum: photo, video | yes | Only photo in V1 (D16) |
 | `purpose` | enum: trip_photo, avatar | yes | |
 | `scope` | enum: shared, personal | yes | Same meaning as Place |
 | `source` | enum: camera, library, autocapture | yes | |
@@ -227,7 +228,8 @@ Photos. Also used for avatars.
 | `takenAt` | datetime | no | From the photo, with its time zone offset |
 | `lat`, `lng`, `countryCode` | number, string | no | From the photo |
 | `width`, `height` | number | yes | |
-| `mimeType` | string | yes | image/jpeg or image/heic |
+| `mimeType` | string | yes | image/jpeg or image/heic (video types later) |
+| `durationSec` | number | no | Videos only |
 | `contentHash` | string | yes | Stops the same photo being added twice |
 | `qualityTier` | enum: compressed, full | yes | Decided by AppConfig and the plan when uploaded |
 | `fileKey`, `thumbnailKey` | string | no | server. Empty until uploaded |
@@ -247,9 +249,13 @@ Upload flow:
 
 Notes:
 - If a free user later upgrades, photos already uploaded stay compressed unless the original is still on the phone. The app can offer "upload originals" for those.
-- Deleted photos: soft delete now, files removed from storage after 30 days.
+- Deleting a **personal** photo: soft delete, file removed from storage after 30 days.
+- Deleting a **shared** photo (D3): it is hidden only for the person who deletes it, whoever they are (the person who added it or another member). The record and file stay for the others. Stored as a `MediaHidden` row.
+- The file is removed from storage only when no member can see it any more.
 
-## 13. Expense (PROPOSED, needs D5 to D8)
+**MediaHidden** (synced): `id`, `mediaId`, `userId`, `hiddenAt`, sync fields. Unique per `mediaId` and `userId`. Each person only syncs their own rows.
+
+## 13. Expense (AGREED: D5, D7, D8. Splitting OPEN: D6)
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -262,21 +268,24 @@ Notes:
 | `title` | string | yes | Max 80 |
 | `category` | enum: food, transport, stay, activities, shopping, other | yes | |
 | `amountMinor` | integer | yes | In `currency` |
-| `currency` | ISO currency | yes | Defaults to the local currency of the current stop |
+| `currency` | ISO currency | yes | Chosen by the user. Default: the local currency of the current stop (D5) |
 | `spentAt` | datetime | yes | Defaults to now |
-| `fxRate` | decimal | no | server. From `currency` to `homeCurrency`. Never changes once set |
-| `fxRateDate` | date | no | server |
-| `homeCurrency` | ISO currency | yes | Copied from `Trip.homeCurrencySnapshot` |
-| `homeAmountMinor` | integer | no | server. `amountMinor × fxRate`, rounded |
-| `splitUserIds` | list of UUID | no | Shared only. Equal split between these members (D6) |
+| `fxRateDate` | date | yes | The date of `spentAt`. Decides which daily rate is used |
 | `placeId` | UUID | no | |
 | `note` | string | no | |
 | sync fields | | yes | |
 
-Rules:
-- Offline expenses are saved without a rate. The home amount shows "converting…" until sync, when the server fills the rate for `spentAt` (D8).
-- If the amount or currency is edited, the server sets a new rate. Editing only the title keeps the rate.
-- "Who owes whom" is computed, not stored.
+Splitting fields (who shares the expense, how) are not defined yet (D6).
+
+How conversion works (D5):
+- Example: in Morocco the default currency is MAD. A 200 MAD dinner is stored as 200 MAD.
+- Each person sees it in their own home currency: an Albanian user sees ALL, a German member sees EUR. Both use the rate of the same day.
+- The home amount is not stored on the expense. It is computed from the **FxRate** table, so it never changes once that day's rate exists (this keeps the agreed rule "the rate is stored at the time of the expense and never changes").
+- Offline with no rate for that day yet: the original amount shows, the home amount shows "converting…" until the phone is online.
+
+**FxRate** (server, read-only, cached on the phone for the trip's dates): `date`, `currency`, `rateToEur` (decimal). One row per currency per day, filled daily by the server from an FX API. A past day's row never changes.
+
+Conversion: `home amount = amount ÷ rateToEur(currency, date) × rateToEur(homeCurrency, date)`, rounded to the home currency's minor units.
 
 ## 14. TripVideo (AGREED structure, one per trip)
 
@@ -284,7 +293,7 @@ Rules:
 
 Generated when the trip is finished, or at the anniversary if skipped. A new version replaces the old file only once ready. Offline, it stays queued. The anniversary notification opens the saved video. Where it is rendered (phone or server) is still open.
 
-## 15. Postcard (PROPOSED, needs D9)
+## 15. Postcard (AGREED: D9)
 
 One per country per trip, per user.
 
@@ -303,14 +312,15 @@ One per country per trip, per user.
 | `generatedAt` | timestamp | no | server |
 | sync fields | | yes | |
 
-## 16. TripDiary and DiaryEntry (PROPOSED, needs D10 and D11)
+## 16. TripDiary and DiaryEntry (AGREED: D10. Template OPEN. D11 OPEN)
 
-**TripDiary**, one per trip per user.
+**TripDiary**, one per trip per user (if D11 is accepted).
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
 | `id` | UUID | yes | |
 | `tripId`, `userId` | UUID | yes | Unique together |
+| `templateId` | string | no | Look of the diary (HTML-style template, to be designed) |
 | `summary` | string | no | Short AI summary of the trip, editable |
 | `status` | enum: queued, generating, ready, failed | yes | |
 | `inputsHash` | string | no | |
@@ -332,7 +342,7 @@ One per country per trip, per user.
 | `sortOrder` | number | yes | |
 | sync fields | | yes | |
 
-## 17. Badge and UserBadge (PROPOSED, needs D12)
+## 17. Badge and UserBadge (AGREED: D12)
 
 **Badge** is a read-only catalog, defined in the back office, cached on the phone.
 
@@ -348,7 +358,7 @@ Not synced. Shipped as JSON in the app, updated by `AppConfig.staticDataVersion`
 
 **Currency**: `code` (ISO 4217), `name`, `symbol`, `minorUnits` (2 for EUR, 0 for JPY).
 
-## 19. Entitlement (PROPOSED, needs D13 to D15)
+## 19. Entitlement (AGREED: D13 to D15)
 
 The user's plan and purchases. Server only; the phone reads it and caches it.
 
@@ -367,9 +377,9 @@ The user's plan and purchases. Server only; the phone reads it and caches it.
 | sync fields | | yes | |
 
 How the app checks it:
-- Free trips: count trips the user owns (D13), including those deleted more than 24 hours ago (D14). Compare with `AppConfig.freeTripLimit`.
+- Free trips: count trips the user created **and** shared trips they joined (D13). Trips deleted or left more than 24 hours after creating or joining still count (D14). Compare with `AppConfig.freeTripLimit`.
 - Paid: any `active` or `grace` entitlement whose `expiresAt` is in the future.
-- Offline: trust the cached entitlement for `offlineGraceDays` after `lastVerifiedAt` (D15). Nothing already created is ever locked; only new paid actions are blocked.
+- Offline: trust the cached entitlement until its `expiresAt` (D15). Nothing already created is ever locked; only new paid actions are blocked.
 
 Pricing itself is still open (handoff section 9, item 7). This shape works for per-trip, yearly pass and subscription.
 
