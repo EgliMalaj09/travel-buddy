@@ -48,8 +48,6 @@ backend/
     Shared/                     code used by 2+ features (errors, ids, time, auth helpers)
     Data/                       AppDbContext, migrations
     Admin/                      back office (later)
-  tests/TravelApp.Api.Tests/
-    Features/<Feature>/         tests mirror the feature folders
 ```
 
 1. **One folder per feature.** Everything a feature needs lives in its folder.
@@ -60,8 +58,8 @@ backend/
 6. **Short handlers.** If a handler grows beyond about 15 lines, move the logic into the feature's service class (so it can be unit tested).
 7. **Tables are configured in their feature** with `IEntityTypeConfiguration<T>`; `AppDbContext` applies all configurations automatically. Table and column names follow `decisions/data-model.md`.
 8. **Errors are ProblemDetails** everywhere (one shared error handler in `Shared/`).
-9. **Every feature has tests** in `tests/TravelApp.Api.Tests/Features/<Feature>/`.
-10. **Rule 2 is checked in review now;** an automatic architecture test can be added later (it needs a library, so a row in `tech-stack.md` first).
+9. **No automated backend tests for now** (owner decision, 11 Nov 2026). Quality comes from the build, the rules above and the owner's manual test (Definition of done). When tests are wanted, decide the tools first (proposal: xUnit + Testcontainers + WebApplicationFactory) and add a row in `tech-stack.md`.
+10. **Rule 2 is checked in review** before every commit.
 
 ## Rules
 
