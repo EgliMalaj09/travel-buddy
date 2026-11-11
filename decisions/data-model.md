@@ -81,6 +81,7 @@ erDiagram
 | `email` | string | yes | Unique. server |
 | `emailVerified` | boolean | yes | server |
 | `authProviders` | list of enum: google, apple, email | yes | server. One account can have several login methods (L3) |
+| `passwordHash` | string | no | server only, never sent to the phone. Set for email login (ASP.NET Core Identity hashing). Empty for Google/Apple-only accounts |
 | `firstName` | string | yes | Max 60 |
 | `lastName` | string | no | Asked only when needed (album order or payment) |
 | `displayName` | string | no | Defaults to first name |
@@ -115,7 +116,15 @@ erDiagram
 
 ## 5. DeviceSettings (AGREED, local only)
 
-`uploadOnWifiOnly` (true), `theme` (system, light, night), `autoCaptureEnabled` (false), `autoCaptureCursor`, `pushPermission`, `analyticsConsent`, `lastSyncCursor`, `lastSyncAt`.
+`uploadOnWifiOnly` (true), `biometricUnlock` (false; Face ID / fingerprint to open the app), `introSeen` (false), `deviceId` (random, created on first open, kept in secure storage), `theme` (system, light, night), `autoCaptureEnabled` (false), `autoCaptureCursor`, `pushPermission`, `analyticsConsent`, `lastSyncCursor`, `lastSyncAt`.
+
+## 5b. Login records (AGREED 11 Nov 2026, server only, never synced)
+
+Login uses ASP.NET Core Identity with `User` as the Identity user (its own login and code tables, snake_case). Plus:
+
+**TrustedDevice**: `id`, `userId`, `deviceId`, `name` (e.g. "Pixel 8"), `trustedAt`, `lastSeenAt`, `expiresAt` (1 year after `lastSeenAt`). Email logins on a trusted phone need no code.
+
+**RefreshToken**: `id`, `userId`, `deviceId`, `tokenHash`, `createdAt`, `expiresAt` (1 year since last use), `replacedByTokenId`, `revokedAt`. Replaced on every use; reuse of an old one revokes all of the user's tokens.
 
 ## 6. AppConfig (AGREED, read-only, set in the back office, cached for offline)
 
