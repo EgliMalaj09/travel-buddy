@@ -145,7 +145,6 @@ PROPOSED additions: `staticDataVersion` and `staticDataUrl` (to update countries
 | `name` | string | yes | Defaults from the stops |
 | `type` | enum: solo, shared | yes | Can switch from solo to shared |
 | `startDate`, `endDate` | date | no | Empty when unknown (countdown and reminders stay off) |
-| `flightOutAt`, `flightBackAt` | datetime | no | |
 | `activities` | list of enums | no | Beach, City, Culture, Food, Hiking, Skiing, Road trip, Business, Relaxing |
 | `status` | enum: planned, finished | yes | Active is derived from the dates |
 | `finishedAt` | timestamp | no | Set by "Finish trip" |
@@ -158,9 +157,31 @@ PROPOSED additions: `staticDataVersion` and `staticDataUrl` (to update countries
 
 Finishing a trip: the app asks "How was <trip>?" the day after the end date. The user can finish it earlier by hand.
 
+Flights moved to their own table, **Flight** (section 8b, agreed 11 Nov 2026). `flightOutAt` and `flightBackAt` are removed from Trip.
+
 ## 8. TripStop (AGREED)
 
-`id`, `tripId`, `order`, `countryCode`, `cityName`, `lat`, `lng`, `geoProviderId`, `nights`, sync fields. Arrival and departure dates are calculated from the trip start date and the nights in order.
+`id`, `tripId`, `order`, `countryCode`, `cityName`, `lat`, `lng`, `geoProviderId`, `nights`, sync fields. `lat` and `lng` are empty when the city was typed offline, and filled in when the phone is online (Create a trip). Arrival and departure dates are calculated from the trip start date and the nights in order.
+
+A stop is a **city where the user sleeps** (agreed 11 Nov 2026, T7). Sights inside a city (the Colosseum, Fontana di Trevi) are **Places**, not stops. No maximum number of stops.
+
+## 8b. Flight (AGREED 11 Nov 2026, T5)
+
+A trip has a list of flights, so connections work (Tirana → Vienna → Rome). Every field except the ids and `direction` is optional.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id`, `tripId` | UUID | yes | |
+| `order` | int | yes | Order in the list |
+| `direction` | enum: outbound, return, other | yes | Outbound and return drive the flight reminder; "other" is a flight in the middle of the trip |
+| `airline` | string | no | Max 60, e.g. "Wizz Air" |
+| `flightNumber` | string | no | Max 10, e.g. "W6 4567". Later used for live flight status |
+| `departureAirport`, `arrivalAirport` | string | no | IATA code ("TIA") or a name, max 60 |
+| `departureLocalTime`, `arrivalLocalTime` | local date-time | no | "2027-04-12T09:40", local time at that airport, no offset |
+| `departureTimeZone`, `arrivalTimeZone` | IANA zone | no | E.g. "Europe/Tirane". Filled from the phone's zone for outbound and from the last stop for return; later from the airport. Needed so the reminder fires at the right moment |
+| `bookingCode` | string | no | Max 12 (PNR) |
+| `seat`, `terminal` | string | no | Max 10 each |
+| sync fields | | yes | |
 
 ## 9. TripMember (AGREED)
 
