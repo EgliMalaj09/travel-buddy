@@ -13,6 +13,8 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 | `react-native-mmkv` (MMKV) | Small device values: DeviceSettings (theme, Wi-Fi only upload, auto-capture switch), flags like "onboarding seen", last selected tab | Very fast and synchronous reads, optional encryption, works with Expo dev builds. Trip data does **not** go here: it lives in the local database (SQLite via PowerSync), which already acts as the offline cache, including finished trips | AsyncStorage (slower, async, small size limit on Android) | 11 Nov 2026 | AGREED |
 | `expo-secure-store` | Login tokens (access and refresh) | Stored in iPhone Keychain / Android Keystore, never in plain storage | Storing tokens in MMKV or AsyncStorage (not secure enough) | 11 Nov 2026 | AGREED (from Login L-decisions) |
 | Zustand | Screen state only (filters, open sheets, selected tab, banners) | Small global store with little code; only screens that use a value re-render. Most data lives in the local database, so the global store stays small. React Context is used for the theme and the logged-in user. **Review point:** if Zustand stops being enough, decide again (Redux Toolkit is the fallback) | Redux Toolkit (more structure and code), Context only (re-render issues) | 11 Nov 2026 | AGREED (AF5) |
+| Sentry (`@sentry/react-native`, free plan, EU data region) | Crash and error reporting | Shows JavaScript/TypeScript errors with the exact source line (source maps) plus native crashes; EU data storage fits the GDPR rule; free plan is enough for beta. Set up when the app base is built (needs a free Sentry account; key in config, not in code). Listed in the privacy policy | Firebase Crashlytics (free, unlimited, strong native crashes, weaker JS stack traces, US storage) | 11 Nov 2026 | AGREED (AF4) |
+| `expo-notifications` | Local reminders (Part 1) and push notifications (Part 2) | Local notifications work offline with no accounts. For Part 2 server push: Expo push service (free), Apple push key (APNs) from the Apple Developer account, and a free Firebase project used **only** for Android push credentials (FCM); no Firebase SDKs in the app | OneSignal, direct APNs/FCM from the backend | 11 Nov 2026 | AGREED for local reminders; push setup PROPOSED for Part 2 |
 | react-three-fiber (`@react-three/fiber/native`) + `three` + `expo-gl` | Possible 3D globe with a Blender model | Keeps the original globe plan possible inside Expo; decided by the globe test on a mid-range phone (KAN-49) | Mapbox globe mode | 11 Nov 2026 | PROPOSED (G1, not installed yet) |
 
 ## Backend (`backend/`)
@@ -44,7 +46,6 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 
 | # | Topic | Recommendation |
 | --- | --- | --- |
-| AF4 | Crash reporting | Sentry free plan, set up in the base |
 | AF2 | Backend version and data access | .NET 10 LTS, EF Core + Npgsql |
 | AF3 | CI | GitHub Actions |
 | — | Navigation | Expo Router |
