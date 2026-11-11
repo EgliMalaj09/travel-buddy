@@ -36,3 +36,5 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 26 | Ship Part 2 to devices | 2 | 622626 | KAN-84 | KAN-86 FE, KAN-87 AI legal |
 | 27 | AI trip diary (template, D11 open) | 3 | 524347 | KAN-88 | KAN-89 FE, KAN-90 BE, KAN-91 AI, KAN-92 Template |
 | 28 | Postcards | 3 | 655378 | KAN-93 | KAN-94 FE, KAN-95 BE, KAN-96 AI, KAN-97 Template |
+| 29 | Auto-capture (9.9 open) | 3 | 524363 | KAN-98 | KAN-99 FE |
+| 30 | Printed album (9.10 open) | 3 | 65972 | KAN-100 | KAN-101 FE, KAN-102 BE, KAN-103 Template |
