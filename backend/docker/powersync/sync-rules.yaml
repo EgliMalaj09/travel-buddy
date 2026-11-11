@@ -1,10 +1,17 @@
-# Sync Streams: which rows each phone receives. Filled in feature by feature, starting with
-# "BE - Offline sync" (KAN-16): each user gets only their own rows; Part 2 adds the shared
-# trips they are a member of. Example for later:
-#   my_trips:
-#     auto_subscribe: true
-#     query: select * from trips where owner_id = auth.user_id() and deleted_at is null
+# Sync Streams: which rows each phone receives. Filled in feature by feature.
+# Rule: each user gets only their own rows (Part 2 adds the shared trips they are a member of).
+# A soft-deleted row stops matching, so PowerSync removes it from the phone.
 config:
   edition: 3
 
-streams: {}
+streams:
+  # Create a trip (KAN-19): the user's trips, their stops and their flights.
+  my_trips:
+    auto_subscribe: true
+    query: select * from trips where owner_id = auth.user_id() and deleted_at is null
+  my_trip_stops:
+    auto_subscribe: true
+    query: select * from trip_stops where deleted_at is null and trip_id in (select id from trips where owner_id = auth.user_id() and deleted_at is null)
+  my_flights:
+    auto_subscribe: true
+    query: select * from flights where deleted_at is null and trip_id in (select id from trips where owner_id = auth.user_id() and deleted_at is null)
