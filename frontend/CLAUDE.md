@@ -35,6 +35,12 @@ Flow:
 
 If the owner finds a problem in review, the task goes back to In Progress. Nothing is ticked or moved to Done without the owner's OK.
 
+## Branches (agreed 11 Nov 2026)
+
+- `main`: only finished, reviewed work. Everything ticked in TODO.md is in `main`.
+- Setup work happens on `claude/vibrant-shannon-jdern8` and is merged into `main` when ready.
+- **Each feature gets its own branch** from `main` (for example `feature/KAN-18-create-trip`), merged into `main` when done.
+
 ## Rules
 
 - Also follow `AGENTS.md` (Expo's guidance): add packages with `npx expo install` (set `EXPO_OFFLINE=1` if the Expo website is blocked), keep routes in `src/app/`, never edit `ios/` or `android/` by hand.

@@ -16,7 +16,7 @@ A TODO item is ticked **only** when all of these are true:
 
 1. The implementation is finished.
 2. It is **merged into `main`**.
-3. The owner has **tested it manually on a real phone**.
+3. It has been **tested manually**: for backend tasks, the person building the backend tests the endpoints with **Postman** (import `openapi/openapi.json`) or the Scalar page against the local setup; where the task is visible in the app, the owner also tests it on a real phone.
 
 Flow:
 
@@ -62,6 +62,12 @@ backend/
 8. **Errors are ProblemDetails** everywhere (one shared error handler in `Shared/`).
 9. **Every feature has tests** in `tests/TravelApp.Api.Tests/Features/<Feature>/`: xUnit, real PostgreSQL through Testcontainers for database and sync logic, `WebApplicationFactory` for endpoints. `dotnet test` must pass before every commit.
 10. **Rule 2 is checked in review** before every commit.
+
+## Branches (agreed 11 Nov 2026)
+
+- `main`: only finished, reviewed work. Everything ticked in TODO.md is in `main`.
+- Setup work happens on `claude/vibrant-shannon-jdern8` and is merged into `main` when ready.
+- **Each feature gets its own branch** from `main` (for example `feature/KAN-18-create-trip`), merged into `main` when done.
 
 ## Rules
 

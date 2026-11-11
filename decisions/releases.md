@@ -157,7 +157,9 @@ A feature only gets the tasks it needs. These are decided when the feature is di
 
 Documentation: each feature has a Confluence page under Features → Part N. The feature's epic links to its page.
 
-Definition of done (hard rule, 11 Nov 2026): a task is Done and ticked only when it is implemented, merged into `main`, and tested manually by the owner on a real phone. The owner tests in the **In Review** column; only after the owner says it works does it move to **Done**.
+Definition of done (hard rule, 11 Nov 2026): a task is Done and ticked only when it is implemented, merged into `main`, and tested manually (frontend: by the owner on a real phone; backend: endpoints tested with Postman or the Scalar page against the local setup).
+
+Branches: `main` holds finished work; setup work on `claude/vibrant-shannon-jdern8`; each feature on its own branch (e.g. `feature/KAN-18-create-trip`) merged into `main` when done. The owner tests in the **In Review** column; only after the owner says it works does it move to **Done**.
 
 How each feature is prepared:
 1. Discuss the feature (behaviour, screens, edge cases).
