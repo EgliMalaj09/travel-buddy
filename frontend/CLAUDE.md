@@ -10,6 +10,10 @@ This folder is the React Native mobile app for Travel App. Read [README.md](READ
 4. Build it following the rules in README.md: offline first, local database, repositories, theme file, component kit, plain UI.
 5. When the code is finished: follow the **Definition of done** below. Never tick an item or move it to Done before the owner has tested it and said it works.
 
+## Store upload rule (HARD RULE, agreed 11 Nov 2026)
+
+**Before any store upload** (`eas build --profile production`, `eas submit`, TestFlight external testing, Google Play internal testing, or creating the app in App Store Connect / Google Play Console): **stop and remind the owner** that the final app name and **bundle id / package name** (now the placeholder `app.travelapp.mobile`) must be decided first. The bundle id cannot be changed after the first upload. Do not continue until the owner confirms the final values; then update `app.json` and `decisions/tech-stack.md` (Name section).
+
 ## Definition of done (HARD RULE, agreed with the owner 11 Nov 2026)
 
 A TODO item is ticked **only** when all of these are true:

@@ -39,7 +39,7 @@ Suggested order. Foundation and the sync test come first, because everything els
 | [ ] | 17 | FE - Globe and lifetime stats | KAN-50 | KAN-48 | 557090 |
 | [ ] | 18 | Template - Passport stamp | KAN-51 | KAN-48 | 557090 |
 | [ ] | 19 | FE - Profile, settings and account deletion | KAN-21 | KAN-20 (P1–P5) | 426017 |
-| [ ] | 20 | FE - Ship Part 1 builds (EAS, TestFlight, Google Play internal, test checklist) | KAN-60 | KAN-59 (SH1–SH4) | 98575 |
+| [ ] | 20 | FE - Ship Part 1 builds (EAS, TestFlight, Google Play internal, test checklist). ⚠️ **First decide the final app name and bundle id** (placeholder `app.travelapp.mobile`, cannot change after the first upload) | KAN-60 | KAN-59 (SH1–SH4) | 98575 |
 
 Part 1 is done when a real trip is prepared, travelled offline and finished on both iOS and Android without losing data.
 
