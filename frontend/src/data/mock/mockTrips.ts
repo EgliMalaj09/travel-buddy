@@ -1,6 +1,6 @@
 import { addDays, todayIso } from '@/lib/dates';
 
-import type { Trip, TripStop } from '../types';
+import type { Flight, Trip, TripStop } from '../types';
 
 /**
  * Sample trips for mock mode. Dates are relative to today so every Trips-list group
@@ -18,8 +18,6 @@ function trip(partial: Partial<Trip> & Pick<Trip, 'id' | 'name'>): Trip {
     type: 'solo',
     startDate: null,
     endDate: null,
-    flightOutAt: null,
-    flightBackAt: null,
     activities: [],
     status: 'planned',
     finishedAt: null,
@@ -57,7 +55,11 @@ function stop(
   };
 }
 
-export function buildMockData(today = todayIso()): { trips: Trip[]; stops: TripStop[] } {
+export function buildMockData(today = todayIso()): {
+  trips: Trip[];
+  stops: TripStop[];
+  flights: Flight[];
+} {
   const trips: Trip[] = [
     trip({
       id: 'trip-rome-florence',
@@ -97,5 +99,49 @@ export function buildMockData(today = todayIso()): { trips: Trip[]; stops: TripS
     stop('trip-alps', 2, 'Chamonix', 'FR', 2, 45.9237, 6.8694),
   ];
 
-  return { trips, stops };
+  const flight = (
+    partial: Partial<Flight> & Pick<Flight, 'id' | 'order' | 'direction'>,
+  ): Flight => ({
+    tripId: 'trip-rome-florence',
+    airline: null,
+    flightNumber: null,
+    departureAirport: null,
+    arrivalAirport: null,
+    departureLocalTime: null,
+    arrivalLocalTime: null,
+    departureTimeZone: null,
+    arrivalTimeZone: null,
+    bookingCode: null,
+    seat: null,
+    terminal: null,
+    ...sync,
+    ...partial,
+  });
+  const flights: Flight[] = [
+    flight({
+      id: 'trip-rome-florence-flight-0',
+      order: 0,
+      direction: 'outbound',
+      airline: 'Wizz Air',
+      flightNumber: 'W6 4567',
+      departureAirport: 'TIA',
+      arrivalAirport: 'FCO',
+      departureLocalTime: `${addDays(today, 23)}T09:40`,
+      arrivalLocalTime: `${addDays(today, 23)}T11:05`,
+      departureTimeZone: 'Europe/Tirane',
+      arrivalTimeZone: 'Europe/Rome',
+      bookingCode: 'K7Q2LM',
+      seat: '14A',
+    }),
+    flight({
+      id: 'trip-rome-florence-flight-1',
+      order: 1,
+      direction: 'return',
+      departureAirport: 'FLR',
+      arrivalAirport: 'TIA',
+      departureLocalTime: `${addDays(today, 30)}T18:20`,
+    }),
+  ];
+
+  return { trips, stops, flights };
 }
