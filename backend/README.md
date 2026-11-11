@@ -1,0 +1,95 @@
+# Egli backend
+
+The .NET backend for **Egli**: the app API, data sync, background jobs and the owner-only back office. Hosted on Azure, EU region (GDPR).
+
+This file explains what has been decided and where everything is. The work list is in [TODO.md](TODO.md).
+
+---
+
+## Where everything lives
+
+| What | Where |
+| --- | --- |
+| Decisions, data model, release plan | `../decisions/` in this repository (branch `claude/vibrant-shannon-jdern8`) |
+| Feature index (Confluence page id + Jira keys) | `../decisions/features/README.md` |
+| Feature documentation | Confluence, space **Travel App**: https://travel-app-couple.atlassian.net/wiki/spaces/TA |
+| Tickets | Jira project `KAN`: https://travel-app-couple.atlassian.net/jira/software/projects/KAN/boards/1 |
+| Data model (source of truth) | `../decisions/data-model.md` and Confluence page "Data model" |
+| Mobile app | `../frontend/` (it uses the OpenAPI file from here) |
+
+Confluence page link: `https://travel-app-couple.atlassian.net/wiki/spaces/TA/pages/<page id>`. Jira ticket link: `https://travel-app-couple.atlassian.net/browse/KAN-<n>`.
+
+## How work is organised
+
+Same as the frontend (see `../frontend/README.md`):
+
+- **V1 is one public release**, built and tested in 3 parts.
+- One **epic per feature**; `BE - …` and `AI - …` tasks belong here.
+- **Re-confirm rule:** before starting a feature, go through its epic's "Re-confirm these decisions before starting implementation" list with the owner.
+
+## Tech decisions
+
+| Topic | Decision | Status |
+| --- | --- | --- |
+| Platform | .NET on Azure, EU region | AGREED |
+| Version and data access | .NET 10 LTS, ASP.NET Core, EF Core + Npgsql (AF2) | Re-confirm (KAN-56) |
+| Database | PostgreSQL (Azure Database for PostgreSQL, EU) | AGREED (S2) |
+| Sync | PowerSync. The phone reads through PowerSync; writes come to **our write endpoint** | AGREED (S1) |
+| API contract | The backend owns the **OpenAPI file**, generated on build and committed. The app generates its types from it | AGREED |
+| Login | Our own: ASP.NET Identity, Google and Apple ID tokens checked by us, email 6-digit code; access token 15 min, refresh token 60 days | AGREED (L1–L3) |
+| Email | Azure Communication Services | AGREED (L4) |
+| Files | Azure Blob Storage (EU); records hold keys, never URLs; short-lived upload and read URLs | Proposed in data model |
+| Back office | Blazor or Razor Pages at `/admin` in the same app; admin role + 2FA (B1–B3) | Re-confirm (KAN-54) |
+| Background jobs | Daily jobs in the API host to start; heavy renders as Azure Container Apps jobs (V1) | Re-confirm |
+| CI | GitHub Actions (AF3) | Re-confirm |
+
+## Data rules (AGREED)
+
+- IDs are UUID v7, **created on the phone** (except `User.id`).
+- Sync fields on every synced record: `createdAt`, `updatedAt`, `deletedAt` (soft delete), `version`.
+- **Write endpoint:** applies changes **per field**; the change that reaches the server last wins (S4). Each applied change gets a new sequence number, never a clock time.
+- Fields marked **server** in the data model are never overwritten by the phone (for example email, authProviders, status, consent dates, fileKey, uploadedAt).
+- Each user only receives their own rows. In Part 2, also the shared rows of trips they are a member of. Personal rows of others are never sent.
+- Deleted rows are kept for 1 year, then removed. A phone offline for longer downloads everything again (S6).
+- Money is stored in minor units. **FxRate:** one row per currency per day (rate to EUR). A past day never changes.
+- Derived data is not stored (visited countries, stats, globe).
+
+## Endpoints known so far
+
+| Area | Endpoints |
+| --- | --- |
+| Auth | `POST /auth/google`, `/auth/apple`, `/auth/email/start`, `/auth/email/verify`, `/auth/refresh`, `/auth/logout` |
+| Me | `GET /me`, `PATCH /me`, `POST /me/onboarding`, `POST /me/delete`, `POST /me/restore`, `POST /me/data-request` |
+| Sync | Write endpoint for the PowerSync upload queue; PowerSync sync rules for reads |
+| Rules and data | `GET /checklist-rules?version=`, `GET /weather?lat=&lng=&from=&to=`, FX rates for trip dates |
+| Media | `POST /media/{id}/upload-url`, `POST /media/{id}/uploaded`, `GET /media/{id}/url?size=thumb|full` |
+| Part 2 | `POST /trips/{id}/invite-link`, `POST /invites/{token}/accept`, member remove and leave, `POST /trips/{id}/video`, RevenueCat webhook |
+| Part 3 | `POST /trips/{id}/diary`, `POST /trips/{id}/postcards/{countryCode}`, album orders, `POST /recap/{year}/reward` |
+
+Each feature's Confluence page has the details.
+
+## External services
+
+| Service | Used for | When |
+| --- | --- | --- |
+| PowerSync (Open Edition locally, Cloud free plan for beta) | Sync | Part 1 |
+| Azure (App Service, PostgreSQL, Blob Storage, Communication Services) | Hosting | Part 1 beta |
+| Weather API (Open-Meteo for dev/beta, check commercial terms) | Packing list | Part 1 |
+| FX rates API (free daily rates covering all currencies, check terms) | Expenses | Part 1 |
+| Push (APNs / FCM, e.g. Expo push service) | Video ready, recap | Part 2 |
+| RevenueCat | Store purchases | Part 2 |
+| Video renderer (Remotion, licence to check; fallback FFmpeg) | Trip video | Part 2 |
+| Anthropic API (Claude) | Diary text, postcard messages | Part 3 |
+| Image-generation API (chosen after a test) | Illustrated postcards | Part 3 |
+| Print partner + payment processor | Printed album | Part 3 |
+
+## Cost rule
+
+Development costs €0. Run everything locally with Docker Compose: PostgreSQL + PowerSync Open Edition + the API. The beta runs on the Azure free account and the PowerSync Cloud free plan. Watch the free-usage meters. Don't add paid services without asking the owner.
+
+## Working in parallel with Claude Code
+
+- Open this repository (or this folder) in another Claude Code session on branch `claude/vibrant-shannon-jdern8`, or a branch made from it.
+- [CLAUDE.md](CLAUDE.md) tells Claude how to work here.
+- Pick the next unchecked item in [TODO.md](TODO.md), re-confirm its decisions, build it, tick it, and move the Jira card.
+- Any API change goes into the OpenAPI file so the app can regenerate its types.
