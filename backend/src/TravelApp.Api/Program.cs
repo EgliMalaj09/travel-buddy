@@ -3,6 +3,7 @@ using TravelApp.Api.Data;
 using TravelApp.Api.Features.AppInfo;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Health;
+using TravelApp.Api.Features.Trips;
 using TravelApp.Api.Shared;
 
 // Program.cs only wires things up (structure rule 4): services, then one Map<Feature>Endpoints() per feature.
@@ -21,6 +22,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddTravelAppDatabase(builder.Configuration);
 builder.Services.AddHealthFeature();
 builder.Services.AddAuthFeature(builder.Configuration);
+builder.Services.AddTripsFeature();
 
 var app = builder.Build();
 

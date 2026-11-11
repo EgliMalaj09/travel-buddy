@@ -64,7 +64,7 @@ dotnet ef database update --project src/TravelApp.Api
 | Path | What |
 | --- | --- |
 | `src/TravelApp.Api/Program.cs` | Wiring only |
-| `src/TravelApp.Api/Features/<Feature>/` | One folder per feature (today: `Health`, `AppInfo` as the example of the conventions) |
+| `src/TravelApp.Api/Features/<Feature>/` | One folder per feature (today: `Health`, `AppInfo` as the example of the conventions, `Trips`) |
 | `src/TravelApp.Api/Shared/` | Code used by 2+ features: `SyncEntity` base (sync fields), UUID v7 ids, error format, logging |
 | `src/TravelApp.Api/Data/` | `AppDbContext` (applies each feature's table setup), migrations |
 | `tests/TravelApp.Api.Tests/` | xUnit tests; `Infrastructure/ApiFactory` starts real PostgreSQL + the API |
