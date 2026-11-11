@@ -12,6 +12,8 @@ export interface DeviceSettings {
   theme: 'system' | 'light' | 'night';
   autoCaptureEnabled: boolean;
   analyticsConsent: boolean;
+  /** Face ID / fingerprint to open the app (A8). */
+  biometricUnlock: boolean;
 }
 
 const defaults: DeviceSettings = {
@@ -19,6 +21,7 @@ const defaults: DeviceSettings = {
   theme: 'system',
   autoCaptureEnabled: false,
   analyticsConsent: false,
+  biometricUnlock: false,
 };
 
 const KEY = 'deviceSettings';
