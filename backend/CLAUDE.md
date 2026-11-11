@@ -12,6 +12,7 @@ This folder is the .NET backend for Egli. Read [README.md](README.md) (decisions
 
 ## Rules
 
+- **No new library or technology without a row in `../decisions/tech-stack.md` first** (what it is for, why, alternatives, date, status). Ask the owner to agree it.
 - Tables and fields match `../decisions/data-model.md`. Propose any change to the owner first.
 - Never let the phone overwrite server-only fields. Every write checks ownership and membership.
 - Never send another user's personal rows.

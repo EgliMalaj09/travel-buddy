@@ -31,10 +31,12 @@ Confluence page link: `https://travel-app-couple.atlassian.net/wiki/spaces/TA/pa
 
 ## Tech decisions for the app
 
+Full list with reasons: `../decisions/tech-stack.md`. Every new library gets a row there first.
+
 | Topic | Decision | Status |
 | --- | --- | --- |
 | Framework | React Native | AGREED |
-| Expo | Expo with development builds, EAS Build (AF1) | Re-confirm (KAN-56) |
+| Expo | Expo with development builds, EAS Build (AF1); react-three-fiber works through `expo-gl` | AGREED |
 | Navigation | Expo Router, 4 tabs: Home, Trips, Globe, You | Tabs AGREED, router re-confirm |
 | Local data | SQLite on the phone + outbox, offline first | AGREED |
 | Sync engine | PowerSync; writes go through our .NET API; confirm with the airplane-mode test (KAN-14) | AGREED (S1) |

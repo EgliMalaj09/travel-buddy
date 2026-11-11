@@ -12,6 +12,7 @@ This folder is the React Native mobile app for Egli. Read [README.md](README.md)
 
 ## Rules
 
+- **No new library or technology without a row in `../decisions/tech-stack.md` first** (what it is for, why, alternatives, date, status). Ask the owner to agree it.
 - Never call the network from a screen. Screens use repositories, and repositories use the local database.
 - No hard-coded colours, fonts or spacing outside the theme file.
 - Use the data model in `../decisions/data-model.md`. Field names must match it. If a change is needed, propose it to the owner first.
