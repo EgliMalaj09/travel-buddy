@@ -39,3 +39,16 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 29 | Auto-capture (9.9 open) | 3 | 524363 | KAN-98 | KAN-99 FE |
 | 30 | Printed album (9.10 open) | 3 | 65972 | KAN-100 | KAN-101 FE, KAN-102 BE, KAN-103 Template |
 | 31 | Yearly recap (reward 9.8 open) | 3 | 98608 | KAN-104 | KAN-105 FE, KAN-106 BE, KAN-107 Template |
+| 32 | More video templates, library videos and upload originals (9.8 open) | 3 | 557107 | KAN-108 | KAN-109 FE, KAN-110 BE, KAN-111 Template |
+| 33 | Back office (Part 3) | 3 | 294931 | KAN-112 | KAN-114 BE |
+| 34 | Public launch | 3 | 622642 | KAN-113 | KAN-115 FE, KAN-116 BE, KAN-117 AI legal |
+
+## Confluence structure
+
+Travel App space → Release plan (425985), Data model (98510), Features (163985) → Part 1: Journal (426001), Part 2: Share and remember (426081), Part 3: Memories (131106).
+
+## Pending data model additions (add to Data model when the feature is confirmed)
+
+- ExpenseShare table, `Expense.splitMode`, `Trip.settlementCurrency` (Shared expenses, D6)
+- AlbumOrder entity (Printed album)
+- `User.aiDiaryConsentAt` (AI trip diary)
