@@ -36,6 +36,11 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 | `react-native-web` + `react-dom` | Web preview of the app | Lets Claude check screens in a browser (screenshots) without a phone; not a product target | — | 11 Nov 2026 | AGREED (dev check only) |
 | `eslint-config-expo`, `eslint-config-prettier` | Lint rules | Expo's recommended rules; Prettier config turns off rules that fight formatting | — | 11 Nov 2026 | AGREED (part of ESLint + Prettier) |
 | `jest-expo`, `test-renderer` | Test preset and renderer | Expo's Jest preset; `test-renderer` is required by React Native Testing Library 14 | — | 11 Nov 2026 | AGREED (part of Jest) |
+| `@react-native-google-signin/google-signin` (free version) | Sign in with Google | Native Google account sheet, best experience; works with development builds (A9) | `expo-auth-session` (browser login) | 11 Nov 2026 | AGREED |
+| `expo-apple-authentication` | Sign in with Apple | Expo's official module; required by Apple when Google login is offered on iOS. Built now, tested when the Apple Developer account exists (A10) | Leave Apple for later | 11 Nov 2026 | AGREED |
+| `react-hook-form` + `zod` | Forms and validation (login, sign-up, onboarding) | Standard, small, typed validation rules shared between fields (A12) | Hand-written form state | 11 Nov 2026 | AGREED |
+| Own country and currency file in the app (`src/data/static/`) | Country and currency pickers | No extra library, works offline; names come from the phone's built-in `Intl` data (A13) | npm country packages | 11 Nov 2026 | AGREED |
+| Mock login (mock mode) | Building login screens before the backend runs | Any email works, code `123456`; replaced by the real API later (A14) | Wait for the backend | 11 Nov 2026 | AGREED |
 | react-three-fiber (`@react-three/fiber/native`) + `three` + `expo-gl` | Possible 3D globe with a Blender model | Keeps the original globe plan possible inside Expo; decided by the globe test on a mid-range phone (KAN-49) | Mapbox globe mode | 11 Nov 2026 | PROPOSED (G1, not installed yet) |
 
 ## Backend (`backend/`)

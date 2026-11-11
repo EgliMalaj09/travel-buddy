@@ -165,3 +165,19 @@ How each feature is prepared:
 1. Discuss the feature (behaviour, screens, edge cases).
 2. Write the Confluence page: feature explanation and technical documentation (data, endpoints, offline behaviour).
 3. Create the epic and its tasks.
+
+---
+
+## Switch list before beta and release (things that are local-only during development)
+
+Go through this list when setting up the beta environment (KAN-61) and again before the public launch (KAN-116).
+
+| Area | During development | Switch to | When |
+| --- | --- | --- | --- |
+| Login emails (codes) | Code printed in the API log, no email sent (A6) | Azure Communication Services sends real emails; sender domain set up | Beta |
+| JWT signing key | Local development key | Key stored in Azure Key Vault, rotated; public key at `/.well-known/jwks.json` | Beta |
+| PowerSync token check | Local dev key in `docker/powersync/powersync.yaml` | PowerSync Cloud reads our public keys (`jwks_uri`) | Beta |
+| Mock login in the app | Any email, code `123456` (A14) | Real API; mock mode removed from release builds | Beta |
+| Database | Docker PostgreSQL | Azure Database for PostgreSQL (EU) | Beta |
+| Scalar API page | On in development | Off (already off outside Development) — check | Beta |
+| Bundle id / app name | Placeholder `app.travelapp.mobile`, "Travel App" | Final name and bundle id (Store upload rule) | Before first store upload |
