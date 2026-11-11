@@ -38,8 +38,6 @@ export interface Trip extends SyncFields {
   type: 'solo' | 'shared';
   startDate: IsoDate | null;
   endDate: IsoDate | null;
-  flightOutAt: IsoDateTime | null;
-  flightBackAt: IsoDateTime | null;
   activities: TripActivity[];
   status: 'planned' | 'finished';
   finishedAt: IsoDateTime | null;
@@ -57,8 +55,34 @@ export interface TripStop extends SyncFields {
   order: number;
   countryCode: CountryCode;
   cityName: string;
-  lat: number;
-  lng: number;
+  /** Empty when the city was typed offline; filled in when the phone is online. */
+  lat: number | null;
+  lng: number | null;
   geoProviderId: string | null;
   nights: number;
+}
+
+/** Local date-time at an airport, no offset, e.g. "2027-04-12T09:40" */
+export type LocalDateTime = string;
+
+export type FlightDirection = 'outbound' | 'return' | 'other';
+
+/** Data model 8b (agreed 11 Nov 2026). Every detail is optional. */
+export interface Flight extends SyncFields {
+  id: string;
+  tripId: string;
+  order: number;
+  direction: FlightDirection;
+  airline: string | null;
+  flightNumber: string | null;
+  departureAirport: string | null;
+  arrivalAirport: string | null;
+  departureLocalTime: LocalDateTime | null;
+  arrivalLocalTime: LocalDateTime | null;
+  /** IANA zone, e.g. "Europe/Tirane" */
+  departureTimeZone: string | null;
+  arrivalTimeZone: string | null;
+  bookingCode: string | null;
+  seat: string | null;
+  terminal: string | null;
 }

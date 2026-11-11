@@ -3,3 +3,9 @@
 jest.mock('react-native-nitro-modules', () => ({
   NitroModules: { createHybridObject: jest.fn() },
 }));
+
+// expo-crypto's random bytes come from the phone; in tests use Node's.
+jest.mock('expo-crypto', () => ({
+  getRandomValues: (array: Uint8Array) => require('crypto').getRandomValues(array),
+  randomUUID: () => require('crypto').randomUUID(),
+}));

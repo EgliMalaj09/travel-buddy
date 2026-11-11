@@ -157,7 +157,7 @@ Flights moved to their own table, **Flight** (section 8b, agreed 11 Nov 2026). `
 
 ## 8. TripStop (AGREED)
 
-`id`, `tripId`, `order`, `countryCode`, `cityName`, `lat`, `lng`, `geoProviderId`, `nights`, sync fields. Arrival and departure dates are calculated from the trip start date and the nights in order.
+`id`, `tripId`, `order`, `countryCode`, `cityName`, `lat`, `lng`, `geoProviderId`, `nights`, sync fields. `lat` and `lng` are empty when the city was typed offline, and filled in when the phone is online (Create a trip). Arrival and departure dates are calculated from the trip start date and the nights in order.
 
 A stop is a **city where the user sleeps** (agreed 11 Nov 2026, T7). Sights inside a city (the Colosseum, Fontana di Trevi) are **Places**, not stops. No maximum number of stops.
 
