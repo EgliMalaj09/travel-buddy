@@ -42,6 +42,12 @@ namespace TravelApp.Api.Data.Migrations
                     table.CheckConstraint("ck_trips_dates", "(start_date IS NULL) = (end_date IS NULL) AND (end_date IS NULL OR end_date >= start_date)");
                     table.CheckConstraint("ck_trips_status", "status IN ('planned', 'finished')");
                     table.CheckConstraint("ck_trips_type", "type IN ('solo', 'shared')");
+                    table.ForeignKey(
+                        name: "fk_trips_users_owner_id",
+                        column: x => x.owner_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(

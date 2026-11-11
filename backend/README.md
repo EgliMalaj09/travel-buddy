@@ -36,6 +36,14 @@ dotnet run --project src/TravelApp.Api   # API on http://localhost:5001
 - Stop: `docker compose down`. Delete local data: `docker compose down -v`.
 - Optional: copy `.env.example` to `.env` to change local passwords.
 
+**Trying login locally (KAN-12):**
+
+- Run `dotnet ef database update --project src/TravelApp.Api` once after pulling (creates the login tables).
+- Email codes are not sent during development: the API log prints `[dev email] signup code for you@example.com: 123456`.
+- The token signing key is created on first run in `src/TravelApp.Api/.dev-keys/` (git-ignored). Beta and production read `Auth__SigningKeyPem` from the environment.
+- Google and Apple need the client ids in `Auth:GoogleClientIds` / `Auth:AppleClientIds` (user secrets or environment); until then those two endpoints answer `invalid_token`.
+- In Scalar or Postman: call `/auth/signup`, then `/auth/signup/verify` with the code from the log, and use the `accessToken` as the Bearer token for `/me`.
+
 **Before every commit:**
 
 ```bash
@@ -120,8 +128,8 @@ One API project organised by feature (`src/TravelApp.Api/Features/<Feature>/`) p
 
 | Area | Endpoints |
 | --- | --- |
-| Auth | `POST /auth/google`, `/auth/apple`, `/auth/email/start`, `/auth/email/verify`, `/auth/refresh`, `/auth/logout` |
-| Me | `GET /me`, `PATCH /me`, `POST /me/onboarding`, `POST /me/delete`, `POST /me/restore`, `POST /me/data-request` |
+| Auth (KAN-12) | `POST /auth/signup`, `/auth/signup/verify`, `/auth/login`, `/auth/login/verify`, `/auth/google`, `/auth/apple`, `/auth/code/resend`, `/auth/password/forgot`, `/auth/password/reset`, `/auth/refresh`, `/auth/logout`; `GET /.well-known/jwks.json` |
+| Me | `GET /me`, `POST /me/profile` (KAN-12); later `PATCH /me`, `POST /me/delete`, `POST /me/restore`, `POST /me/data-request` |
 | Sync | Write endpoint for the PowerSync upload queue; PowerSync sync rules for reads |
 | Rules and data | `GET /checklist-rules?version=`, `GET /weather?lat=&lng=&from=&to=`, FX rates for trip dates |
 | Media | `POST /media/{id}/upload-url`, `POST /media/{id}/uploaded`, `GET /media/{id}/url?size=thumb|full` |

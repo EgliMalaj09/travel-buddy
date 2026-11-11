@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using TravelApp.Api.Data;
+using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Trips;
 using TravelApp.Api.Shared;
 using TravelApp.Api.Tests.Infrastructure;
@@ -28,6 +29,26 @@ public sealed class TripTablesTests(ApiFactory factory)
         Version = 1,
     };
 
+    /// <summary>trips.owner_id must point at a real user.</summary>
+    private static async Task<Guid> NewOwnerAsync(AppDbContext db, CancellationToken ct)
+    {
+        var email = $"owner-{Guid.NewGuid():N}@example.com";
+        var user = new User
+        {
+            Id = Ids.New(),
+            Email = email,
+            NormalizedEmail = email.ToUpperInvariant(),
+            UserName = email,
+            NormalizedUserName = email.ToUpperInvariant(),
+            CreatedAt = Now,
+            UpdatedAt = Now,
+            Version = 1,
+        };
+        db.Add(user);
+        await db.SaveChangesAsync(ct);
+        return user.Id;
+    }
+
     private static TripStop NewStop(Guid tripId, int order, string city, int nights) => new()
     {
         Id = Ids.New(),
@@ -47,11 +68,13 @@ public sealed class TripTablesTests(ApiFactory factory)
     public async Task A_trip_with_stops_and_flights_is_saved_and_read_back()
     {
         var ct = TestContext.Current.CancellationToken;
-        var owner = Guid.NewGuid();
-        var trip = NewTrip(owner);
+        Trip trip;
+        Guid owner;
         await using (var scope = factory.Services.CreateAsyncScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            owner = await NewOwnerAsync(db, ct);
+            trip = NewTrip(owner);
             db.Add(trip);
             db.Add(NewStop(trip.Id, 0, "Rome", 4));
             var florence = NewStop(trip.Id, 1, "Florence", 3);
@@ -98,18 +121,24 @@ public sealed class TripTablesTests(ApiFactory factory)
         await using var scope = factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        var trip = NewTrip(Guid.NewGuid());
+        var owner = await NewOwnerAsync(db, ct);
+        var trip = NewTrip(owner);
         trip.EndDate = new DateOnly(2027, 4, 1);
         db.Add(trip);
         var badDates = await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync(ct));
         Assert.Equal("ck_trips_dates", ((PostgresException)badDates.InnerException!).ConstraintName);
         db.ChangeTracker.Clear();
 
-        var good = NewTrip(Guid.NewGuid());
+        var good = NewTrip(owner);
         db.Add(good);
         await db.SaveChangesAsync(ct);
         db.Add(NewStop(good.Id, 0, "Rome", -1));
         var badNights = await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync(ct));
         Assert.Equal("ck_trip_stops_nights", ((PostgresException)badNights.InnerException!).ConstraintName);
+        db.ChangeTracker.Clear();
+
+        db.Add(NewTrip(Guid.NewGuid()));
+        var noOwner = await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync(ct));
+        Assert.Equal("fk_trips_users_owner_id", ((PostgresException)noOwner.InnerException!).ConstraintName);
     }
 }

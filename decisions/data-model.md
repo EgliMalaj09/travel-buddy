@@ -126,6 +126,10 @@ Login uses ASP.NET Core Identity with `User` as the Identity user (its own login
 
 **RefreshToken**: `id`, `userId`, `deviceId`, `tokenHash`, `createdAt`, `expiresAt` (1 year since last use), `replacedByTokenId`, `revokedAt`. Replaced on every use; reuse of an old one revokes all of the user's tokens.
 
+**AuthCode** (AGREED 11 Nov 2026 with KAN-12, server only, not synced): `id`, `email` (normalised), `purpose` (signup, login, reset), `codeHash`, `createdAt`, `expiresAt` (10 minutes), `attempts` (max 5), `consumedAt`, and for sign-up only `pendingPasswordHash` and `pendingMarketingConsent`. Why: Identity's built-in codes cannot enforce A5 (10 minutes, 5 tries, 1 per minute, 5 per hour), and the email account is created only after the code is entered, so the pending sign-up needs a place to wait.
+
+Note (AGREED 11 Nov 2026, KAN-12): `firstName`, `passportCountry`, `residenceCountry` and `homeCurrency` are empty in the database between sign-up and profile setup; the consent fields are empty for Google/Apple users until profile setup. The app treats `onboardingCompletedAt` as "profile done".
+
 ## 6. AppConfig (AGREED, read-only, set in the back office, cached for offline)
 
 `photoQualityByPlan`, `maxPhotoSizeMB`, `minAppVersion`, feature flags (for example `printAlbumEnabled`), `freeTripLimit`.
@@ -157,7 +161,27 @@ Flights moved to their own table, **Flight** (section 8b, agreed 11 Nov 2026). `
 
 ## 8. TripStop (AGREED)
 
-`id`, `tripId`, `order`, `countryCode`, `cityName`, `lat`, `lng`, `geoProviderId`, `nights`, sync fields. Arrival and departure dates are calculated from the trip start date and the nights in order.
+`id`, `tripId`, `order`, `countryCode`, `cityName`, `lat`, `lng`, `geoProviderId`, `nights`, sync fields. `lat` and `lng` are empty when the city was typed offline, and filled in when the phone is online (Create a trip). Arrival and departure dates are calculated from the trip start date and the nights in order.
+
+A stop is a **city where the user sleeps** (agreed 11 Nov 2026, T7). Sights inside a city (the Colosseum, Fontana di Trevi) are **Places**, not stops. No maximum number of stops.
+
+## 8b. Flight (AGREED 11 Nov 2026, T5)
+
+A trip has a list of flights, so connections work (Tirana → Vienna → Rome). Every field except the ids and `direction` is optional.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id`, `tripId` | UUID | yes | |
+| `order` | int | yes | Order in the list |
+| `direction` | enum: outbound, return, other | yes | Outbound and return drive the flight reminder; "other" is a flight in the middle of the trip |
+| `airline` | string | no | Max 60, e.g. "Wizz Air" |
+| `flightNumber` | string | no | Max 10, e.g. "W6 4567". Later used for live flight status |
+| `departureAirport`, `arrivalAirport` | string | no | IATA code ("TIA") or a name, max 60 |
+| `departureLocalTime`, `arrivalLocalTime` | local date-time | no | "2027-04-12T09:40", local time at that airport, no offset |
+| `departureTimeZone`, `arrivalTimeZone` | IANA zone | no | E.g. "Europe/Tirane". Filled from the phone's zone for outbound and from the last stop for return; later from the airport. Needed so the reminder fires at the right moment |
+| `bookingCode` | string | no | Max 12 (PNR) |
+| `seat`, `terminal` | string | no | Max 10 each |
+| sync fields | | yes | |
 
 A stop is a **city where the user sleeps** (agreed 11 Nov 2026, T7). Sights inside a city (the Colosseum, Fontana di Trevi) are **Places**, not stops. No maximum number of stops.
 

@@ -55,6 +55,8 @@ function AppStack() {
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="trip/[id]" options={{ title: '' }} />
+        <Stack.Screen name="trip/new" options={{ title: '' }} />
+        <Stack.Screen name="trip/edit/[id]" options={{ title: '' }} />
         <Stack.Screen name="design-kit" options={{ title: 'Design kit' }} />
       </Stack.Protected>
     </Stack>

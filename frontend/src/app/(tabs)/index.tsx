@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import { AppText, Card, EmptyState, Screen, SyncIndicator } from '@/components';
-import { repositories, useAsync } from '@/data';
+import { repositories, useAsync, useDataVersion } from '@/data';
 import { formatDateRange, todayIso } from '@/lib/dates';
 import { groupTrips, phaseLine } from '@/lib/trips';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -11,7 +11,8 @@ import { useTheme } from '@/theme/ThemeProvider';
 export default function HomeScreen() {
   const { colors, space } = useTheme();
   const today = todayIso();
-  const { data: trips = [] } = useAsync(() => repositories.trips.listTrips(), []);
+  const version = useDataVersion();
+  const { data: trips = [] } = useAsync(() => repositories.trips.listTrips(), [version]);
   const groups = groupTrips(trips, today);
   const focus =
     groups.find((g) => g.group === 'now')?.trips[0] ??
@@ -50,6 +51,8 @@ export default function HomeScreen() {
           icon="airplane-outline"
           title="Plan your next trip"
           message="Create a trip to get your checklist, packing list and reminders."
+          actionTitle="Create your first trip"
+          onAction={() => router.push('/trip/new')}
         />
       )}
       <AppText variant="caption">Sample data (mock mode).</AppText>

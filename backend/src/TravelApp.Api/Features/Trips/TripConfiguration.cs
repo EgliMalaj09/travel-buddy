@@ -23,7 +23,7 @@ internal sealed class TripConfiguration : IEntityTypeConfiguration<Trip>
         builder.Property(t => t.HomeCurrencySnapshot).HasMaxLength(3).IsFixedLength();
         builder.Property(t => t.ChecklistRulesVersion).HasMaxLength(20);
         builder.Property(t => t.Version).IsConcurrencyToken();
-        // The User table comes with login (KAN-12); the foreign key to it is added then.
+        // Foreign key owner_id → users.id: see Data/FeatureLinks.cs.
         builder.HasIndex(t => t.OwnerId);
         builder.HasIndex(t => t.UpdatedAt);
     }
