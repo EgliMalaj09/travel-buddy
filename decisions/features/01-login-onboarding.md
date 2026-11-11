@@ -104,5 +104,5 @@ Email → 6-digit code → new password. Also used by Google/Apple users who wan
 | A6 | Development: code in the API log; real email from beta (switch list) | 11 Nov 2026 |
 | A7 | Google/Apple tokens checked with Microsoft token libraries | 11 Nov 2026 |
 | A8 | Separate sign-up and login; trusted phone 1 year; stay logged in 1 year since last use; Face ID / fingerprint unlock; password ≥ 10 characters + leaked-password check; forgot password; Google/Apple users add a password via forgot password | 11 Nov 2026 |
-| A15 | (PROPOSED, KAN-12) Codes in our own `auth_codes` table instead of Identity's code tokens, so A5 can be enforced exactly. The 1-per-minute limit is per email **and purpose** (a sign-up code does not block a reset code a few seconds later); 5 per hour stays per email | 11 Nov 2026 |
+| A15 | (KAN-12) Codes in our own `auth_codes` table instead of Identity's code tokens, so A5 can be enforced exactly. The 1-per-minute limit is per email **and purpose** (a sign-up code does not block a reset code a few seconds later); 5 per hour stays per email. Profile fields stay empty until profile setup | 11 Nov 2026 (agreed by owner) |
 | A9–A14 | Frontend libraries: Google sign-in, Apple sign-in, openapi-fetch API client, forms, own country file, mock login (see tech-stack.md) | 11 Nov 2026 |
