@@ -5,7 +5,7 @@ import { createMMKV } from 'react-native-mmkv';
  * Stored with MMKV (decisions/tech-stack.md). Never put trip data or tokens here:
  * trip data → local database, tokens → expo-secure-store.
  */
-const storage = createMMKV({ id: 'egli.device' });
+const storage = createMMKV({ id: 'travelapp.device' });
 
 export interface DeviceSettings {
   uploadOnWifiOnly: boolean;

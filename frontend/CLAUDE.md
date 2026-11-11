@@ -1,6 +1,6 @@
 # Instructions for Claude in `frontend/`
 
-This folder is the React Native mobile app for Egli. Read [README.md](README.md) (decisions and rules) and [TODO.md](TODO.md) (work list) before doing anything.
+This folder is the React Native mobile app for Travel App. Read [README.md](README.md) (decisions and rules) and [TODO.md](TODO.md) (work list) before doing anything.
 
 ## How to work
 

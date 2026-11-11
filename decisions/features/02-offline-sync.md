@@ -27,7 +27,7 @@ Offline sync is not a screen. It is the layer under every other feature: trips, 
 3. **Tap the indicator** to see: last synced time, how many changes wait to be sent, how many photos wait to upload, and the "Upload photos only on Wi-Fi" switch.
 4. **New phone or reinstall:** after login, "Getting your trips…" with progress. Trips appear first, photos fill in after.
 5. **Log out with waiting changes:** warning (agreed in Login and onboarding).
-6. **App too old** (below `AppConfig.minAppVersion`): "Please update Egli to keep syncing." Data stays on the phone.
+6. **App too old** (below `AppConfig.minAppVersion`): "Please update Travel App to keep syncing." Data stays on the phone.
 
 ## What syncs in Part 1
 

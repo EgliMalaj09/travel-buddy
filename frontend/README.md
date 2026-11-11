@@ -1,6 +1,6 @@
-# Egli mobile app (frontend)
+# Travel App mobile app (frontend)
 
-The React Native app for **Egli**, a travel companion and journal: **prepare, travel, remember**. iOS and Android, English only, first market Europe.
+The React Native app for **Travel App**, a travel companion and journal: **prepare, travel, remember**. iOS and Android, English only, first market Europe.
 
 This file explains what has been decided and where everything is. The work list is in [TODO.md](TODO.md).
 

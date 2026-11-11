@@ -5,7 +5,7 @@ Part 1. Status: **AGREED** (10 Nov 2026). Published in Confluence (space Travel 
 ## What the user sees
 
 ### 1. Welcome screen
-- App name and one line about Egli.
+- App name and one line about Travel App.
 - Buttons: **Continue with Apple**, **Continue with Google**, **Continue with email**.
 - Apple is shown on iOS and Android. (Apple requires "Sign in with Apple" on iOS when Google login is offered.)
 

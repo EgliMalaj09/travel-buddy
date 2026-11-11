@@ -1,6 +1,6 @@
 # Instructions for Claude in `backend/`
 
-This folder is the .NET backend for Egli. Read [README.md](README.md) (decisions and rules) and [TODO.md](TODO.md) (work list) before doing anything.
+This folder is the .NET backend for Travel App. Read [README.md](README.md) (decisions and rules) and [TODO.md](TODO.md) (work list) before doing anything.
 
 ## How to work
 
@@ -30,6 +30,38 @@ Flow:
 | Tick the item in TODO.md and commit | Claude | Done |
 
 If the owner finds a problem in review, the task goes back to In Progress. Nothing is ticked or moved to Done without the owner's OK.
+
+## Structure rules (HARD RULES, agreed 11 Nov 2026)
+
+These keep "one project by feature" and Minimal APIs tidy. Check all of them before every commit.
+
+```
+backend/
+  TravelApp.slnx
+  src/TravelApp.Api/
+    Program.cs                  only wiring: services + one Map<Feature>Endpoints() call per feature
+    Features/<Feature>/         Auth, Me, Trips, Places, Media, Sync, Checklist, Expenses, ...
+      <Feature>Endpoints.cs     route group + handlers (short)
+      <Feature>Contracts.cs     request/response types; the ONLY public surface other features may use
+      <Feature>Service.cs       logic (when a handler needs more than a few lines)
+      <Entity>.cs + <Entity>Configuration.cs   EF Core entity and its table setup
+    Shared/                     code used by 2+ features (errors, ids, time, auth helpers)
+    Data/                       AppDbContext, migrations
+    Admin/                      back office (later)
+  tests/TravelApp.Api.Tests/
+    Features/<Feature>/         tests mirror the feature folders
+```
+
+1. **One folder per feature.** Everything a feature needs lives in its folder.
+2. **No reaching into other features.** A feature may only use another feature's `<Feature>Contracts.cs` (types and a small interface). Never its services, entities or endpoints directly.
+3. **Shared code only in `Shared/`,** and only when 2+ features use it. No "Utils" dumping ground.
+4. **`Program.cs` holds no endpoint logic.** Each feature exposes one `Map<Feature>Endpoints(this IEndpointRouteBuilder)` and one `Add<Feature>(this IServiceCollection)` if it needs services.
+5. **Every endpoint:** is in its feature's route group (`MapGroup`), returns `TypedResults`, has an OpenAPI name and summary, requires auth unless it is explicitly public, and **validates its input** with .NET 10 built-in validation (data annotations). No endpoint without input validation.
+6. **Short handlers.** If a handler grows beyond about 15 lines, move the logic into the feature's service class (so it can be unit tested).
+7. **Tables are configured in their feature** with `IEntityTypeConfiguration<T>`; `AppDbContext` applies all configurations automatically. Table and column names follow `decisions/data-model.md`.
+8. **Errors are ProblemDetails** everywhere (one shared error handler in `Shared/`).
+9. **Every feature has tests** in `tests/TravelApp.Api.Tests/Features/<Feature>/`.
+10. **Rule 2 is checked in review now;** an automatic architecture test can be added later (it needs a library, so a row in `tech-stack.md` first).
 
 ## Rules
 

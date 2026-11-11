@@ -1,4 +1,4 @@
-# Egli V1: release plan
+# Travel App V1: release plan
 
 Version 0.2, 10 Nov 2026. Status: **AGREED**.
 

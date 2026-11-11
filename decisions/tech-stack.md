@@ -1,8 +1,15 @@
-# Egli technology decisions
+# Travel App technology decisions
 
 Every technology and library used in the app or the backend is listed here, with **why** it was chosen. Add a row **before** adding a new library. If a library is removed or replaced, keep its row and mark it `REPLACED` with the reason.
 
 Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
+
+## Name (AGREED, 11 Nov 2026)
+
+- The final app name is **not decided yet**. Working name everywhere: **Travel App** (shown in the app as "Travel App").
+- Code and folders use `travel-app` / `TravelApp` (npm package `travel-app`, Expo slug `travel-app`, URL scheme `travelapp`, bundle id `app.travelapp.mobile`, .NET projects `TravelApp.*`).
+- "Egli" was the earlier working name; older Confluence pages and Jira tickets may still say Egli.
+- When the final name is chosen: change the display name (app.json `name`, texts) first. Changing the bundle id after store release is not possible, so decide the final bundle id before the first store upload.
 
 ## Mobile app (`frontend/`)
 
@@ -38,6 +45,7 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 | .NET on Azure (EU region) | API, jobs, back office | Partner skill set; EU hosting for GDPR | Node.js | 9 Nov 2026 | AGREED |
 | .NET 10 (LTS) + ASP.NET Core | Backend runtime and web framework | Long-term support (about 3 years); newest features including built-in OpenAPI generation; partner and family .NET experience | .NET 9 (shorter support) | 11 Nov 2026 | AGREED (AF2) |
 | ASP.NET Core Minimal APIs | How API endpoints are written | Less code; each feature in its own folder (endpoints grouped with `MapGroup`); Microsoft's current direction; works well with built-in OpenAPI; our API is small because most data goes through sync. **Review point:** switch to controllers if it becomes a problem | Controllers (MVC): more familiar, more boilerplate | 11 Nov 2026 | AGREED |
+| One API project organised by feature (`TravelApp.Api` + `TravelApp.Api.Tests`) | Backend code structure | Everything for a feature in one folder, matching the feature-by-feature epics; little code; easy to navigate. Downsides are limited by the hard rules in `backend/CLAUDE.md` ("Structure rules") | Clean Architecture (4 projects, overkill now), classic 3 layers | 11 Nov 2026 | AGREED |
 | EF Core + Npgsql (`Npgsql.EntityFrameworkCore.PostgreSQL`) | Database access and migrations | Standard .NET ORM; migrations tracked in code; less code for many simple tables; Npgsql driver is mature and released with each EF Core version. Dapper can be added later for a few heavy queries if needed | Dapper, plain SQL | 11 Nov 2026 | AGREED (AF2) |
 | PostgreSQL | Database | PowerSync's most mature source database (GA); Npgsql EF Core driver ships with each EF Core release; native UUID, arrays and JSON types fit the data model. Re-confirmed 11 Nov 2026 after considering MySQL | Azure SQL (only with own sync); MySQL (owner's family experience, but PowerSync MySQL support is Beta and the EF Core MySQL driver lags behind) | 10 Nov 2026 | AGREED (S2) |
 

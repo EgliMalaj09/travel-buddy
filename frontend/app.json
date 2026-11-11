@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Egli",
-    "slug": "egli",
+    "name": "Travel App",
+    "slug": "travel-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.egli.mobile"
+      "bundleIdentifier": "app.travelapp.mobile"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +18,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "app.egli.mobile"
+      "package": "app.travelapp.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -36,7 +36,7 @@
       ],
       "@sentry/react-native"
     ],
-    "scheme": "egli",
+    "scheme": "travelapp",
     "experiments": {
       "typedRoutes": true
     }

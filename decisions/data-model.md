@@ -1,4 +1,4 @@
-# Egli data model
+# Travel App data model
 
 Version 0.3, 10 Nov 2026. This file is the source of truth for the data model. It replaces section 8 of the handoff document.
 

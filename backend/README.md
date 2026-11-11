@@ -1,6 +1,6 @@
-# Egli backend
+# Travel App backend
 
-The .NET backend for **Egli**: the app API, data sync, background jobs and the owner-only back office. Hosted on Azure, EU region (GDPR).
+The .NET backend for **Travel App**: the app API, data sync, background jobs and the owner-only back office. Hosted on Azure, EU region (GDPR).
 
 This file explains what has been decided and where everything is. The work list is in [TODO.md](TODO.md).
 
@@ -42,6 +42,10 @@ Same as the frontend (see `../frontend/README.md`):
 | Back office | Blazor or Razor Pages at `/admin` in the same app; admin role + 2FA (B1–B3) | Re-confirm (KAN-54) |
 | Background jobs | Daily jobs in the API host to start; heavy renders as Azure Container Apps jobs (V1) | Re-confirm |
 | CI | GitHub Actions (AF3) | Re-confirm |
+
+## Code structure (AGREED)
+
+One API project organised by feature (`src/TravelApp.Api/Features/<Feature>/`) plus a test project, using Minimal APIs. The hard rules that keep it tidy are in [CLAUDE.md](CLAUDE.md) under "Structure rules".
 
 ## Data rules (AGREED)
 

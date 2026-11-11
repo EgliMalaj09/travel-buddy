@@ -29,7 +29,7 @@ export default function HomeScreen() {
             paddingTop: space.sm,
           }}
         >
-          <AppText variant="title">Egli</AppText>
+          <AppText variant="title">Travel App</AppText>
           <SyncIndicator />
         </View>
       }
