@@ -6,6 +6,21 @@ This file explains what has been decided and where everything is. The work list 
 
 ---
 
+## Who works on it
+
+The backend is built by the owner's wife (with Claude Code), in parallel with the frontend. The owner works on the frontend, which uses mock data until the backend is ready. Agree API changes through the OpenAPI file.
+
+## Agreed setup (11 Nov 2026)
+
+- .NET 10 LTS, ASP.NET Core **Minimal APIs**, **EF Core + Npgsql**, **PostgreSQL**
+- **One API project organised by feature** (`src/TravelApp.Api`) + test project; hard rules in [CLAUDE.md](CLAUDE.md)
+- **Built-in OpenAPI** (file written on build and committed) + **Scalar** API page in development only
+- Tests: **xUnit + Testcontainers (real PostgreSQL) + WebApplicationFactory**
+- Local: **Docker Compose** for PostgreSQL 17 + PowerSync Open Edition; the API runs with `dotnet run`
+- Needs on the laptop: .NET 10 SDK, Docker Desktop
+
+Start with `BE - App foundation` (KAN-58) in [TODO.md](TODO.md).
+
 ## Where everything lives
 
 | What | Where |

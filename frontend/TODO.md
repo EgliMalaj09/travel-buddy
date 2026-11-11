@@ -16,14 +16,14 @@ Links: Jira `https://travel-app-couple.atlassian.net/browse/KAN-<n>`, Confluence
 
 ## Part 1: Journal (`part-1`)
 
-Suggested order. Foundation and the sync test come first, because everything else builds on them.
+Suggested order. The owner works on the frontend with **mock data** while the backend is built separately. Items that need the real backend (marked 🔌) wait until the backend is running; the rest can be built against mock data now.
 
 | Done | # | Task | Jira | Epic (decisions to re-confirm) | Confluence |
 | --- | --- | --- | --- | --- | --- |
 | [ ] | 1 | FE - App foundation (Expo, router, theme, component kit, data layer + mock mode, API types, Sentry) | KAN-57 | KAN-56 (AF1–AF5) | 426065 |
-| [ ] | 2 | FE - Sync engine test (airplane mode, one week) | KAN-14 | KAN-13 (S1–S6 agreed) | 524289 |
+| [ ] | 2 | 🔌 FE - Sync engine test (airplane mode, one week): needs the backend local setup (KAN-58, KAN-16) | KAN-14 | KAN-13 (S1–S6 agreed) | 524289 |
 | [ ] | 3 | FE - Login and onboarding | KAN-11 | KAN-10 (L1–L6 agreed) | 196808 |
-| [ ] | 4 | FE - Offline sync (local DB, upload connector, sync indicator) | KAN-15 | KAN-13 | 524289 |
+| [ ] | 4 | 🔌 FE - Offline sync (local DB, upload connector, sync indicator): needs the backend | KAN-15 | KAN-13 | 524289 |
 | [ ] | 5 | FE - Create a trip | KAN-18 | KAN-17 (T1–T7) | 557057 |
 | [ ] | 6 | FE - Trip page (header, 5 tabs, quick add) | KAN-53 | KAN-52 (TP1–TP4) | 491538 |
 | [ ] | 7 | FE - Places | KAN-34 | KAN-33 (PL1–PL5) | 622593 |
