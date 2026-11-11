@@ -36,7 +36,7 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 | Technology / library | For | Why | Alternatives considered | Date | Status |
 | --- | --- | --- | --- | --- | --- |
 | .NET on Azure (EU region) | API, jobs, back office | Partner skill set; EU hosting for GDPR | Node.js | 9 Nov 2026 | AGREED |
-| PostgreSQL | Database | Required by PowerSync, good with .NET | Azure SQL | 10 Nov 2026 | AGREED (S2) |
+| PostgreSQL | Database | PowerSync's most mature source database (GA); Npgsql EF Core driver ships with each EF Core release; native UUID, arrays and JSON types fit the data model. Re-confirmed 11 Nov 2026 after considering MySQL | Azure SQL (only with own sync); MySQL (owner's family experience, but PowerSync MySQL support is Beta and the EF Core MySQL driver lags behind) | 10 Nov 2026 | AGREED (S2) |
 
 ## Shared
 
