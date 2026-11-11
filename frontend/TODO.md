@@ -1,6 +1,6 @@
 # Frontend TODO
 
-Tick an item when it is done, and move its Jira card at the same time. Before starting a feature, **re-confirm the decisions listed in its epic** (codes like T1–T7) and update the Confluence page if anything changes.
+**Tick an item only when it is implemented, merged into `main`, and tested by the owner on a real phone** (In Review → owner says it works → Done → tick). See Definition of done in CLAUDE.md. Before starting a feature, **re-confirm the decisions listed in its epic** (codes like T1–T7) and update the Confluence page if anything changes.
 
 Links: Jira `https://travel-app-couple.atlassian.net/browse/KAN-<n>`, Confluence `https://travel-app-couple.atlassian.net/wiki/spaces/TA/pages/<id>`.
 

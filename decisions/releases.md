@@ -157,6 +157,8 @@ A feature only gets the tasks it needs. These are decided when the feature is di
 
 Documentation: each feature has a Confluence page under Features → Part N. The feature's epic links to its page.
 
+Definition of done (hard rule, 11 Nov 2026): a task is Done and ticked only when it is implemented, merged into `main`, and tested manually by the owner on a real phone. The owner tests in the **In Review** column; only after the owner says it works does it move to **Done**.
+
 How each feature is prepared:
 1. Discuss the feature (behaviour, screens, edge cases).
 2. Write the Confluence page: feature explanation and technical documentation (data, endpoints, offline behaviour).

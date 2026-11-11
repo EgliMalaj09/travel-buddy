@@ -8,7 +8,28 @@ This folder is the React Native mobile app for Egli. Read [README.md](README.md)
 2. Open its Jira epic (KAN-…) and Confluence page through the Atlassian connector (site `travel-app-couple.atlassian.net`), or read `../decisions/`.
 3. **Before writing code, go through the epic's "Re-confirm these decisions before starting implementation" list with the owner.** If something changes, update the Confluence page and the epic.
 4. Build it following the rules in README.md: offline first, local database, repositories, theme file, component kit, plain UI.
-5. When done: tick the item in TODO.md, move the Jira task to In Review or Done, and commit.
+5. When the code is finished: follow the **Definition of done** below. Never tick an item or move it to Done before the owner has tested it and said it works.
+
+## Definition of done (HARD RULE, agreed with the owner 11 Nov 2026)
+
+A TODO item is ticked **only** when all of these are true:
+
+1. The implementation is finished.
+2. It is **merged into `main`**.
+3. The owner has **tested it manually on a real phone**.
+
+Flow:
+
+| Step | Who | Jira column |
+| --- | --- | --- |
+| Start the task | Claude or owner | In Progress |
+| Build, push, open PR, merge to `main`, put the build on the owner's phone | Claude (with owner) | In Progress |
+| Ready for manual test | Claude or owner moves it | **In Review** |
+| Owner tests on the phone and says it works | Owner | In Review |
+| Only after the owner says it works | Claude moves it | **Done** |
+| Tick the item in TODO.md and commit | Claude | Done |
+
+If the owner finds a problem in review, the task goes back to In Progress. Nothing is ticked or moved to Done without the owner's OK.
 
 ## Rules
 

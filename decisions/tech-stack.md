@@ -15,6 +15,13 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 | Zustand | Screen state only (filters, open sheets, selected tab, banners) | Small global store with little code; only screens that use a value re-render. Most data lives in the local database, so the global store stays small. React Context is used for the theme and the logged-in user. **Review point:** if Zustand stops being enough, decide again (Redux Toolkit is the fallback) | Redux Toolkit (more structure and code), Context only (re-render issues) | 11 Nov 2026 | AGREED (AF5) |
 | Sentry (`@sentry/react-native`, free plan, EU data region) | Crash and error reporting | Shows JavaScript/TypeScript errors with the exact source line (source maps) plus native crashes; EU data storage fits the GDPR rule; free plan is enough for beta. Set up when the app base is built (needs a free Sentry account; key in config, not in code). Listed in the privacy policy | Firebase Crashlytics (free, unlimited, strong native crashes, weaker JS stack traces, US storage) | 11 Nov 2026 | AGREED (AF4) |
 | `expo-notifications` | Local reminders (Part 1) and push notifications (Part 2) | Local notifications work offline with no accounts. For Part 2 server push: Expo push service (free), Apple push key (APNs) from the Apple Developer account, and a free Firebase project used **only** for Android push credentials (FCM); no Firebase SDKs in the app | OneSignal, direct APNs/FCM from the backend | 11 Nov 2026 | AGREED for local reminders; push setup PROPOSED for Part 2 |
+| TypeScript (strict) | Language of the app | Catches mistakes early; needed for types generated from the OpenAPI file | JavaScript | 11 Nov 2026 | AGREED |
+| npm | Package manager | Comes with Node; simplest; works with Expo and EAS | pnpm, yarn | 11 Nov 2026 | AGREED |
+| Expo Router | Navigation (4 tabs, trip screen, modal flows) | Expo's standard; screens are files; deep links from notifications and invite links work out of the box | React Navigation set up by hand | 11 Nov 2026 | AGREED |
+| ESLint + Prettier | Code style and common bug checks | Same formatting everywhere; Expo provides a ready ESLint config | Biome | 11 Nov 2026 | AGREED |
+| Jest (`jest-expo`) + React Native Testing Library | Automated tests | Expo's default; tests logic like money conversion, checklist rules and components | Vitest | 11 Nov 2026 | AGREED |
+| `@expo/vector-icons` | Icons | Comes with Expo, no extra install; the designer may replace the icon set later | lucide-react-native | 11 Nov 2026 | AGREED |
+| `expo-font` (+ Google Fonts packages for Brygada 1918, Hanken Grotesk, Courier Prime, Kalam) | Fonts of the Passport journal theme | Standard Expo font loading | Fonts bundled by hand | 11 Nov 2026 | AGREED |
 | react-three-fiber (`@react-three/fiber/native`) + `three` + `expo-gl` | Possible 3D globe with a Blender model | Keeps the original globe plan possible inside Expo; decided by the globe test on a mid-range phone (KAN-49) | Mapbox globe mode | 11 Nov 2026 | PROPOSED (G1, not installed yet) |
 
 ## Backend (`backend/`)
@@ -28,6 +35,7 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 
 | Technology / library | For | Why | Alternatives considered | Date | Status |
 | --- | --- | --- | --- | --- | --- |
+| GitHub Actions | CI: build, lint and test on every push | Free, already where the code is | None for now | 11 Nov 2026 | AGREED (AF3) |
 | PowerSync | Offline sync between phone SQLite and PostgreSQL | Handles cursors, paging, live queries and retries; writes still go through our .NET API; free Open Edition for local development | Own sync, WatermelonDB | 10 Nov 2026 | AGREED (S1), confirm with airplane-mode test (KAN-14) |
 | OpenAPI file + `openapi-typescript` | API contract and app types | Backend is the single source of truth; app types are generated, never hand-written | Hand-written types | 9 Nov 2026 | AGREED |
 
@@ -42,10 +50,10 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 | Screen state (filters, open sheet, selected tab) | Zustand, in memory |
 | Slow computed values (e.g. lifetime stats), only if testing shows a need | Local computed cache, never synced |
 
-## Still to decide (one by one, before the app base)
+## Still to decide
 
 | # | Topic | Recommendation |
 | --- | --- | --- |
 | AF2 | Backend version and data access | .NET 10 LTS, EF Core + Npgsql |
-| AF3 | CI | GitHub Actions |
-| — | Navigation | Expo Router |
+
+Later, when the feature needs them (each gets a row first): date library (Create a trip), forms and validation (onboarding), long lists (photos), bottom sheets (place cards), animations.
