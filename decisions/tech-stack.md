@@ -22,6 +22,13 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 | Jest (`jest-expo`) + React Native Testing Library | Automated tests | Expo's default; tests logic like money conversion, checklist rules and components | Vitest | 11 Nov 2026 | AGREED |
 | `@expo/vector-icons` | Icons | Comes with Expo, no extra install; the designer may replace the icon set later | lucide-react-native | 11 Nov 2026 | AGREED |
 | `expo-font` (+ Google Fonts packages for Brygada 1918, Hanken Grotesk, Courier Prime, Kalam) | Fonts of the Passport journal theme | Standard Expo font loading | Fonts bundled by hand | 11 Nov 2026 | AGREED |
+| Expo SDK 58 (React Native 0.88, React 19.3) | Versions of the app base | Latest stable Expo SDK when the base was built; all Expo packages pinned to SDK 58 versions | Older SDK | 11 Nov 2026 | AGREED |
+| `expo-dev-client` | Development builds on the phone | Needed because MMKV, Sentry and later PowerSync/Mapbox have native code that Expo Go does not include | Expo Go (cannot load our native libraries) | 11 Nov 2026 | AGREED (part of AF1) |
+| `react-native-nitro-modules` | Native helper required by MMKV v4 | MMKV v4 is built on Nitro; it must be a direct dependency to be linked | — | 11 Nov 2026 | AGREED (part of MMKV) |
+| `expo-router` support packages: `react-native-screens`, `react-native-safe-area-context`, `expo-linking`, `expo-constants`, `expo-splash-screen`, `@expo/metro-runtime` | Navigation, safe areas, deep links, app info, splash | Required by Expo Router / standard Expo app setup | — | 11 Nov 2026 | AGREED (part of Expo Router) |
+| `react-native-web` + `react-dom` | Web preview of the app | Lets Claude check screens in a browser (screenshots) without a phone; not a product target | — | 11 Nov 2026 | AGREED (dev check only) |
+| `eslint-config-expo`, `eslint-config-prettier` | Lint rules | Expo's recommended rules; Prettier config turns off rules that fight formatting | — | 11 Nov 2026 | AGREED (part of ESLint + Prettier) |
+| `jest-expo`, `test-renderer` | Test preset and renderer | Expo's Jest preset; `test-renderer` is required by React Native Testing Library 14 | — | 11 Nov 2026 | AGREED (part of Jest) |
 | react-three-fiber (`@react-three/fiber/native`) + `three` + `expo-gl` | Possible 3D globe with a Blender model | Keeps the original globe plan possible inside Expo; decided by the globe test on a mid-range phone (KAN-49) | Mapbox globe mode | 11 Nov 2026 | PROPOSED (G1, not installed yet) |
 
 ## Backend (`backend/`)

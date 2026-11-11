@@ -6,6 +6,48 @@ This file explains what has been decided and where everything is. The work list 
 
 ---
 
+## How to run the app
+
+Requirements: Node 22+, a free Expo account (for builds), your phone.
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local   # optional: add the Sentry DSN
+```
+
+**On your phone (development build).** Expo Go does not work, because the app uses native libraries (MMKV, Sentry). Build the development app once, then live-reload from your laptop:
+
+- **Android (free):** `npx eas-cli@latest build --profile development --platform android`, then install the APK link on the phone.
+- **iPhone:** needs the Apple Developer account for EAS, or a Mac with Xcode: `npx expo run:ios --device` (free Apple ID, reinstall every 7 days).
+
+Then start the dev server and open the app on the phone (same Wi-Fi):
+
+```bash
+npx expo start --dev-client
+```
+
+**Checks before every commit:**
+
+```bash
+npm run check   # typecheck + lint + format check + tests
+```
+
+Other scripts: `npm run format` (fix formatting), `npm test`, `npm run web` (quick look in a browser).
+
+## Project structure
+
+| Path | What |
+| --- | --- |
+| `src/app/` | Screens (Expo Router: every file is a route). `(tabs)/` = Home, Trips, Globe, You; `trip/[id].tsx` = trip screen; `design-kit.tsx` = all kit components |
+| `src/theme/` | **The theme file** (`tokens.ts`), fonts, ThemeProvider |
+| `src/components/` | Component kit: AppText, Button, Input, Chip, Card, TripStub, SyncIndicator, EmptyState, tab bar style, Screen |
+| `src/data/` | Types (match the data model), repositories, mock data, `useAsync` |
+| `src/lib/` | Pure logic with tests (dates, trip groups, stop dates, flags) |
+| `src/store/` | Zustand screen state |
+| `src/services/` | Device storage (MMKV), Sentry |
+| `AGENTS.md` | Expo's own guidance for coding agents (use `npx expo install`, check versioned docs) |
+
 ## Where everything lives
 
 | What | Where |

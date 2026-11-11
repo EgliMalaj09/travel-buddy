@@ -33,6 +33,8 @@ If the owner finds a problem in review, the task goes back to In Progress. Nothi
 
 ## Rules
 
+- Also follow `AGENTS.md` (Expo's guidance): add packages with `npx expo install` (set `EXPO_OFFLINE=1` if the Expo website is blocked), keep routes in `src/app/`, never edit `ios/` or `android/` by hand.
+- Run `npm run check` before every commit; it must pass.
 - **No new library or technology without a row in `../decisions/tech-stack.md` first** (what it is for, why, alternatives, date, status). Ask the owner to agree it.
 - Never call the network from a screen. Screens use repositories, and repositories use the local database.
 - No hard-coded colours, fonts or spacing outside the theme file.
