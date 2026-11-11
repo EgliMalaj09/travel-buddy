@@ -1,10 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { View } from 'react-native';
 
+import { AppText, Button } from '@/components/core';
 import { useTheme } from '@/theme/ThemeProvider';
-
-import { AppText } from './AppText';
-import { Button } from './Button';
 
 export function EmptyState({
   icon,

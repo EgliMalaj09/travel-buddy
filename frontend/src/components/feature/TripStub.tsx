@@ -5,7 +5,7 @@ import { formatDateRange } from '@/lib/dates';
 import { flagEmoji } from '@/lib/trips';
 import { useTheme } from '@/theme/ThemeProvider';
 
-import { AppText } from './AppText';
+import { AppText } from '@/components/core';
 
 /**
  * A trip shown as a ticket stub (design direction): main part with name and dates,

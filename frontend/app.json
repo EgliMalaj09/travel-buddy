@@ -8,7 +8,8 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.travelapp.mobile"
+      "bundleIdentifier": "app.travelapp.mobile",
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +35,22 @@
           "backgroundColor": "#ECE7DD"
         }
       ],
-      "@sentry/react-native"
+      "@sentry/react-native",
+      "expo-secure-store",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.REPLACE-WITH-IOS-CLIENT-ID"
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Travel App to use Face ID to unlock the app."
+        }
+      ],
+      "expo-apple-authentication",
+      "expo-asset"
     ],
     "scheme": "travelapp",
     "experiments": {

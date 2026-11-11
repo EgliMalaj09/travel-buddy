@@ -41,7 +41,8 @@ Other scripts: `npm run format` (fix formatting), `npm test`, `npm run web` (qui
 | --- | --- |
 | `src/app/` | Screens (Expo Router: every file is a route). `(tabs)/` = Home, Trips, Globe, You; `trip/[id].tsx` = trip screen; `design-kit.tsx` = all kit components |
 | `src/theme/` | **The theme file** (`tokens.ts`), fonts, ThemeProvider |
-| `src/components/` | Component kit: AppText, Button, Input, Chip, Card, TripStub, SyncIndicator, EmptyState, tab bar style, Screen |
+| `src/components/core/` | Component kit, atoms (tiny building blocks): AppText, Button, Input, Checkbox, Chip, Card, CodeInput, Logo, PhotoPlaceholder, SyncIndicator, Screen, tab bar style |
+| `src/components/feature/` | Component kit, groups of core components always used together: EmptyState, TripStub, SocialButtons, OptionPicker. Rules: see CLAUDE.md "Components: atomic design" |
 | `src/data/` | Types (match the data model), repositories, mock data, `useAsync` |
 | `src/lib/` | Pure logic with tests (dates, trip groups, stop dates, flags) |
 | `src/store/` | Zustand screen state |

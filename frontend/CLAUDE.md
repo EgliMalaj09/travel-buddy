@@ -21,6 +21,22 @@ Use the project skill `mobile-app-ui-design` (`frontend/.claude/skills/`) for UI
 - Spacing uses the theme tokens (multiples of 4).
 - Ignore the skill's suggestion to install other skills (e.g. ASO Shots) unless the owner asks.
 
+## Components: atomic design (HARD RULE, agreed 11 Nov 2026)
+
+`src/components/` has two folders:
+
+| Folder | What goes in | Examples |
+| --- | --- | --- |
+| `core/` | The tiny building blocks (atoms). One job each, no business logic, no data loading. | AppText, Button, Input, Checkbox, Chip, Card, CodeInput, Logo, PhotoPlaceholder, Screen |
+| `feature/` | 2–3 core components that are always used together (molecules / organisms). | EmptyState (icon + text + button), TripStub, SocialButtons, OptionPicker |
+
+Rules:
+- `core` never imports from `feature` (ESLint enforces it).
+- `feature` builds on `core` (`import … from '@/components/core'`) plus the theme.
+- Screens import everything from `@/components`.
+- A new piece goes in `core` if it is one small thing; in `feature` if it combines core pieces and is used by 2+ screens. A group used by one screen only stays next to that screen (`src/features/<feature>/`) until a second screen needs it.
+- Every new component is added to the matching `index.ts` and shown on the design-kit screen.
+
 ## Store upload rule (HARD RULE, agreed 11 Nov 2026)
 
 **Before any store upload** (`eas build --profile production`, `eas submit`, TestFlight external testing, Google Play internal testing, or creating the app in App Store Connect / Google Play Console): **stop and remind the owner** that the final app name and **bundle id / package name** (now the placeholder `app.travelapp.mobile`) must be decided first. The bundle id cannot be changed after the first upload. Do not continue until the owner confirms the final values; then update `app.json` and `decisions/tech-stack.md` (Name section).

@@ -9,23 +9,33 @@
     "@expo-google-fonts/kalam": "^0.4.1",
     "@expo/metro-runtime": "~58.0.17",
     "@expo/vector-icons": "^15.0.2",
+    "@hookform/resolvers": "^7.0.5",
+    "@react-native-google-signin/google-signin": "^17.0.0",
     "@sentry/react-native": "~8.28.0",
     "expo": "~58.0.23",
+    "expo-apple-authentication": "~58.0.2",
+    "expo-asset": "~58.0.20",
     "expo-constants": "~58.0.15",
+    "expo-crypto": "~58.0.7",
     "expo-dev-client": "~58.0.18",
     "expo-font": "~58.0.11",
     "expo-linking": "~58.0.16",
+    "expo-local-authentication": "~58.0.2",
     "expo-router": "~58.0.30",
+    "expo-secure-store": "~58.0.2",
     "expo-splash-screen": "~58.0.13",
     "expo-status-bar": "~58.0.4",
+    "openapi-fetch": "^0.17.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-hook-form": "^7.91.0",
     "react-native": "0.88.1",
     "react-native-mmkv": "^4.3.2",
     "react-native-nitro-modules": "^0.37.2",
     "react-native-safe-area-context": "~5.11.1",
     "react-native-screens": "~4.30.1",
     "react-native-web": "^0.21.4",
+    "zod": "^4.6.7",
     "zustand": "^5.1.0"
   },
   "devDependencies": {
@@ -37,6 +47,7 @@
     "eslint-config-prettier": "^10.1.8",
     "jest": "^30.5.2",
     "jest-expo": "~58.0.14",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.10",
     "test-renderer": "^1.3.1",
     "typescript": "~6.0.3"
@@ -51,7 +62,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm test -- --ci"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm test -- --ci",
+    "api:types": "openapi-typescript ../backend/openapi/openapi.json -o src/api/schema.d.ts"
   },
   "private": true,
   "jest": {
@@ -62,5 +74,10 @@
     "setupFiles": [
       "<rootDir>/jest.setup.ts"
     ]
+  },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "$typescript"
+    }
   }
 }

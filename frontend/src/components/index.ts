@@ -1,10 +1,5 @@
-export { AppText } from './AppText';
-export { Button } from './Button';
-export { Card } from './Card';
-export { Chip } from './Chip';
-export { EmptyState } from './EmptyState';
-export { Input } from './Input';
-export { Screen } from './Screen';
-export { SyncIndicator } from './SyncIndicator';
-export { tabBarOptions } from './tabBar';
-export { TripStub } from './TripStub';
+// Screens import from '@/components'. Structure (atomic design):
+//   core/    – tiny building blocks: text, button, field, checkbox…
+//   feature/ – 2–3 core components that always go together: empty state, trip stub, social buttons…
+export * from './core';
+export * from './feature';
