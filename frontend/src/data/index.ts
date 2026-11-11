@@ -1,5 +1,13 @@
 import { createMockTripRepository, type TripRepository } from './repositories/tripRepository';
 
+export type {
+  FlightInput,
+  StopInput,
+  TripInput,
+  TripOwner,
+  TripRepository,
+} from './repositories/tripRepository';
+
 /**
  * Picks the data source. "mock" (sample trips) is the only mode until the sync engine
  * is built; then a "local" mode backed by PowerSync is added here.
@@ -14,3 +22,4 @@ export const repositories: { trips: TripRepository } = {
 
 export * from './types';
 export * from './useAsync';
+export { useDataVersion } from './changes';
