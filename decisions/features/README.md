@@ -38,3 +38,4 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 28 | Postcards | 3 | 655378 | KAN-93 | KAN-94 FE, KAN-95 BE, KAN-96 AI, KAN-97 Template |
 | 29 | Auto-capture (9.9 open) | 3 | 524363 | KAN-98 | KAN-99 FE |
 | 30 | Printed album (9.10 open) | 3 | 65972 | KAN-100 | KAN-101 FE, KAN-102 BE, KAN-103 Template |
+| 31 | Yearly recap (reward 9.8 open) | 3 | 98608 | KAN-104 | KAN-105 FE, KAN-106 BE, KAN-107 Template |
