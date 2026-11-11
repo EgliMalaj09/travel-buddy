@@ -16,3 +16,7 @@ dotnet_diagnostic.CA1716.severity = none
 [*.{json,csproj,props,slnx,yml,yaml}]
 indent_style = space
 indent_size = 2
+
+# EF Core migrations are generated code: no style or analyzer rules.
+[src/TravelApp.Api/Data/Migrations/*.cs]
+generated_code = true

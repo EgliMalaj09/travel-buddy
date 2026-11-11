@@ -1,6 +1,7 @@
 using Scalar.AspNetCore;
 using TravelApp.Api.Data;
 using TravelApp.Api.Features.AppInfo;
+using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Health;
 using TravelApp.Api.Shared;
 
@@ -15,25 +16,28 @@ builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document,
     document.Info.Title = "Travel App API";
     document.Info.Description = "API of the Travel App (working name). Source of truth for the app's generated types.";
     return Task.CompletedTask;
-}));
+}).AddBearerAuth());
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddTravelAppDatabase(builder.Configuration);
 builder.Services.AddHealthFeature();
+builder.Services.AddAuthFeature(builder.Configuration);
 
 var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseAuthFeature();
 
 if (app.Environment.IsDevelopment())
 {
     // API documents and the Scalar page exist in development only (decisions/tech-stack.md).
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapOpenApi().AllowAnonymous();
+    app.MapScalarApiReference().AllowAnonymous();
 }
 
 app.MapHealthEndpoints();
 app.MapAppInfoEndpoints();
+app.MapAuthEndpoints();
 
 app.Run();
 
