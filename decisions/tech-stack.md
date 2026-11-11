@@ -36,6 +36,8 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 | Technology / library | For | Why | Alternatives considered | Date | Status |
 | --- | --- | --- | --- | --- | --- |
 | .NET on Azure (EU region) | API, jobs, back office | Partner skill set; EU hosting for GDPR | Node.js | 9 Nov 2026 | AGREED |
+| .NET 10 (LTS) + ASP.NET Core | Backend runtime and web framework | Long-term support (about 3 years); newest features including built-in OpenAPI generation; partner and family .NET experience | .NET 9 (shorter support) | 11 Nov 2026 | AGREED (AF2) |
+| EF Core + Npgsql (`Npgsql.EntityFrameworkCore.PostgreSQL`) | Database access and migrations | Standard .NET ORM; migrations tracked in code; less code for many simple tables; Npgsql driver is mature and released with each EF Core version. Dapper can be added later for a few heavy queries if needed | Dapper, plain SQL | 11 Nov 2026 | AGREED (AF2) |
 | PostgreSQL | Database | PowerSync's most mature source database (GA); Npgsql EF Core driver ships with each EF Core release; native UUID, arrays and JSON types fit the data model. Re-confirmed 11 Nov 2026 after considering MySQL | Azure SQL (only with own sync); MySQL (owner's family experience, but PowerSync MySQL support is Beta and the EF Core MySQL driver lags behind) | 10 Nov 2026 | AGREED (S2) |
 
 ## Shared
@@ -61,6 +63,5 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 
 | # | Topic | Recommendation |
 | --- | --- | --- |
-| AF2 | Backend version and data access | .NET 10 LTS, EF Core + Npgsql |
 
 Later, when the feature needs them (each gets a row first): date library (Create a trip), forms and validation (onboarding), long lists (photos), bottom sheets (place cards), animations.
