@@ -21,6 +21,49 @@ The backend is built by the owner's wife (with Claude Code), in parallel with th
 
 Start with `BE - App foundation` (KAN-58) in [TODO.md](TODO.md).
 
+## How to run (local)
+
+Needs: .NET 10 SDK, Docker Desktop.
+
+```bash
+cd backend
+docker compose up -d          # PostgreSQL 17 + PowerSync (port 8080)
+dotnet run --project src/TravelApp.Api   # API on http://localhost:5001
+```
+
+- API docs page (development only): http://localhost:5001/scalar
+- Health: http://localhost:5001/health
+- Stop: `docker compose down`. Delete local data: `docker compose down -v`.
+- Optional: copy `.env.example` to `.env` to change local passwords.
+
+**Before every commit:**
+
+```bash
+dotnet build      # also rewrites openapi/openapi.json: commit it
+dotnet test       # needs Docker running (real PostgreSQL through Testcontainers)
+```
+
+**Database changes (EF Core migrations):**
+
+```bash
+dotnet tool install --global dotnet-ef   # once
+dotnet ef migrations add <Name> --project src/TravelApp.Api --output-dir Data/Migrations
+dotnet ef database update --project src/TravelApp.Api
+```
+
+## Project structure
+
+| Path | What |
+| --- | --- |
+| `src/TravelApp.Api/Program.cs` | Wiring only |
+| `src/TravelApp.Api/Features/<Feature>/` | One folder per feature (today: `Health`, `AppInfo` as the example of the conventions) |
+| `src/TravelApp.Api/Shared/` | Code used by 2+ features: `SyncEntity` base (sync fields), UUID v7 ids, error format, logging |
+| `src/TravelApp.Api/Data/` | `AppDbContext` (applies each feature's table setup), migrations |
+| `tests/TravelApp.Api.Tests/` | xUnit tests; `Infrastructure/ApiFactory` starts real PostgreSQL + the API |
+| `openapi/openapi.json` | Generated on build; the app generates its types from it |
+| `docker-compose.yml`, `docker/` | Local PostgreSQL (logical replication on, PowerSync user and publication) and PowerSync config + Sync Streams |
+| `Directory.Packages.props` | All package versions in one place |
+
 ## Where everything lives
 
 | What | Where |

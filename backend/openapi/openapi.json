@@ -1,0 +1,59 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Travel App API",
+    "description": "API of the Travel App (working name). Source of truth for the app's generated types.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/app-info": {
+      "get": {
+        "tags": [
+          "App info"
+        ],
+        "summary": "Name, version and environment of the running API",
+        "operationId": "GetAppInfo",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AppInfoResponse": {
+        "required": [
+          "name",
+          "version",
+          "environment"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "App info"
+    }
+  ]
+}

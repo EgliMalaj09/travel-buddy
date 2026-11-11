@@ -1,0 +1,26 @@
+name: Backend
+
+on:
+  push:
+    paths: ['backend/**', '.github/workflows/backend.yml']
+  pull_request:
+    paths: ['backend/**', '.github/workflows/backend.yml']
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: backend/global.json
+      - run: dotnet restore
+      - run: dotnet build --no-restore
+      # The OpenAPI file is written on build; it must already be committed and up to date.
+      - name: OpenAPI file is up to date
+        run: git diff --exit-code -- openapi/
+      # Tests use a real PostgreSQL through Testcontainers (Docker is available on GitHub runners).
+      - run: dotnet test --no-build

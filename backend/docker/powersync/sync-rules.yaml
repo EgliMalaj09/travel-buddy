@@ -1,0 +1,10 @@
+# Sync Streams: which rows each phone receives. Filled in feature by feature, starting with
+# "BE - Offline sync" (KAN-16): each user gets only their own rows; Part 2 adds the shared
+# trips they are a member of. Example for later:
+#   my_trips:
+#     auto_subscribe: true
+#     query: select * from trips where owner_id = auth.user_id() and deleted_at is null
+config:
+  edition: 3
+
+streams: {}

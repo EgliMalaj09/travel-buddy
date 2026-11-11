@@ -1,0 +1,31 @@
+# PowerSync Open Edition, local development only (free). See backend/README.md.
+replication:
+  connections:
+    - type: postgresql
+      uri: !env PS_DATA_SOURCE_URI
+      sslmode: disable
+
+# PowerSync keeps its own data in a separate PostgreSQL database.
+storage:
+  type: postgresql
+  uri: !env PS_STORAGE_SOURCE_URI
+  sslmode: disable
+
+port: 8080
+
+sync_config:
+  path: sync-rules.yaml
+
+# Local development: the API signs PowerSync tokens with this dev key (added with "BE - Offline sync").
+# Beta and production use asymmetric keys published by the API (jwks_uri), never this one.
+client_auth:
+  audience: ['travel-app-powersync']
+  jwks:
+    keys:
+      - kty: oct
+        alg: HS256
+        kid: local-dev
+        k: !env PS_DEV_JWT_SECRET_BASE64URL
+
+telemetry:
+  disable_telemetry_sharing: true

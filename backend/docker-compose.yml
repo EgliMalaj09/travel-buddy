@@ -1,0 +1,42 @@
+# Local backend development at €0: PostgreSQL 17 + PowerSync Open Edition.
+# Start: docker compose up -d   |   Stop: docker compose down   |   Reset data: docker compose down -v
+# The API itself runs with `dotnet run` (see README.md).
+name: travel-app
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    command: ['postgres', '-c', 'wal_level=logical']
+    environment:
+      POSTGRES_USER: travelapp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-travelapp_local}
+      POSTGRES_DB: travelapp
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U travelapp -d travelapp']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  powersync:
+    image: journeyapps/powersync-service:1.28.2
+    command: ['start', '-r', 'unified']
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POWERSYNC_CONFIG_PATH: /config/powersync.yaml
+      PS_DATA_SOURCE_URI: postgresql://powersync_role:powersync_local@postgres:5432/travelapp
+      PS_STORAGE_SOURCE_URI: postgresql://travelapp:${POSTGRES_PASSWORD:-travelapp_local}@postgres:5432/powersync_storage
+      PS_DEV_JWT_SECRET_BASE64URL: ${PS_DEV_JWT_SECRET_BASE64URL:-bG9jYWwtZGV2LW9ubHktbm90LWEtcmVhbC1zZWNyZXQ}
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./docker/powersync:/config:ro
+
+volumes:
+  postgres-data:

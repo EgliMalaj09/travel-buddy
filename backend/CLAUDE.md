@@ -58,13 +58,15 @@ backend/
 4. **`Program.cs` holds no endpoint logic.** Each feature exposes one `Map<Feature>Endpoints(this IEndpointRouteBuilder)` and one `Add<Feature>(this IServiceCollection)` if it needs services.
 5. **Every endpoint:** is in its feature's route group (`MapGroup`), returns `TypedResults`, has an OpenAPI name and summary, requires auth unless it is explicitly public, and **validates its input** with .NET 10 built-in validation (data annotations). No endpoint without input validation.
 6. **Short handlers.** If a handler grows beyond about 15 lines, move the logic into the feature's service class (so it can be unit tested).
-7. **Tables are configured in their feature** with `IEntityTypeConfiguration<T>`; `AppDbContext` applies all configurations automatically. Table and column names follow `decisions/data-model.md`.
+7. **Tables are configured in their feature** with `IEntityTypeConfiguration<T>`; `AppDbContext` applies all configurations automatically. Names follow `decisions/data-model.md`, written in snake_case in PostgreSQL (`tripId` → `trip_id`, handled automatically). Synced entities inherit `Shared/SyncEntity`.
 8. **Errors are ProblemDetails** everywhere (one shared error handler in `Shared/`).
 9. **Every feature has tests** in `tests/TravelApp.Api.Tests/Features/<Feature>/`: xUnit, real PostgreSQL through Testcontainers for database and sync logic, `WebApplicationFactory` for endpoints. `dotnet test` must pass before every commit.
 10. **Rule 2 is checked in review** before every commit.
 
 ## Rules
 
+- Package versions live only in `Directory.Packages.props`. Stay on .NET 10 (LTS) packages (10.0.x), not .NET 11.
+- `dotnet build` and `dotnet test` must pass, and `openapi/openapi.json` must be committed after every API change (CI checks it).
 - **No new library or technology without a row in `../decisions/tech-stack.md` first** (what it is for, why, alternatives, date, status). Ask the owner to agree it.
 - Tables and fields match `../decisions/data-model.md`. Propose any change to the owner first.
 - Never let the phone overwrite server-only fields. Every write checks ownership and membership.
