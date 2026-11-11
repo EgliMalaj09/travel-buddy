@@ -10,6 +10,17 @@ This folder is the React Native mobile app for Travel App. Read [README.md](READ
 4. Build it following the rules in README.md: offline first, local database, repositories, theme file, component kit, plain UI.
 5. When the code is finished: follow the **Definition of done** below. Never tick an item or move it to Done before the owner has tested it and said it works.
 
+## Design guidance (agreed 11 Nov 2026)
+
+Use the project skill `mobile-app-ui-design` (`frontend/.claude/skills/`) for UI/UX principles: clear hierarchy, thumb zone for main actions, 8-point spacing, strong empty/error/loading/success states, the "peak and end" moments, selection over typing, tap targets ≥ 44 pt.
+
+**Our decisions win where the skill differs:**
+- **No** glows, glassmorphism / `backdrop-blur`, heavy gradients or 3D icons: the owner rejected that look (Passport journal direction).
+- Stack is React Native + our theme file and component kit, **not** Tailwind, Lucide or Recharts.
+- Fonts and colours come only from `src/theme/tokens.ts` (4 fonts with fixed roles: titles, interface, dates, user notes). Per screen, still keep to about 4 text sizes.
+- Spacing uses the theme tokens (multiples of 4).
+- Ignore the skill's suggestion to install other skills (e.g. ASO Shots) unless the owner asks.
+
 ## Store upload rule (HARD RULE, agreed 11 Nov 2026)
 
 **Before any store upload** (`eas build --profile production`, `eas submit`, TestFlight external testing, Google Play internal testing, or creating the app in App Store Connect / Google Play Console): **stop and remind the owner** that the final app name and **bundle id / package name** (now the placeholder `app.travelapp.mobile`) must be decided first. The bundle id cannot be changed after the first upload. Do not continue until the owner confirms the final values; then update `app.json` and `decisions/tech-stack.md` (Name section).

@@ -101,4 +101,4 @@ Email → 6-digit code → new password. Also used by Google/Apple users who wan
 | A6 | Development: code in the API log; real email from beta (switch list) | 11 Nov 2026 |
 | A7 | Google/Apple tokens checked with Microsoft token libraries | 11 Nov 2026 |
 | A8 | Separate sign-up and login; trusted phone 1 year; stay logged in 1 year since last use; Face ID / fingerprint unlock; password ≥ 10 characters + leaked-password check; forgot password; Google/Apple users add a password via forgot password | 11 Nov 2026 |
-| A9–A14 | Frontend libraries: Google sign-in, Apple sign-in, forms, own country file, mock login (see tech-stack.md). A11 (API client) pending | 11 Nov 2026 |
+| A9–A14 | Frontend libraries: Google sign-in, Apple sign-in, openapi-fetch API client, forms, own country file, mock login (see tech-stack.md) | 11 Nov 2026 |

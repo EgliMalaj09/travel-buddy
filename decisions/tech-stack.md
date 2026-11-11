@@ -42,6 +42,9 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 | `react-hook-form` + `zod` | Forms and validation (login, sign-up, onboarding) | Standard, small, typed validation rules shared between fields (A12) | Hand-written form state | 11 Nov 2026 | AGREED |
 | Own country and currency file in the app (`src/data/static/`) | Country and currency pickers | No extra library, works offline; names come from the phone's built-in `Intl` data (A13) | npm country packages | 11 Nov 2026 | AGREED |
 | Mock login (mock mode) | Building login screens before the backend runs | Any email works, code `123456`; replaced by the real API later (A14) | Wait for the backend | 11 Nov 2026 | AGREED |
+| `openapi-fetch` | Calling the API from the app | Typed calls from the generated OpenAPI types (wrong URL or field = error before running), ~6 KB, middleware for adding and refreshing the token (A11) | axios (no types from our OpenAPI file, larger) | 11 Nov 2026 | AGREED |
+| `openapi-typescript` (dev tool) | Generates TypeScript types from `backend/openapi/openapi.json` | Already agreed (shared row below); script `npm run api:types` | — | 11 Nov 2026 | AGREED |
+| Claude skill `mobile-app-ui-design` (ceorkm, MIT, pinned commit) | UI/UX design principles when building screens | Good general rules (hierarchy, spacing, thumb zone, states, emotional moments); project overrides in `frontend/CLAUDE.md` because parts conflict with our look and stack | — | 11 Nov 2026 | AGREED |
 | react-three-fiber (`@react-three/fiber/native`) + `three` + `expo-gl` | Possible 3D globe with a Blender model | Keeps the original globe plan possible inside Expo; decided by the globe test on a mid-range phone (KAN-49) | Mapbox globe mode | 11 Nov 2026 | PROPOSED (G1, not installed yet) |
 
 ## Backend (`backend/`)
