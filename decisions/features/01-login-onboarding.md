@@ -73,6 +73,7 @@ Email → 6-digit code → new password. Also used by Google/Apple users who wan
 | `POST /auth/google`, `POST /auth/apple` | Provider ID token + deviceId → tokens (creates the account if new) |
 | `POST /auth/refresh` | Refresh token → new access and refresh token |
 | `POST /auth/logout` | Ends this phone's session |
+| `POST /auth/code/resend` | Email + purpose (`signup` or `login`) → sends a new code (same limits). Added 11 Nov 2026 for the "Send a new code" link |
 | `POST /auth/password/forgot`, `POST /auth/password/reset` | Code by email, then new password |
 | `GET /me`, `PATCH /me`, `POST /me/profile` | Profile (profile setup saves name, countries, currency; consents for Google/Apple) |
 | `GET /.well-known/jwks.json` | Public keys for PowerSync |

@@ -14,7 +14,7 @@ import { getDeviceSettings, getFlag, setDeviceSettings, setFlag } from '@/servic
 
 import type { AuthService } from './authService';
 import { unlockWithBiometric } from './biometric';
-import { createMockAuthService } from './mockAuthService';
+import { createMockAuthService, resetMockAuth } from './mockAuthService';
 import { getDeviceId, getRefreshToken, setRefreshToken } from './secureStore';
 import type { AuthUser, Consents, LoginResult, Profile, Session } from './types';
 
@@ -40,9 +40,12 @@ interface AuthContextValue {
   verifyLogin(email: string, code: string): Promise<void>;
   loginWithGoogle(): Promise<void>;
   loginWithApple(): Promise<void>;
+  resendCode(email: string, purpose: 'signup' | 'login'): Promise<void>;
   forgotPassword(email: string): Promise<void>;
   resetPassword(email: string, code: string, newPassword: string): Promise<void>;
   saveProfile(profile: Profile, consents?: Consents): Promise<void>;
+  /** Testing helper (mock mode): log out, forget mock users and show the intro again. */
+  resetForTesting(): Promise<void>;
   logout(): Promise<void>;
   unlock(): Promise<boolean>;
   biometricEnabled: boolean;
@@ -52,6 +55,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const INTRO_FLAG = 'introSeen';
+export const BIOMETRIC_OFFERED_FLAG = 'biometricOffered';
 
 export function AuthProvider({
   children,
@@ -152,6 +156,7 @@ export function AuthProvider({
       async loginWithApple() {
         await applySession(await auth.loginWithApple(await getDeviceId()));
       },
+      resendCode: (email, purpose) => auth.resendCode(email, purpose),
       forgotPassword: (email) => auth.forgotPassword(email),
       resetPassword: (email, code, newPassword) => auth.resetPassword(email, code, newPassword),
       async saveProfile(profile, consents) {
@@ -166,6 +171,15 @@ export function AuthProvider({
         const current = sessionRef.current;
         if (current) await auth.logout(current.refreshToken).catch(() => undefined);
         await applySession(null);
+      },
+      async resetForTesting() {
+        await applySession(null);
+        resetMockAuth();
+        setFlag(INTRO_FLAG, false);
+        setFlag(BIOMETRIC_OFFERED_FLAG, false);
+        setDeviceSettings({ biometricUnlock: false });
+        setBiometric(false);
+        setPhase('intro');
       },
       async unlock() {
         const ok = await unlockWithBiometric();

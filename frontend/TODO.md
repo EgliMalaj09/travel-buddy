@@ -22,7 +22,7 @@ Suggested order. The owner works on the frontend with **mock data** while the ba
 | --- | --- | --- | --- | --- | --- |
 | [ ] | 1 | FE - App foundation (Expo, router, theme, component kit, data layer + mock mode, API types, Sentry) | KAN-57 | KAN-56 (AF1–AF5) | 426065 |
 | [ ] | 2 | 🔌 FE - Sync engine test (airplane mode, one week): needs the backend local setup (KAN-58, KAN-16) | KAN-14 | KAN-13 (S1–S6 agreed) | 524289 |
-| [ ] | 3 | FE - Login and onboarding | KAN-11 | KAN-10 (L1–L6 agreed) | 196808 |
+| [ ] | 3 | FE - Login and onboarding (**built with mock login on `feature/KAN-11-login`, waiting for owner test**; real API + Google/Apple sheets when KAN-12 is ready) | KAN-11 | KAN-10 (L1–L6 agreed) | 196808 |
 | [ ] | 4 | 🔌 FE - Offline sync (local DB, upload connector, sync indicator): needs the backend | KAN-15 | KAN-13 | 524289 |
 | [ ] | 5 | FE - Create a trip | KAN-18 | KAN-17 (T1–T7) | 557057 |
 | [ ] | 6 | FE - Trip page (header, 5 tabs, quick add) | KAN-53 | KAN-52 (TP1–TP4) | 491538 |

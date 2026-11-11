@@ -2,11 +2,13 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 
 import { tabBarOptions } from '@/components';
+import { useBiometricOffer } from '@/features/auth/useBiometricOffer';
 import { useTheme } from '@/theme/ThemeProvider';
 
 /** The 4 agreed tabs: Home, Trips, Globe, You. */
 export default function TabsLayout() {
   const theme = useTheme();
+  useBiometricOffer();
   return (
     <Tabs screenOptions={tabBarOptions(theme)}>
       <Tabs.Screen

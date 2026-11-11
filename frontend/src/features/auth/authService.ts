@@ -11,6 +11,8 @@ export interface AuthService {
   verifyLogin(email: string, code: string, deviceId: string): Promise<Session>;
   loginWithGoogle(deviceId: string): Promise<Session>;
   loginWithApple(deviceId: string): Promise<Session>;
+  /** Sends a new 6-digit code (sign-up or new-phone check). Limit: 1 per minute, 5 per hour. */
+  resendCode(email: string, purpose: 'signup' | 'login'): Promise<void>;
   forgotPassword(email: string): Promise<void>;
   resetPassword(email: string, code: string, newPassword: string): Promise<void>;
   /** Exchanges the refresh token for a new session (also used on app start). */

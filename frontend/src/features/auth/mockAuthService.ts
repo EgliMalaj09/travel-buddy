@@ -21,6 +21,7 @@ interface MockDb {
   users: MockUser[];
   pendingSignups: { email: string; password: string; consents: Consents }[];
   sessions: Record<string, string>; // refreshToken -> userId
+  accessTokens?: Record<string, string>; // accessToken -> userId
 }
 
 const storage = createMMKV({ id: 'travelapp.mock-auth' });
@@ -53,8 +54,10 @@ function publicUser(u: MockUser): AuthUser {
 
 function newSession(db: MockDb, user: MockUser): Session {
   const refreshToken = token('mock-refresh');
+  const accessToken = token('mock-access');
   db.sessions[refreshToken] = user.id;
-  return { accessToken: token('mock-access'), refreshToken, user: publicUser(user) };
+  db.accessTokens = { ...db.accessTokens, [accessToken]: user.id };
+  return { accessToken, refreshToken, user: publicUser(user) };
 }
 
 function normalise(email: string) {
@@ -175,6 +178,11 @@ export function createMockAuthService(): AuthService {
       return session;
     },
 
+    async resendCode(email, purpose) {
+      await delay();
+      console.info(`[mock auth] New ${purpose} code for ${normalise(email)}: ${MOCK_CODE}`);
+    },
+
     async forgotPassword(email) {
       await delay();
       // Same answer whether or not the account exists (no account guessing).
@@ -205,12 +213,10 @@ export function createMockAuthService(): AuthService {
       return session;
     },
 
-    async saveProfile(_accessToken, profile, consents) {
+    async saveProfile(accessToken, profile, consents) {
       await delay();
       const db = load();
-      // In the mock the latest session's user is the one being edited.
-      const lastUserId = Object.values(db.sessions).at(-1);
-      const user = db.users.find((u) => u.id === lastUserId);
+      const user = db.users.find((u) => u.id === db.accessTokens?.[accessToken]);
       if (!user) throw new AuthError('session_expired', 'Please log in again.');
       user.profile = profile;
       if (consents) user.consents = consents;

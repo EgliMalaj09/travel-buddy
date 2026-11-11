@@ -39,7 +39,8 @@ Other scripts: `npm run format` (fix formatting), `npm test`, `npm run web` (qui
 
 | Path | What |
 | --- | --- |
-| `src/app/` | Screens (Expo Router: every file is a route). `(tabs)/` = Home, Trips, Globe, You; `trip/[id].tsx` = trip screen; `design-kit.tsx` = all kit components |
+| `src/app/` | Screens (Expo Router: every file is a route). `(tabs)/` = Home, Trips, Globe, You; `trip/[id].tsx` = trip screen; `design-kit.tsx` = all kit components. Login routes: `intro`, `login`, `sign-up`, `verify`, `forgot`, `reset`, `profile-name`, `profile-travel`, `lock` (thin files; the screens live in `src/features/auth/`). `_layout.tsx` guards them with `Stack.Protected` by login phase |
+| `src/features/auth/` | Login feature: AuthProvider (phase, session), mock login service (code `123456`), secure storage, form rules, intro slides, screens |
 | `src/theme/` | **The theme file** (`tokens.ts`), fonts, ThemeProvider |
 | `src/components/core/` | Component kit, atoms (tiny building blocks): AppText, Button, Input, Checkbox, Chip, Card, CodeInput, Logo, PhotoPlaceholder, SyncIndicator, Screen, tab bar style |
 | `src/components/feature/` | Component kit, groups of core components always used together: EmptyState, TripStub, SocialButtons, OptionPicker. Rules: see CLAUDE.md "Components: atomic design" |

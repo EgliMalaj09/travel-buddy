@@ -5,10 +5,17 @@ import {
   AppText,
   Button,
   Card,
+  Checkbox,
   Chip,
+  CodeInput,
   EmptyState,
   Input,
+  Logo,
+  OptionPicker,
+  OrDivider,
+  PhotoPlaceholder,
   Screen,
+  SocialButtons,
   SyncIndicator,
 } from '@/components';
 import { useUiStore, type SyncStatus } from '@/store/uiStore';
@@ -19,6 +26,9 @@ export default function DesignKitScreen() {
   const { colors, space, radii } = useTheme();
   const [chip, setChip] = useState('City');
   const setSync = useUiStore((s) => s.setSyncStatus);
+  const [checked, setChecked] = useState(true);
+  const [code, setCode] = useState('123');
+  const [pick, setPick] = useState<string | undefined>('AL');
 
   return (
     <Screen>
@@ -68,6 +78,31 @@ export default function DesignKitScreen() {
       </Card>
 
       <EmptyState icon="images-outline" title="Empty state" message="Shown when a list is empty." />
+
+      <AppText variant="heading">Core: login pieces</AppText>
+      <Logo />
+      <Checkbox checked={checked} onChange={setChecked} label="I am 16 or older" />
+      <Checkbox checked={false} onChange={() => undefined} label="With an error" error="Required" />
+      <Input label="Password" password defaultValue="secret password" />
+      <CodeInput value={code} onChange={setCode} />
+      <View style={{ flexDirection: 'row', gap: space.md }}>
+        <PhotoPlaceholder width={80} height={80} />
+        <PhotoPlaceholder width={80} height={80} round />
+      </View>
+
+      <AppText variant="heading">Feature: groups</AppText>
+      <SocialButtons onApple={() => undefined} onGoogle={() => undefined} />
+      <OrDivider />
+      <OptionPicker
+        label="Country"
+        value={pick}
+        onChange={setPick}
+        options={[
+          { value: 'AL', label: 'Albania', hint: 'ALL' },
+          { value: 'IT', label: 'Italy', hint: 'EUR' },
+          { value: 'MA', label: 'Morocco', hint: 'MAD' },
+        ]}
+      />
     </Screen>
   );
 }
