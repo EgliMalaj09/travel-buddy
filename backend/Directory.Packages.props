@@ -2,6 +2,8 @@
   <!-- All package versions in one place. Every package needs a row in decisions/tech-stack.md. -->
   <ItemGroup>
     <!-- API -->
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.15" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.15" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.15" />
     <PackageVersion Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.15" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.20.0" />

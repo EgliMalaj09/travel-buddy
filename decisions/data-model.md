@@ -126,6 +126,10 @@ Login uses ASP.NET Core Identity with `User` as the Identity user (its own login
 
 **RefreshToken**: `id`, `userId`, `deviceId`, `tokenHash`, `createdAt`, `expiresAt` (1 year since last use), `replacedByTokenId`, `revokedAt`. Replaced on every use; reuse of an old one revokes all of the user's tokens.
 
+**AuthCode** (PROPOSED 11 Nov 2026 with KAN-12, server only, not synced): `id`, `email` (normalised), `purpose` (signup, login, reset), `codeHash`, `createdAt`, `expiresAt` (10 minutes), `attempts` (max 5), `consumedAt`, and for sign-up only `pendingPasswordHash` and `pendingMarketingConsent`. Why: Identity's built-in codes cannot enforce A5 (10 minutes, 5 tries, 1 per minute, 5 per hour), and the email account is created only after the code is entered, so the pending sign-up needs a place to wait.
+
+Note (KAN-12): `firstName`, `passportCountry`, `residenceCountry` and `homeCurrency` are empty in the database between sign-up and profile setup; the consent fields are empty for Google/Apple users until profile setup. The app treats `onboardingCompletedAt` as "profile done".
+
 ## 6. AppConfig (AGREED, read-only, set in the back office, cached for offline)
 
 `photoQualityByPlan`, `maxPhotoSizeMB`, `minAppVersion`, feature flags (for example `printAlbumEnabled`), `freeTripLimit`.

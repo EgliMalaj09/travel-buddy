@@ -62,7 +62,9 @@ Email → 6-digit code → new password. Also used by Google/Apple users who wan
 - Rate limits with .NET's built-in rate limiter.
 - New tables: Identity's user, login and token tables (snake_case), **TrustedDevice**, **RefreshToken** (see data model).
 
-**Endpoints (draft)**
+**Errors:** ProblemDetails with a `code` field the app maps to its own text: `invalid_credentials` (401), `invalid_code` (400), `email_taken` (409), `too_many_attempts` (429), `session_expired` (401), `password_leaked` (400), `invalid_token` (401, Google/Apple), `consent_required` (400). Input validation errors are 400 with an `errors` list.
+
+**Endpoints (built in KAN-12; exact shapes in `backend/openapi/openapi.json`)**
 
 | Endpoint | What |
 | --- | --- |
@@ -75,7 +77,7 @@ Email → 6-digit code → new password. Also used by Google/Apple users who wan
 | `POST /auth/logout` | Ends this phone's session |
 | `POST /auth/code/resend` | Email + purpose (`signup` or `login`) → sends a new code (same limits). Added 11 Nov 2026 for the "Send a new code" link |
 | `POST /auth/password/forgot`, `POST /auth/password/reset` | Code by email, then new password |
-| `GET /me`, `PATCH /me`, `POST /me/profile` | Profile (profile setup saves name, countries, currency; consents for Google/Apple) |
+| `GET /me`, `POST /me/profile` | Profile (profile setup saves name, countries, currency; consents for Google/Apple). `PATCH /me` comes with Profile and settings (KAN-22) |
 | `GET /.well-known/jwks.json` | Public keys for PowerSync |
 
 **App**
@@ -102,4 +104,5 @@ Email → 6-digit code → new password. Also used by Google/Apple users who wan
 | A6 | Development: code in the API log; real email from beta (switch list) | 11 Nov 2026 |
 | A7 | Google/Apple tokens checked with Microsoft token libraries | 11 Nov 2026 |
 | A8 | Separate sign-up and login; trusted phone 1 year; stay logged in 1 year since last use; Face ID / fingerprint unlock; password ≥ 10 characters + leaked-password check; forgot password; Google/Apple users add a password via forgot password | 11 Nov 2026 |
+| A15 | (PROPOSED, KAN-12) Codes in our own `auth_codes` table instead of Identity's code tokens, so A5 can be enforced exactly. The 1-per-minute limit is per email **and purpose** (a sign-up code does not block a reset code a few seconds later); 5 per hour stays per email | 11 Nov 2026 |
 | A9–A14 | Frontend libraries: Google sign-in, Apple sign-in, openapi-fetch API client, forms, own country file, mock login (see tech-stack.md) | 11 Nov 2026 |
