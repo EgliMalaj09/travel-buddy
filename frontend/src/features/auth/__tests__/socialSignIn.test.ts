@@ -1,5 +1,3 @@
-import { createHash } from 'crypto';
-
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
 
@@ -73,7 +71,8 @@ describe('Apple sheet', () => {
 
     expect(first.nonce).toMatch(/^[0-9a-f]{64}$/);
     expect(second.nonce).not.toEqual(first.nonce);
-    const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- Node's crypto, tests only
+    const sha256 = (s: string) => require('crypto').createHash('sha256').update(s).digest('hex');
     expect(apple.signInAsync).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({ nonce: sha256(first.nonce!) }),
