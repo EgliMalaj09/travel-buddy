@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 
 import {
+  ActionSheet,
   AppText,
   Button,
   Card,
@@ -27,6 +28,7 @@ export default function DesignKitScreen() {
   const [chip, setChip] = useState('City');
   const setSync = useUiStore((s) => s.setSyncStatus);
   const [checked, setChecked] = useState(true);
+  const [sheet, setSheet] = useState(false);
   const [code, setCode] = useState('123');
   const [pick, setPick] = useState<string | undefined>('AL');
 
@@ -78,6 +80,18 @@ export default function DesignKitScreen() {
       </Card>
 
       <EmptyState icon="images-outline" title="Empty state" message="Shown when a list is empty." />
+
+      <Button title="Action sheet" kind="secondary" onPress={() => setSheet(true)} />
+      <ActionSheet
+        visible={sheet}
+        title="Trip name"
+        message="Menu used on the trip page."
+        actions={[
+          { label: 'Edit trip', onPress: () => undefined },
+          { label: 'Delete trip', destructive: true, onPress: () => undefined },
+        ]}
+        onClose={() => setSheet(false)}
+      />
 
       <AppText variant="heading">Core: login pieces</AppText>
       <Logo />
