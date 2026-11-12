@@ -6,6 +6,13 @@ jest.mock('expo-router', () => ({
   router: { replace: jest.fn(), back: jest.fn(), push: jest.fn() },
 }));
 
+// Trips come from the server by default (KAN-16); this test uses the sample trips.
+jest.mock('@/data', () => {
+  const actual = jest.requireActual('@/data');
+  const { createMockTripRepository } = jest.requireActual('@/data/repositories/tripRepository');
+  return { ...actual, dataMode: 'mock', repositories: { trips: createMockTripRepository() } };
+});
+
 // The mock trips are dated relative to the real today, so the screen uses the real clock.
 describe('Home dashboard', () => {
   it('shows the current trip, what comes next and the stats (mock data)', async () => {

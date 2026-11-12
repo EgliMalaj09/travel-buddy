@@ -66,7 +66,7 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
         <EmptyState
           icon="alert-circle-outline"
           title="Couldn't load your trips"
-          message="Close and open the app again. Your trips are still saved on this phone."
+          message="Check your connection, then close and open the app again."
         />
       </Screen>
     );
