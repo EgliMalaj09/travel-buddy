@@ -25,3 +25,27 @@ export function useDataVersion(): number {
     () => version,
   );
 }
+
+/**
+ * Changes only when the logged-in user changes (or the session is back after opening).
+ * Every `useAsync` loads again then, also screens that do not follow `useDataVersion`.
+ */
+let ownerEpoch = 0;
+const ownerListeners = new Set<() => void>();
+
+export function notifyOwnerChanged(): void {
+  ownerEpoch += 1;
+  for (const l of ownerListeners) l();
+  notifyDataChanged();
+}
+
+export function useOwnerEpoch(): number {
+  return useSyncExternalStore(
+    (listener) => {
+      ownerListeners.add(listener);
+      return () => ownerListeners.delete(listener);
+    },
+    () => ownerEpoch,
+    () => ownerEpoch,
+  );
+}

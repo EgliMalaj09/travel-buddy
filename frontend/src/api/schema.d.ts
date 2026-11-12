@@ -259,6 +259,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/trips": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your trips with their stops and flights (deleted ones left out) */
+        get: operations["ListMyTrips"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sync/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Saves the phone's waiting changes (create, change, delete), one result per change
+         * @description Each change is applied column by column; the change that reaches the server last wins (S4). A rejected change comes back with status "rejected" and the reasons; the others are still saved. The answer is 200 whenever the request itself is valid, so the phone never retries a rejected change forever.
+         */
+        post: operations["SyncUpload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -281,6 +318,36 @@ export interface components {
             ageConfirmed: boolean;
             termsAccepted: boolean;
             marketingConsent: boolean;
+        };
+        FlightDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tripId: string;
+            /** Format: int32 */
+            order: number | string;
+            direction: string;
+            airline: null | string;
+            flightNumber: null | string;
+            departureAirport: null | string;
+            arrivalAirport: null | string;
+            /** Format: date-time */
+            departureLocalTime: null | string;
+            /** Format: date-time */
+            arrivalLocalTime: null | string;
+            departureTimeZone: null | string;
+            arrivalTimeZone: null | string;
+            bookingCode: null | string;
+            seat: null | string;
+            terminal: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            deletedAt: null | string;
+            /** Format: int64 */
+            version: number | string;
         };
         ForgotPasswordRequest: {
             email: string;
@@ -319,6 +386,11 @@ export interface components {
         };
         LogoutRequest: {
             refreshToken: string;
+        };
+        MyTripsResponse: {
+            trips: components["schemas"]["TripDto"][];
+            stops: components["schemas"]["TripStopDto"][];
+            flights: components["schemas"]["FlightDto"][];
         };
         ProblemDetails: {
             type?: null | string;
@@ -371,6 +443,85 @@ export interface components {
             idToken: string;
             deviceId: string;
             firstName?: null | string;
+        };
+        SyncChange: {
+            op: string;
+            type: string;
+            /** Format: uuid */
+            id: string;
+            data?: null | Record<string, never>;
+        };
+        SyncChangeResult: {
+            /** Format: uuid */
+            id: string;
+            type: string;
+            status: string;
+            problems?: null | {
+                [key: string]: string[];
+            };
+        };
+        SyncUploadRequest: {
+            changes: components["schemas"]["SyncChange"][];
+        };
+        SyncUploadResponse: {
+            results: components["schemas"]["SyncChangeResult"][];
+        };
+        TripDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ownerId: string;
+            name: string;
+            type: string;
+            /** Format: date */
+            startDate: null | string;
+            /** Format: date */
+            endDate: null | string;
+            activities: string[];
+            status: string;
+            /** Format: date-time */
+            finishedAt: null | string;
+            /** Format: uuid */
+            coverMediaId: null | string;
+            passportCountrySnapshot: string;
+            homeCurrencySnapshot: string;
+            /** Format: date-time */
+            checklistGeneratedAt: null | string;
+            checklistRulesVersion: null | string;
+            anniversaryEnabled: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            deletedAt: null | string;
+            /** Format: int64 */
+            version: number | string;
+        };
+        TripStopDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tripId: string;
+            /** Format: int32 */
+            order: number | string;
+            countryCode: string;
+            cityName: string;
+            /** Format: double */
+            lat: null | number | string;
+            /** Format: double */
+            lng: null | number | string;
+            geoProviderId: null | string;
+            /** Format: int32 */
+            nights: number | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            deletedAt: null | string;
+            /** Format: int64 */
+            version: number | string;
         };
         VerifyCodeRequest: {
             email: string;
@@ -1135,6 +1286,77 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthUserResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListMyTrips: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyTripsResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SyncUpload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SyncUploadRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncUploadResponse"];
                 };
             };
             /** @description Bad Request */

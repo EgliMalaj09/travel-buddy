@@ -47,6 +47,8 @@ export interface TripRepository {
   updateTrip(id: string, input: TripInput): Promise<Trip>;
   /** Soft delete of the trip and everything in it (T6: the screen asks first). */
   deleteTrip(id: string): Promise<void>;
+  /** Forgets anything loaded so far (another user logged in). */
+  reset?(): void;
 }
 
 /** The same checks the backend's sync write endpoint makes (Create a trip, Technical). */

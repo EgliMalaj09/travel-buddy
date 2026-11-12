@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
+import { setDataOwner } from '@/data';
 import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
 import { initSentry, wrapWithSentry } from '@/services/sentry';
 import { fontAssets } from '@/theme/fonts';
@@ -14,7 +15,7 @@ SplashScreen.preventAutoHideAsync();
 
 function AppStack() {
   const { colors, fonts } = useTheme();
-  const { phase } = useAuth();
+  const { phase, user } = useAuth();
 
   // Keep the splash screen until we know if someone is logged in. The Stack must render from
   // the start (Expo Router needs it); while loading, Home sits hidden behind the splash.
@@ -22,6 +23,10 @@ function AppStack() {
     if (phase !== 'loading') SplashScreen.hideAsync();
   }, [phase]);
   const signedIn = phase === 'signedIn' || phase === 'loading';
+
+  // Trips load for the logged-in user; they load again once the session is back after opening.
+  const dataOwner = phase === 'signedIn' ? (user?.id ?? null) : null;
+  useEffect(() => setDataOwner(dataOwner), [dataOwner]);
 
   // Each group is only reachable in its phase; Expo Router sends the user to the first open screen.
   return (

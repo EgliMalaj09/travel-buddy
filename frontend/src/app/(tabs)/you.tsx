@@ -102,7 +102,7 @@ export default function YouScreen() {
           confirm('Log out', 'You can log in again with your email, Google or Apple.', logout)
         }
       />
-      {dataMode === 'mock' ? (
+      {__DEV__ || dataMode === 'mock' ? (
         <Button
           title="Reset login (testing)"
           kind="ghost"

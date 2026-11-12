@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { useOwnerEpoch } from './changes';
+
 /**
  * Loads data from a repository for a screen. With PowerSync this becomes a live query
  * that updates by itself when the data changes.
@@ -13,7 +15,8 @@ export function useAsync<T>(
   error: Error | undefined;
   loading: boolean;
 } {
-  const key = JSON.stringify(deps);
+  // A new logged-in user always loads again.
+  const key = JSON.stringify([useOwnerEpoch(), ...deps]);
   const [state, setState] = useState<{ key?: string; data?: T; error?: Error }>({});
 
   useEffect(() => {
