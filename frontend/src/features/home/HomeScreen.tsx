@@ -7,25 +7,35 @@ import { dataMode, repositories, useAsync, useDataVersion, type TripStop } from 
 import { formatDateRange, todayIso } from '@/lib/dates';
 import {
   countdown,
-  currentStop,
   formatFlightTime,
   greeting,
   homeFocus,
   nextFlight,
   travelStats,
 } from '@/lib/home';
+import { formatReminderTime, planReminders, type PlannedReminder } from '@/lib/reminders';
+import { todayPlan, type TodayItem } from '@/lib/today';
 import { flightTitle } from '@/lib/tripDraft';
 import { flagEmoji, groupTrips, phaseLine, tripCountries } from '@/lib/trips';
+import { loadReminderInput } from '@/features/reminders/reminderInput';
+import {
+  openNotificationSettings,
+  reminderPermission,
+  type ReminderPermission,
+} from '@/services/reminders';
 import { useTheme } from '@/theme/ThemeProvider';
 
 /** How many other upcoming trips Home lists before "See all trips". */
 const MAX_COMING_UP = 3;
+/** How many of the next reminders Home shows. */
+const MAX_REMINDERS = 2;
 
 /**
  * Home dashboard: the trip happening now or the next one (countdown), what comes after it,
  * trip ideas without dates and a few lifetime numbers.
  * Reads only through the trip repository, so it works with mock data and the local database.
- * Reminders (KAN-32) and the "Today" suggestion (KAN-45) are added here later.
+ * For a trip happening now, the "Today" card (KAN-45); for any trip with dates, the next
+ * reminders (KAN-32).
  */
 export function HomeScreen({ firstName, now = new Date() }: { firstName?: string; now?: Date }) {
   const { colors, space } = useTheme();
@@ -37,7 +47,9 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
     const stopsByTrip = new Map<string, TripStop[]>(trips.map((t, i) => [t.id, stops[i] ?? []]));
     const focus = homeFocus(trips, today);
     const flights = focus ? await repositories.trips.listFlights(focus.trip.id) : [];
-    return { trips, stopsByTrip, focus, flights };
+    const reminders = planReminders({ ...(await loadReminderInput()), now: new Date() });
+    const permission = await reminderPermission();
+    return { trips, stopsByTrip, focus, flights, reminders, permission };
   }, [version, today]);
 
   const header = (
@@ -73,7 +85,11 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
   }
   if (!data) return <Screen header={header}>{null}</Screen>;
 
-  const { trips, stopsByTrip, focus, flights } = data;
+  const { trips, stopsByTrip, focus, flights, reminders, permission } = data;
+  const todayItems =
+    focus?.kind === 'now'
+      ? todayPlan(focus.trip, stopsByTrip.get(focus.trip.id) ?? [], flights, today)
+      : [];
   const countriesOf = (id: string) => tripCountries(stopsByTrip.get(id) ?? []);
   const groups = groupTrips(trips, today);
   const comingUp = (groups.find((g) => g.group === 'upcoming')?.trips ?? []).filter(
@@ -104,7 +120,6 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
           focus={focus}
           today={today}
           countries={countriesOf(focus.trip.id)}
-          stops={stopsByTrip.get(focus.trip.id) ?? []}
           flights={flights}
           onPress={() => openTrip(focus.trip.id)}
         />
@@ -117,6 +132,12 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
           </AppText>
         </Card>
       )}
+
+      {todayItems.length > 0 ? <TodayCard items={todayItems} /> : null}
+
+      {reminders.length > 0 ? (
+        <RemindersCard reminders={reminders} permission={permission} now={now} />
+      ) : null}
 
       {comingUp.length > 0 ? (
         <View style={{ gap: space.sm }}>
@@ -181,27 +202,26 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
   );
 }
 
-/** The hero card: countdown or "Day 3 of 7", where you are tonight, the next flight. */
+/** The hero card: countdown or "Day 3 of 7" and the next flight. */
 function FocusCard({
   focus,
   today,
   countries,
-  stops,
   flights,
   onPress,
 }: {
   focus: NonNullable<ReturnType<typeof homeFocus>>;
   today: string;
   countries: string[];
-  stops: TripStop[];
   flights: Parameters<typeof nextFlight>[0];
   onPress: () => void;
 }) {
   const { colors, space } = useTheme();
   const { trip, kind } = focus;
   const count = countdown(focus, today);
-  const tonight = kind === 'now' ? currentStop(trip, stops, today) : null;
-  const flight = nextFlight(flights, today);
+  // While travelling, tonight's city and today's flights are on the Today card instead.
+  const next = nextFlight(flights, today);
+  const flight = kind === 'now' && next?.departureLocalTime?.startsWith(today) ? null : next;
 
   return (
     <Card onPress={onPress}>
@@ -219,7 +239,6 @@ function FocusCard({
       {countries.length > 0 ? (
         <AppText variant="body">{countries.map(flagEmoji).join(' ')}</AppText>
       ) : null}
-      {tonight ? <InfoRow icon="bed-outline" text={`Tonight in ${tonight.cityName}`} /> : null}
       {flight?.departureLocalTime ? (
         <InfoRow
           icon="airplane-outline"
@@ -231,14 +250,84 @@ function FocusCard({
   );
 }
 
+/** "Today" (KAN-45): what the trip already knows about today. Places are added with KAN-34. */
+function TodayCard({ items }: { items: TodayItem[] }) {
+  const { space } = useTheme();
+  return (
+    <View style={{ gap: space.sm }}>
+      <SectionTitle title="Today" />
+      <Card>
+        {items.map((item, i) => (
+          <InfoRow
+            key={item.key}
+            icon={item.icon}
+            text={item.text}
+            detail={item.detail}
+            first={i === 0}
+          />
+        ))}
+      </Card>
+    </View>
+  );
+}
+
+/** The next reminders, or how to turn them on. */
+function RemindersCard({
+  reminders,
+  permission,
+  now,
+}: {
+  reminders: PlannedReminder[];
+  permission: ReminderPermission;
+  now: Date;
+}) {
+  const { colors, space } = useTheme();
+  const note =
+    permission === 'denied'
+      ? 'Notifications are off for this app.'
+      : permission === 'unsupported'
+        ? 'Reminders come on the phone app.'
+        : permission === 'notAsked'
+          ? 'Turn on notifications to get these.'
+          : null;
+  return (
+    <View style={{ gap: space.sm }}>
+      <SectionTitle
+        title="Reminders"
+        action={permission === 'denied' ? 'Turn on' : undefined}
+        onAction={openNotificationSettings}
+      />
+      <Card>
+        {reminders.slice(0, MAX_REMINDERS).map((r, i) => (
+          <InfoRow
+            key={r.id}
+            icon={r.kind.startsWith('flight') ? 'airplane-outline' : 'notifications-outline'}
+            text={r.title}
+            detail={formatReminderTime(r.at, now)}
+            first={i === 0}
+          />
+        ))}
+        {note ? (
+          <AppText variant="caption" color={colors.inkSoft}>
+            {note}
+          </AppText>
+        ) : null}
+      </Card>
+    </View>
+  );
+}
+
 function InfoRow({
   icon,
   text,
   detail,
+  first = false,
 }: {
   icon: React.ComponentProps<typeof Ionicons>['name'];
   text: string;
   detail?: string;
+  /** The first row of a card has no line above it. */
+  first?: boolean;
 }) {
   const { colors, space } = useTheme();
   return (
@@ -247,9 +336,9 @@ function InfoRow({
         flexDirection: 'row',
         alignItems: 'center',
         gap: space.sm,
-        borderTopWidth: 1,
+        borderTopWidth: first ? 0 : 1,
         borderColor: colors.border,
-        paddingTop: space.sm,
+        paddingTop: first ? 0 : space.sm,
       }}
     >
       <Ionicons name={icon} size={20} color={colors.inkSoft} />

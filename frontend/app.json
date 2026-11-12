@@ -50,7 +50,8 @@
         }
       ],
       "expo-apple-authentication",
-      "expo-asset"
+      "expo-asset",
+      "expo-notifications"
     ],
     "scheme": "travelapp",
     "experiments": {

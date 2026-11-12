@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 
 import { setDataOwner } from '@/data';
 import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
+import { useReminderSync } from '@/features/reminders/useReminderSync';
 import { initSentry, wrapWithSentry } from '@/services/sentry';
 import { fontAssets } from '@/theme/fonts';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
@@ -27,6 +28,8 @@ function AppStack() {
   // Trips load for the logged-in user; they load again once the session is back after opening.
   const dataOwner = phase === 'signedIn' ? (user?.id ?? null) : null;
   useEffect(() => setDataOwner(dataOwner), [dataOwner]);
+  // Reminders on the phone follow the trips; cleared when nobody is logged in (KAN-32).
+  useReminderSync(phase === 'signedIn');
 
   // Each group is only reachable in its phase; Expo Router sends the user to the first open screen.
   return (

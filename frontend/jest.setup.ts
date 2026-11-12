@@ -60,3 +60,17 @@ jest.mock('@powersync/react-native', () => {
     column: { text: 'text', integer: 'integer', real: 'real' },
   };
 });
+// Local notifications are native; tests see a phone where reminders are allowed.
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(async () => null),
+  getPermissionsAsync: jest.fn(async () => ({ status: 'granted' })),
+  requestPermissionsAsync: jest.fn(async () => ({ status: 'granted' })),
+  scheduleNotificationAsync: jest.fn(async () => 'id'),
+  cancelAllScheduledNotificationsAsync: jest.fn(async () => undefined),
+  getLastNotificationResponse: jest.fn(() => null),
+  clearLastNotificationResponse: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  AndroidImportance: { DEFAULT: 3 },
+  SchedulableTriggerInputTypes: { DATE: 'date' },
+}));

@@ -22,7 +22,10 @@ describe('Home dashboard', () => {
     expect(screen.getByText('Egli')).toBeTruthy();
     expect(screen.getByText('Lisbon')).toBeTruthy();
     expect(screen.getByText('Day 3')).toBeTruthy();
+    expect(screen.getByText('Today')).toBeTruthy();
     expect(screen.getByText('Tonight in Lisbon')).toBeTruthy();
+    expect(screen.getByText('Reminders')).toBeTruthy();
+    expect(screen.getByText('Rome & Florence in 7 days')).toBeTruthy();
     expect(screen.getByText('Coming up')).toBeTruthy();
     expect(screen.getByText('Rome & Florence')).toBeTruthy();
     expect(screen.getByText('1 trip idea without dates')).toBeTruthy();
