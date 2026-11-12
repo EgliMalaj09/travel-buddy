@@ -76,6 +76,14 @@ export async function askReminderPermissionOnce(): Promise<boolean> {
   return (await reminderPermission()) === 'granted';
 }
 
+/** Asks the phone for notification permission now (Settings screen, KAN-21). True when granted. */
+export async function requestReminderPermission(): Promise<boolean> {
+  if (!remindersSupported) return false;
+  setFlag(ASKED_FLAG, true);
+  const { status } = await Notifications.requestPermissionsAsync();
+  return status === 'granted';
+}
+
 /** Opens the phone's settings for this app, to turn notifications back on. */
 export function openNotificationSettings(): void {
   void Linking.openSettings();

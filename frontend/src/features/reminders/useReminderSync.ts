@@ -6,6 +6,7 @@ import { useDataVersion } from '@/data';
 import { planReminders } from '@/lib/reminders';
 import { clearReminders, onReminderTapped, scheduleReminders } from '@/services/reminders';
 import { captureError } from '@/services/sentry';
+import { useUserSettings } from '@/services/userSettings';
 
 import { loadReminderInput } from './reminderInput';
 
@@ -21,10 +22,11 @@ const oneAtATime = (run: () => Promise<void>) => {
 
 /**
  * Keeps the phone's reminders in step with the trips (KAN-32): planned again whenever trip data
- * changes, cleared on log out. Tapping a reminder opens its trip.
+ * or the reminder settings change (KAN-21), cleared on log out. Tapping a reminder opens its trip.
  */
 export function useReminderSync(signedIn: boolean): void {
   const version = useDataVersion();
+  const settings = useUserSettings((s) => s.settings);
   // Plan again when the app comes back to the front (a new day, or notifications turned on in
   // the phone's settings).
   const [wakes, setWakes] = useState(0);
@@ -50,7 +52,7 @@ export function useReminderSync(signedIn: boolean): void {
     return () => {
       cancelled = true;
     };
-  }, [signedIn, version, wakes]);
+  }, [signedIn, version, wakes, settings]);
 
   useEffect(() => {
     if (!signedIn) return;

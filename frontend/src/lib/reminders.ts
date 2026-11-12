@@ -29,7 +29,7 @@ export interface ReminderSettings {
   quietHoursEnd: string;
 }
 
-/** Data model defaults. The switches come with the Settings screen (KAN-21). */
+/** Data model defaults. The user changes them on the Settings screen (KAN-21). */
 export const defaultReminderSettings: ReminderSettings = {
   remindersEnabled: true,
   remindChecklist: true,

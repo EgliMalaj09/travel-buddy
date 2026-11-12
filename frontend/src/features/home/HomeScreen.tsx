@@ -18,6 +18,7 @@ import { todayPlan, type TodayItem } from '@/lib/today';
 import { flightTitle } from '@/lib/tripDraft';
 import { flagEmoji, groupTrips, phaseLine, tripCountries } from '@/lib/trips';
 import { loadReminderInput } from '@/features/reminders/reminderInput';
+import { useUserSettings } from '@/services/userSettings';
 import {
   openNotificationSettings,
   reminderPermission,
@@ -41,6 +42,8 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
   const { colors, space } = useTheme();
   const today = todayIso(now);
   const version = useDataVersion();
+  // Plan the shown reminders again when the Settings screen changes them.
+  const reminderSettings = useUserSettings((s) => s.settings);
   const { data, error } = useAsync(async () => {
     const trips = await repositories.trips.listTrips();
     const stops = await Promise.all(trips.map((t) => repositories.trips.listStops(t.id)));
@@ -50,7 +53,7 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
     const reminders = planReminders({ ...(await loadReminderInput()), now: new Date() });
     const permission = await reminderPermission();
     return { trips, stopsByTrip, focus, flights, reminders, permission };
-  }, [version, today]);
+  }, [version, today, JSON.stringify(reminderSettings)]);
 
   const header = (
     <View
