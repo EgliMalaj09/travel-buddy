@@ -137,11 +137,11 @@ export function createApiAuthService(sheets: SocialSheets = defaultSheets): Auth
     },
 
     async loginWithApple(deviceId) {
-      const { idToken, firstName } = await sheets.apple();
+      const { idToken, firstName, nonce } = await sheets.apple();
       return toSession(
         await call(() =>
           authApi.POST('/auth/apple', {
-            body: { idToken, deviceId, firstName: firstName ?? null },
+            body: { idToken, deviceId, firstName: firstName ?? null, nonce: nonce ?? null },
           }),
         ),
       );

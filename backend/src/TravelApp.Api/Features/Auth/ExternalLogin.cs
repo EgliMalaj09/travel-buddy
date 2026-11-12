@@ -11,7 +11,8 @@ namespace TravelApp.Api.Features.Auth;
 /// <param name="Subject">The provider's id for this person (stays the same).</param>
 /// <param name="Email">Confirmed email.</param>
 /// <param name="FirstName">Given name, when the provider sends one.</param>
-public sealed record ExternalIdentity(string Subject, string Email, string? FirstName);
+/// <param name="Nonce">The token's "nonce" claim, when it has one (Apple: SHA-256 of the app's nonce, as hex).</param>
+public sealed record ExternalIdentity(string Subject, string Email, string? FirstName, string? Nonce = null);
 
 /// <summary>Checks a Google or Apple ID token. Returns null when the token is not valid.</summary>
 public interface IExternalTokenValidator
@@ -76,7 +77,8 @@ internal sealed partial class OpenIdTokenValidator : IExternalTokenValidator
             return null;
         }
 
-        return new ExternalIdentity(subject, email, claims.FindFirst(ClaimTypes.GivenName)?.Value ?? claims.FindFirst("given_name")?.Value);
+        return new ExternalIdentity(subject, email, claims.FindFirst(ClaimTypes.GivenName)?.Value ?? claims.FindFirst("given_name")?.Value,
+            claims.FindFirst(JwtRegisteredClaimNames.Nonce)?.Value);
     }
 
     private static ConfigurationManager<OpenIdConnectConfiguration> Manager(string url) =>

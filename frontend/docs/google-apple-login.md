@@ -7,6 +7,9 @@ How it works: the phone opens the Google (or Apple) sheet, the person picks an a
 sheet gives the app an **ID token**. The app sends it to the API (`POST /auth/google` or
 `/auth/apple`). The API checks the token with Google's / Apple's public keys and that it was made
 for **our** client id, then logs the person in (or creates the account).
+For Apple, the app also makes a random **nonce** for each sign-in: Apple gets its SHA-256 and puts it
+in the token, the app sends the plain nonce with the token, and the API checks they match. A token
+copied from somewhere else can't be used without its nonce.
 
 | | Android | iPhone | Web (`npm run web`) |
 | --- | --- | --- | --- |

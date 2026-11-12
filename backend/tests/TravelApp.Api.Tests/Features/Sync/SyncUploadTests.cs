@@ -36,11 +36,14 @@ public sealed class SyncUploadTests(ApiFactory factory)
         public async Task<IReadOnlyList<SyncChangeResult>> Upload(params object[] changes) =>
             (await AuthTestClient.Read<SyncUploadResponse>(await PostUpload(new { changes }))).Results;
 
-        public async Task<MyTripsResponse> Trips()
+        public async Task<MyTripsResponse> Trips(string query = "") =>
+            await AuthTestClient.Read<MyTripsResponse>(await GetTrips(query));
+
+        public async Task<HttpResponseMessage> GetTrips(string query)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, new Uri("/trips", UriKind.Relative));
+            using var request = new HttpRequestMessage(HttpMethod.Get, new Uri("/trips" + query, UriKind.Relative));
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            return await AuthTestClient.Read<MyTripsResponse>(await _client.Http.SendAsync(request, Ct));
+            return await _client.Http.SendAsync(request, Ct);
         }
 
         public void Dispose() => _client.Dispose();
@@ -245,5 +248,67 @@ public sealed class SyncUploadTests(ApiFactory factory)
         Assert.Equal(HttpStatusCode.BadRequest, empty.StatusCode);
         var badOp = await phone.PostUpload(new { changes = new[] { new { op = "MERGE", type = "trips", id = Guid.CreateVersion7() } } });
         Assert.Equal(HttpStatusCode.BadRequest, badOp.StatusCode);
+    }
+
+    [Fact]
+    public async Task Trips_come_in_pages_in_order_with_their_own_stops()
+    {
+        using var phone = await Phone.SignedInAsync(factory);
+        // Same first day twice (order then by creation), and two Someday trips that come last.
+        string?[] starts = ["2027-06-01", "2027-01-10", null, "2027-03-05", "2027-03-05", null, "2026-12-24"];
+        var ids = new List<Guid>();
+        foreach (var start in starts)
+        {
+            var id = Guid.NewGuid();
+            ids.Add(id);
+            var trip = new Dictionary<string, object?>
+            {
+                ["name"] = $"Trip {ids.Count}",
+                ["type"] = "solo",
+                ["start_date"] = start,
+                ["end_date"] = start,
+                ["activities"] = "[]",
+                ["status"] = "planned",
+                ["passport_country_snapshot"] = "AL",
+                ["home_currency_snapshot"] = "EUR",
+            };
+            var results = await phone.Upload(new { op = "PUT", type = "trips", id, data = trip },
+                StopPut(Guid.NewGuid(), id, 0, $"City {ids.Count}"));
+            Assert.All(results, r => Assert.Equal("ok", r.Status));
+        }
+
+        var seen = new List<MyTripsResponse>();
+        string? cursor = null;
+        do
+        {
+            var page = await phone.Trips(cursor is null ? "?limit=3" : $"?limit=3&after={cursor}");
+            seen.Add(page);
+            cursor = page.NextCursor;
+        }
+        while (cursor is not null);
+
+        var all = await phone.Trips();
+        Assert.Equal([3, 3, 1], seen.Select(p => p.Trips.Count));
+        Assert.Null(all.NextCursor);
+        Assert.Equal(all.Trips.Select(t => t.Id), seen.SelectMany(p => p.Trips).Select(t => t.Id));
+        Assert.Equal(
+            ["2026-12-24", "2027-01-10", "2027-03-05", "2027-03-05", "2027-06-01", null, null],
+            all.Trips.Select(t => t.StartDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)));
+        Assert.Equal(ids.ToHashSet(), all.Trips.Select(t => t.Id).ToHashSet());
+        Assert.All(seen, p => Assert.Equal(p.Trips.Select(t => t.Id).ToHashSet(), p.Stops.Select(s => s.TripId).ToHashSet()));
+    }
+
+    [Theory]
+    [InlineData("?limit=0", "limit")]
+    [InlineData("?limit=101", "limit")]
+    [InlineData("?after=not-a-cursor", "after")]
+    public async Task Bad_paging_values_are_refused(string query, string field)
+    {
+        using var phone = await Phone.SignedInAsync(factory);
+
+        var response = await phone.GetTrips(query);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(field, await response.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
     }
 }

@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -182,7 +184,7 @@ public sealed class AuthService(
     public async Task<AuthResult<SessionResponse>> SocialLoginAsync(string provider, SocialLoginRequest request, CancellationToken ct)
     {
         var identity = await external.ValidateAsync(provider, request.IdToken, ct);
-        if (identity is null)
+        if (identity is null || !NonceMatches(provider, identity.Nonce, request.Nonce))
         {
             return InvalidToken;
         }
@@ -258,6 +260,26 @@ public sealed class AuthService(
 
         await codes.SendAsync(email, user.Email!, CodePurpose.Reset, null, ct);
         return true;
+    }
+
+    /// <summary>
+    /// The token must carry SHA-256(nonce the app sent), as hex. This ties the token to this sign-in, so a token
+    /// taken from somewhere else cannot be replayed without its nonce. Apple tokens must always have one.
+    /// </summary>
+    internal static bool NonceMatches(string provider, string? tokenNonce, string? requestNonce)
+    {
+        if (tokenNonce is null)
+        {
+            return provider != AuthProvider.Apple;
+        }
+
+        if (requestNonce is null)
+        {
+            return false;
+        }
+
+        var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(requestNonce)));
+        return CryptographicOperations.FixedTimeEquals(Encoding.ASCII.GetBytes(hash), Encoding.ASCII.GetBytes(tokenNonce.ToLowerInvariant()));
     }
 
     /// <summary>Code + new password. Also how Google/Apple users add email login. Ends all sessions.</summary>

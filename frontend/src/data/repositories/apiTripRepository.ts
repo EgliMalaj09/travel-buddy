@@ -26,11 +26,16 @@ export type SyncResult = Schemas['SyncChangeResult'];
 
 /** The two backend calls this repository needs. Tests pass a fake. */
 export interface TripApi {
-  /** GET /trips */
-  list(): Promise<Schemas['MyTripsResponse']>;
+  /** GET /trips, one page. Pass the previous page's nextCursor as `after`. */
+  list(after?: string): Promise<Schemas['MyTripsResponse']>;
   /** POST /sync/upload */
   upload(changes: SyncChange[]): Promise<SyncResult[]>;
 }
+
+/** Trips per GET /trips page (the API allows up to 100). */
+export const TRIPS_PAGE_SIZE = 50;
+/** Safety stop, so a server bug that keeps sending a cursor can't loop forever (= 10,000 trips). */
+const MAX_PAGES = 200;
 
 const OFFLINE = "Can't reach the server. Check your connection and try again.";
 
@@ -50,7 +55,12 @@ export function createHttpTripApi(): TripApi {
     return result.data;
   }
   return {
-    list: () => call(() => api.GET('/trips')),
+    list: (after) =>
+      call(() =>
+        api.GET('/trips', {
+          params: { query: { limit: TRIPS_PAGE_SIZE, ...(after ? { after } : {}) } },
+        }),
+      ),
     upload: async (changes) =>
       (
         await call(() =>
@@ -136,6 +146,21 @@ function toFlight(f: Schemas['FlightDto']): Flight {
 
 type Snapshot = { trips: Trip[]; stops: TripStop[]; flights: Flight[] };
 
+/** Reads GET /trips page by page until nextCursor is empty. Pages come in trip order. */
+async function listAllPages(tripApi: TripApi): Promise<Schemas['MyTripsResponse']> {
+  const all: Schemas['MyTripsResponse'] = { trips: [], stops: [], flights: [], nextCursor: null };
+  let after: string | undefined;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const r = await tripApi.list(after);
+    all.trips.push(...r.trips);
+    all.stops.push(...r.stops);
+    all.flights.push(...r.flights);
+    if (!r.nextCursor) return all;
+    after = r.nextCursor;
+  }
+  throw new Error('Too many trips to load. Please try again.');
+}
+
 /**
  * Trips saved on the server (KAN-16): reads GET /trips, writes POST /sync/upload.
  * A step before PowerSync (KAN-15): the writes already use the sync endpoint and its change format,
@@ -147,7 +172,7 @@ export function createApiTripRepository(tripApi: TripApi = createHttpTripApi()):
 
   function load(fresh = false): Promise<Snapshot> {
     if (!cache || fresh) {
-      const next = tripApi.list().then((r) => ({
+      const next = listAllPages(tripApi).then((r) => ({
         trips: r.trips.map(toTrip),
         stops: r.stops.map(toStop).sort((a, b) => a.order - b.order),
         flights: r.flights.map(toFlight).sort((a, b) => a.order - b.order),

@@ -135,7 +135,7 @@ describe('api auth service', () => {
   it('sends the Apple ID token to /auth/apple (no name after the first time)', async () => {
     const sheets = {
       google: jest.fn(),
-      apple: jest.fn(async () => ({ idToken: 'apple-token' })),
+      apple: jest.fn(async () => ({ idToken: 'apple-token', nonce: 'plain-nonce-1234567' })),
       signOut: jest.fn(async () => undefined),
     };
     fetchMock.mockResolvedValue(json(200, session));
@@ -145,6 +145,7 @@ describe('api auth service', () => {
       idToken: 'apple-token',
       deviceId: 'device-1234',
       firstName: null,
+      nonce: 'plain-nonce-1234567',
     });
   });
 

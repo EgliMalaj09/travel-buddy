@@ -121,5 +121,16 @@ public sealed record FlightDto(
     DateTimeOffset? DeletedAt,
     long Version);
 
-/// <summary>All of the user's trips that are not deleted, with their stops and flights (in order).</summary>
-public sealed record MyTripsResponse(IReadOnlyList<TripDto> Trips, IReadOnlyList<TripStopDto> Stops, IReadOnlyList<FlightDto> Flights);
+/// <summary>One page of the user's trips that are not deleted, with the stops and flights of those trips (in order).</summary>
+/// <param name="NextCursor">Send it as "after" to get the next page. Empty on the last page.</param>
+public sealed record MyTripsResponse(
+    IReadOnlyList<TripDto> Trips,
+    IReadOnlyList<TripStopDto> Stops,
+    IReadOnlyList<FlightDto> Flights,
+    string? NextCursor);
+
+public static class TripsPaging
+{
+    public const int DefaultLimit = 50;
+    public const int MaxLimit = 100;
+}

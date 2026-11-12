@@ -8,6 +8,9 @@ jest.mock('react-native-nitro-modules', () => ({
 jest.mock('expo-crypto', () => ({
   getRandomValues: (array: Uint8Array) => require('crypto').getRandomValues(array),
   randomUUID: () => require('crypto').randomUUID(),
+  CryptoDigestAlgorithm: { SHA256: 'SHA-256' },
+  digestStringAsync: async (_algorithm: string, data: string) =>
+    require('crypto').createHash('sha256').update(data).digest('hex'),
 }));
 
 // The Google and Apple sign-in sheets are native; tests replace them (see socialSignIn.test.ts).

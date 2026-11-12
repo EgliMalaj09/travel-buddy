@@ -175,4 +175,27 @@ describe('AuthProvider', () => {
     expect(phases).toEqual(['intro']);
     expect(getFlag('introSeen')).toBe(false);
   });
+
+  it('reset for testing also ends the session on the server', async () => {
+    await signedInAna();
+    const service = createMockAuthService();
+    const logout = jest.spyOn(service, 'logout');
+    await renderApp(service);
+    await waitFor(() => expect(screen.getByText('signedIn')).toBeTruthy());
+    await act(() => auth.resetForTesting());
+    expect(logout).toHaveBeenCalledTimes(1);
+    expect(logout).toHaveBeenCalledWith(expect.stringMatching(/.+/));
+    expect(screen.getByText('intro')).toBeTruthy();
+  });
+
+  it('reset for testing still resets when the server cannot be reached', async () => {
+    await signedInAna();
+    const service = createMockAuthService();
+    jest.spyOn(service, 'logout').mockRejectedValue(new Error('offline'));
+    await renderApp(service);
+    await waitFor(() => expect(screen.getByText('signedIn')).toBeTruthy());
+    await act(() => auth.resetForTesting());
+    expect(screen.getByText('intro')).toBeTruthy();
+    expect(secure['travelapp.refreshToken']).toBeUndefined();
+  });
 });

@@ -5,6 +5,7 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import * as Crypto from 'expo-crypto';
 
 import { AuthError } from './types';
 
@@ -17,6 +18,8 @@ export interface SocialCredential {
   idToken: string;
   /** Apple gives the name only on the very first sign-in; Google gives it every time. */
   firstName?: string;
+  /** The random text this sign-in used (Apple). The sheet got its SHA-256; the backend checks they match. */
+  nonce?: string;
 }
 
 export interface SocialSheets {
@@ -86,12 +89,17 @@ export async function signInWithApple(): Promise<SocialCredential> {
       'Apple login works on iPhone. On this phone, use Google or email.',
     );
   }
+  // A fresh random nonce per sign-in. Apple puts its SHA-256 (hex) in the token, and we send the
+  // plain one to the backend, so a token copied from somewhere else can't be used to log in.
+  const nonce = `${Crypto.randomUUID()}${Crypto.randomUUID()}`.replace(/-/g, '');
+  const hashedNonce = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, nonce);
   try {
     const credential = await AppleAuthentication.signInAsync({
       requestedScopes: [
         AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
         AppleAuthentication.AppleAuthenticationScope.EMAIL,
       ],
+      nonce: hashedNonce,
     });
     if (!credential.identityToken) {
       throw new AuthError('invalid_token', 'Apple did not send a login token. Try again.');
@@ -99,6 +107,7 @@ export async function signInWithApple(): Promise<SocialCredential> {
     return {
       idToken: credential.identityToken,
       firstName: credential.fullName?.givenName ?? undefined,
+      nonce,
     };
   } catch (e) {
     if (e instanceof AuthError) throw e;
