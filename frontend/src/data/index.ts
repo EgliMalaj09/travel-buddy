@@ -1,7 +1,11 @@
 import { notifyOwnerChanged } from './changes';
-import { createLocalTrips, setLocalOwner } from './local/localStore';
+import { createLocalPlaces, createLocalTrips, setLocalOwner } from './local/localStore';
+import { createApiPlaceRepository } from './repositories/apiPlaceRepository';
 import { createApiTripRepository } from './repositories/apiTripRepository';
+import { createMockPlaceRepository, type PlaceRepository } from './repositories/placeRepository';
 import { createMockTripRepository, type TripRepository } from './repositories/tripRepository';
+export type { PlaceInput, PlaceRepository } from './repositories/placeRepository';
+export { PLACE_NOTE_MAX, PLACE_TITLE_MAX, placeInputProblem } from './repositories/placeRepository';
 
 export type {
   FlightInput,
@@ -30,21 +34,35 @@ export function pickDataMode(
   return authEnv === 'mock' ? 'mock' : 'local';
 }
 
-function createTrips(mode: DataMode): { mode: DataMode; trips: TripRepository } {
-  if (mode === 'mock') return { mode, trips: createMockTripRepository() };
-  if (mode === 'local') {
-    const trips = createLocalTrips();
-    if (trips) return { mode, trips };
-  }
-  return { mode: 'api', trips: createApiTripRepository() };
+interface Repositories {
+  trips: TripRepository;
+  places: PlaceRepository;
 }
 
-const chosen = createTrips(pickDataMode());
+function createRepositories(mode: DataMode): { mode: DataMode; repos: Repositories } {
+  if (mode === 'mock') {
+    return {
+      mode,
+      repos: { trips: createMockTripRepository(), places: createMockPlaceRepository() },
+    };
+  }
+  if (mode === 'local') {
+    const trips = createLocalTrips();
+    const places = createLocalPlaces();
+    if (trips && places) return { mode, repos: { trips, places } };
+  }
+  return {
+    mode: 'api',
+    repos: { trips: createApiTripRepository(), places: createApiPlaceRepository() },
+  };
+}
+
+const chosen = createRepositories(pickDataMode());
 
 /** The data source in use ("local" falls back to "api" where there is no local database: web). */
 export const dataMode: DataMode = chosen.mode;
 
-export const repositories: { trips: TripRepository } = { trips: chosen.trips };
+export const repositories: Repositories = chosen.repos;
 
 let owner: string | null = null;
 
@@ -58,6 +76,7 @@ export function setDataOwner(userId: string | null): void {
   owner = userId;
   if (dataMode === 'local') setLocalOwner(userId);
   repositories.trips.reset?.();
+  repositories.places.reset?.();
   notifyOwnerChanged();
 }
 

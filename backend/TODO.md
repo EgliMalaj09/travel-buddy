@@ -21,7 +21,7 @@ Suggested order. Foundation and sync come first; the frontend's sync test (KAN-1
 | [ ] | 2 | BE - Offline sync (write endpoint, per-field apply, sync rules, sequence numbers). **Built 12 Nov 2026, waiting for merge and manual test**: `POST /sync/upload` (trips, stops, flights), `GET /trips`, PowerSync checks our tokens through `/.well-known/jwks.json`. Ordering comes from PostgreSQL replication (PowerSync), so no own sequence numbers | KAN-16 | KAN-13 (S1–S6 agreed) | 524289 |
 | [ ] | 3 | BE - Login and onboarding. **Merged to `main` 11 Nov 2026, waiting for manual test** (PR #3) | KAN-12 | KAN-10 (L1–L6 agreed) | 196808 |
 | [ ] | 4 | BE - Create a trip (Trip, TripStop, **Flight** (new, 11 Nov 2026), validation). **Merged to `main` 11 Nov 2026, waiting for manual test**: tables + migration, write rules for the sync endpoint, sync streams. The phone's writes reach it once KAN-16 (sync write endpoint) exists | KAN-19 | KAN-17 (T1–T7) | 557057 |
-| [ ] | 5 | BE - Places | KAN-35 | KAN-33 (PL1–PL5) | 622593 |
+| [ ] | 5 | BE - Places. **Built 12 Nov 2026, waiting for merge and manual test**: `places` table + migration, `POST /sync/upload` type `places`, `GET /places?tripId=`, PowerSync streams `my_places` and `my_bucket_list`, a deleted trip deletes its places (`ITripDeleteHook`) | KAN-35 | KAN-33 (PL1–PL5) | 622593 |
 | [ ] | 6 | BE - Photos and notes (Blob Storage, upload URLs, thumbnails) | KAN-40 | KAN-38 (PH1–PH6) | 524314 |
 | [ ] | 7 | BE - Smart checklist (rule set storage and endpoint) | KAN-25 | KAN-23 (C1–C6) | 98543 |
 | [ ] | 8 | AI - Smart checklist rule set (owner reviews) | KAN-26 | KAN-23 | 98543 |

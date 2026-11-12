@@ -15,7 +15,7 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 5 | Smart checklist | 1 | 98543 | KAN-23 | KAN-24 FE, KAN-25 BE, KAN-26 AI |
 | 6 | Packing list | 1 | 426033 | KAN-27 | KAN-28 FE, KAN-29 BE, KAN-30 AI |
 | 7 | Countdown and reminders | 1 | 491522 | KAN-31 | KAN-32 FE |
-| 8 | Places (bucket list, planned, visited) | 1 | 622593 | KAN-33 | KAN-34 FE, KAN-35 BE |
+| 8 | Places (bucket list, planned, visited). First build 12 Nov 2026: choices in [04-places.md](04-places.md) until Confluence is updated | 1 | 622593 | KAN-33 | KAN-34 FE, KAN-35 BE |
 | 9 | Map | 1 | 557074 | KAN-36 | KAN-37 FE |
 | 10 | Photos and notes | 1 | 524314 | KAN-38 | KAN-39 FE, KAN-40 BE |
 | 11 | Expenses | 1 | 98559 | KAN-41 | KAN-42 FE, KAN-43 BE |
