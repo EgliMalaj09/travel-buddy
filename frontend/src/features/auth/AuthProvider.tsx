@@ -14,7 +14,8 @@ import { getDeviceSettings, getFlag, setDeviceSettings, setFlag } from '@/servic
 
 import type { AuthService } from './authService';
 import { unlockWithBiometric } from './biometric';
-import { createMockAuthService, resetMockAuth } from './mockAuthService';
+import { createAuthService } from './authMode';
+import { resetMockAuth } from './mockAuthService';
 import { getDeviceId, getRefreshToken, setRefreshToken } from './secureStore';
 import type { AuthUser, Consents, LoginResult, Profile, Session } from './types';
 
@@ -44,7 +45,7 @@ interface AuthContextValue {
   forgotPassword(email: string): Promise<void>;
   resetPassword(email: string, code: string, newPassword: string): Promise<void>;
   saveProfile(profile: Profile, consents?: Consents): Promise<void>;
-  /** Testing helper (mock mode): log out, forget mock users and show the intro again. */
+  /** Testing helper: log out, forget mock users on this phone and show the intro again. */
   resetForTesting(): Promise<void>;
   logout(): Promise<void>;
   unlock(): Promise<boolean>;
@@ -64,7 +65,7 @@ export function AuthProvider({
   children: ReactNode;
   service?: AuthService;
 }) {
-  const auth = useMemo(() => service ?? createMockAuthService(), [service]);
+  const auth = useMemo(() => service ?? createAuthService(), [service]);
   const [session, setSession] = useState<Session | null>(null);
   const [phase, setPhase] = useState<AuthPhase>('loading');
   const [biometricEnabled, setBiometric] = useState(() => getDeviceSettings().biometricUnlock);

@@ -35,12 +35,22 @@ npm run check   # typecheck + lint + format check + tests
 
 Other scripts: `npm run format` (fix formatting), `npm test`, `npm run web` (quick look in a browser).
 
+**Login talks to the real API** (KAN-12). Start the backend first (`../backend/README.md`: `docker compose up -d`, `dotnet ef database update`, `dotnet run --project src/TravelApp.Api`). The app finds it at:
+
+| Where the app runs | API address used |
+| --- | --- |
+| Web (`npm run web`), iOS simulator | `http://localhost:5001` |
+| Android emulator | `http://10.0.2.2:5001` (the emulator's name for your computer) |
+| Real phone on Wi-Fi | set `EXPO_PUBLIC_API_URL=http://<your computer's IP>:5001` in `.env.local` |
+
+No emails are sent in development: the 6-digit code is printed in the API window, in a line with `[dev email]`. Google/Apple login says "not connected yet" until the sign-in sheets are added. To use the old mock login without a backend (any email, code `123456`), set `EXPO_PUBLIC_AUTH_MODE=mock` in `.env.local`.
+
 ## Project structure
 
 | Path | What |
 | --- | --- |
 | `src/app/` | Screens (Expo Router: every file is a route). `(tabs)/` = Home, Trips, Globe, You; `trip/[id].tsx` = trip screen; `design-kit.tsx` = all kit components. Login routes: `intro`, `login`, `sign-up`, `verify`, `forgot`, `reset`, `profile-name`, `profile-travel`, `lock` (thin files; the screens live in `src/features/auth/`). `_layout.tsx` guards them with `Stack.Protected` by login phase |
-| `src/features/auth/` | Login feature: AuthProvider (phase, session), mock login service (code `123456`), secure storage, form rules, intro slides, screens |
+| `src/features/auth/` | Login feature: AuthProvider (phase, session), real API login service (`apiAuthService.ts`) and mock login (`EXPO_PUBLIC_AUTH_MODE=mock`, code `123456`), secure storage, form rules, intro slides, screens |
 | `src/theme/` | **The theme file** (`tokens.ts`), fonts, ThemeProvider |
 | `src/components/core/` | Component kit, atoms (tiny building blocks): AppText, Button, Input, Checkbox, Chip, Card, CodeInput, Logo, PhotoPlaceholder, SyncIndicator, Screen, tab bar style |
 | `src/components/feature/` | Component kit, groups of core components always used together: EmptyState, TripStub, SocialButtons, OptionPicker. Rules: see CLAUDE.md "Components: atomic design" |

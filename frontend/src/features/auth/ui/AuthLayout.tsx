@@ -3,9 +3,9 @@ import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components';
-import { dataMode } from '@/data';
 import { useTheme } from '@/theme/ThemeProvider';
 
+import { authMode } from '../authMode';
 import { MOCK_CODE } from '../mockAuthService';
 
 /** Page frame for the login screens: title, text, form, and a footer pinned near the thumb. */
@@ -53,10 +53,13 @@ export function AuthLayout({
   );
 }
 
-/** Shown only in mock mode so testers know the code. */
+/**
+ * Tells testers where the code is: the fixed mock code, or (development builds with the real API)
+ * the API log, because no email is sent yet (A6). Hidden in release builds.
+ */
 export function MockCodeHint() {
   const { colors, radii, space } = useTheme();
-  if (dataMode !== 'mock') return null;
+  if (authMode !== 'mock' && !__DEV__) return null;
   return (
     <View
       style={{
@@ -68,7 +71,9 @@ export function MockCodeHint() {
       }}
     >
       <AppText variant="caption" color={colors.bucket}>
-        Test mode: no email is sent. The code is {MOCK_CODE}.
+        {authMode === 'mock'
+          ? `Test mode: no email is sent. The code is ${MOCK_CODE}.`
+          : 'Development: no email is sent yet. The code is in the API window (the one running dotnet run), in a line with "[dev email]".'}
       </AppText>
     </View>
   );

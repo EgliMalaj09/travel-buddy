@@ -1,8 +1,8 @@
 import type { AuthUser, Consents, LoginResult, Profile, Session } from './types';
 
 /**
- * Everything the app can do with the login backend. Today there is a mock implementation
- * (A14); the real one calls the API through openapi-fetch once KAN-12 is built.
+ * Everything the app can do with the login backend. Two implementations: the real API
+ * (apiAuthService.ts, default) and the mock (mockAuthService.ts, A14). See authMode.ts.
  */
 export interface AuthService {
   signUp(email: string, password: string, consents: Consents): Promise<void>;

@@ -33,15 +33,22 @@ export interface Session {
 /** Login with email may need a code on a new phone. */
 export type LoginResult = { kind: 'session'; session: Session } | { kind: 'codeRequired' };
 
+export type AuthErrorCode =
+  | 'invalid_credentials'
+  | 'invalid_code'
+  | 'email_taken'
+  | 'too_many_attempts'
+  | 'session_expired'
+  | 'password_leaked'
+  | 'invalid_token'
+  | 'consent_required'
+  | 'invalid_input'
+  | 'not_available'
+  | 'network';
+
 export class AuthError extends Error {
   constructor(
-    public readonly code:
-      | 'invalid_credentials'
-      | 'invalid_code'
-      | 'email_taken'
-      | 'too_many_attempts'
-      | 'session_expired'
-      | 'network',
+    public readonly code: AuthErrorCode,
     message: string,
   ) {
     super(message);

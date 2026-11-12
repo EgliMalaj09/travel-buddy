@@ -5,7 +5,7 @@ import { Text } from 'react-native';
 import { getFlag, setFlag } from '@/services/deviceStorage';
 
 import { AuthProvider, useAuth } from '../AuthProvider';
-import { MOCK_CODE, resetMockAuth } from '../mockAuthService';
+import { MOCK_CODE, createMockAuthService, resetMockAuth } from '../mockAuthService';
 
 const secure: Record<string, string> = {};
 jest.mock('expo-secure-store', () => ({
@@ -40,7 +40,7 @@ const auth = new Proxy({} as ReturnType<typeof useAuth>, {
 
 const renderApp = () =>
   render(
-    <AuthProvider>
+    <AuthProvider service={createMockAuthService()}>
       <Probe />
     </AuthProvider>,
   );

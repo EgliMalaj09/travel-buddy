@@ -1,8 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
-import { Alert, Pressable, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, View } from 'react-native';
 
-import { AppText, Card, EmptyState, Screen } from '@/components';
+import { ActionSheet, AppText, Card, EmptyState, Screen } from '@/components';
 import { repositories, useAsync, useDataVersion } from '@/data';
 import { formatDateRange, formatDay, todayIso } from '@/lib/dates';
 import { activityLabels, directionLabels, flightTitle } from '@/lib/tripDraft';
@@ -14,6 +15,9 @@ export default function TripScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors, space } = useTheme();
   const today = todayIso();
+  // Which sheet is open: the ••• menu or the delete question. A sheet instead of Alert.alert,
+  // because Alert.alert with buttons does nothing on web.
+  const [sheet, setSheet] = useState<'menu' | 'delete' | null>(null);
   const version = useDataVersion();
   const { data, loading } = useAsync(async () => {
     const trip = await repositories.trips.getTrip(id);
@@ -37,28 +41,12 @@ export default function TripScreen() {
   }
 
   // T6: confirm, then delete (soft delete, synced).
-  const confirmDelete = () =>
-    Alert.alert(
-      `Delete ${trip.name}?`,
-      'Its places, photos, checklist and expenses will be deleted too.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            await repositories.trips.deleteTrip(trip.id);
-            router.back();
-          },
-        },
-      ],
-    );
-  const openMenu = () =>
-    Alert.alert(trip.name, undefined, [
-      { text: 'Edit trip', onPress: () => router.push(`/trip/edit/${trip.id}`) },
-      { text: 'Delete trip', style: 'destructive', onPress: confirmDelete },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
+  const deleteTrip = async () => {
+    await repositories.trips.deleteTrip(trip.id);
+    router.back();
+  };
+  // Opening the second sheet right after the first one closes needs a short pause on iOS.
+  const askDelete = () => setTimeout(() => setSheet('delete'), 300);
 
   return (
     <>
@@ -70,13 +58,29 @@ export default function TripScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Trip options"
-              onPress={openMenu}
+              onPress={() => setSheet('menu')}
               hitSlop={12}
             >
               <Ionicons name="ellipsis-horizontal" size={24} color={colors.accent} />
             </Pressable>
           ),
         }}
+      />
+      <ActionSheet
+        visible={sheet === 'menu'}
+        title={trip.name}
+        actions={[
+          { label: 'Edit trip', onPress: () => router.push(`/trip/edit/${trip.id}`) },
+          { label: 'Delete trip', destructive: true, onPress: askDelete },
+        ]}
+        onClose={() => setSheet(null)}
+      />
+      <ActionSheet
+        visible={sheet === 'delete'}
+        title={`Delete ${trip.name}?`}
+        message="Its places, photos, checklist and expenses will be deleted too."
+        actions={[{ label: 'Delete', destructive: true, onPress: () => void deleteTrip() }]}
+        onClose={() => setSheet(null)}
       />
       <Screen>
         <View style={{ gap: space.xs }}>

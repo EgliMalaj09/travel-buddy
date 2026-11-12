@@ -24,10 +24,21 @@ builder.Services.AddHealthFeature();
 builder.Services.AddAuthFeature(builder.Configuration);
 builder.Services.AddTripsFeature();
 
+// The web build of the app (npm run web, http://localhost:8081) calls the API from another port,
+// so the browser needs CORS. Development only: phones do not use CORS.
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
+        .SetIsOriginAllowed(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) && uri.IsLoopback)
+        .AllowAnyHeader()
+        .AllowAnyMethod()));
+}
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+if (app.Environment.IsDevelopment()) app.UseCors();
 app.UseAuthFeature();
 
 if (app.Environment.IsDevelopment())

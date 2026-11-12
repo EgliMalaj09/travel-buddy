@@ -26,6 +26,8 @@ export const colors = {
   /** Sync / status colours */
   success: '#3F6B4A',
   warning: '#A8642A',
+  /** Dimmed page behind menus and sheets (ink at 40%) */
+  overlay: 'rgba(42, 33, 28, 0.4)',
 } as const;
 
 export const fonts = {

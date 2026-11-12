@@ -1,4 +1,5 @@
 import createClient, { type Middleware } from 'openapi-fetch';
+import { Platform } from 'react-native';
 
 import type { paths } from './schema';
 
@@ -7,9 +8,32 @@ import type { paths } from './schema';
  * run `npm run api:types` after the backend changes its API.
  * Screens never call this directly: repositories and services do.
  */
-export const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:5001';
 
-export const api = createClient<paths>({ baseUrl: apiBaseUrl });
+/**
+ * Where the API runs. EXPO_PUBLIC_API_URL wins when set (for example a real phone on Wi-Fi:
+ * http://192.168.1.20:5001). Otherwise the local API on this computer: the Android emulator
+ * reaches the computer at 10.0.2.2; the web build and the iOS simulator use localhost.
+ */
+export function defaultApiBaseUrl(
+  os: string = Platform.OS,
+  envUrl = process.env.EXPO_PUBLIC_API_URL,
+) {
+  if (envUrl) return envUrl.replace(/\/+$/, '');
+  return os === 'android' ? 'http://10.0.2.2:5001' : 'http://localhost:5001';
+}
+
+export const apiBaseUrl = defaultApiBaseUrl();
+
+// fetch is looked up on every call (not once at start), so tests can replace it.
+const fetchNow = (request: Request) => globalThis.fetch(request);
+
+export const api = createClient<paths>({ baseUrl: apiBaseUrl, fetch: fetchNow });
+
+/**
+ * Client for /auth calls. It has no token middleware: a 401 there means "wrong password"
+ * or "session expired", not "refresh and retry".
+ */
+export const authApi = createClient<paths>({ baseUrl: apiBaseUrl, fetch: fetchNow });
 
 /** Set by the auth layer: returns the current access token, refreshing it when needed. */
 type TokenProvider = {
