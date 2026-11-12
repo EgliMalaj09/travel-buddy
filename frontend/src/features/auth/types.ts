@@ -44,6 +44,8 @@ export type AuthErrorCode =
   | 'consent_required'
   | 'invalid_input'
   | 'not_available'
+  /** The person closed the Google / Apple sheet. Not an error to show. */
+  | 'cancelled'
   | 'network';
 
 export class AuthError extends Error {
