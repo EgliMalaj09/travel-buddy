@@ -57,6 +57,33 @@ internal sealed partial class TripsService(AppDbContext db) : ITripWriteRules
         return problems.Result;
     }
 
+    /// <summary>The user's trips that are not deleted, with their live stops and flights.</summary>
+    public async Task<MyTripsResponse> ListMineAsync(Guid userId, CancellationToken ct)
+    {
+        var trips = await db.Set<Trip>().AsNoTracking()
+            .Where(t => t.OwnerId == userId && t.DeletedAt == null)
+            .OrderBy(t => t.StartDate == null).ThenBy(t => t.StartDate).ThenBy(t => t.CreatedAt)
+            .ToListAsync(ct);
+        var tripIds = trips.Select(t => t.Id).ToList();
+        var stops = await db.Set<TripStop>().AsNoTracking()
+            .Where(s => tripIds.Contains(s.TripId) && s.DeletedAt == null)
+            .OrderBy(s => s.TripId).ThenBy(s => s.Order)
+            .ToListAsync(ct);
+        var flights = await db.Set<Flight>().AsNoTracking()
+            .Where(f => tripIds.Contains(f.TripId) && f.DeletedAt == null)
+            .OrderBy(f => f.TripId).ThenBy(f => f.Order)
+            .ToListAsync(ct);
+        return new MyTripsResponse(
+            trips.Select(t => new TripDto(t.Id, t.OwnerId, t.Name, t.Type, t.StartDate, t.EndDate, t.Activities, t.Status, t.FinishedAt,
+                t.CoverMediaId, t.PassportCountrySnapshot, t.HomeCurrencySnapshot, t.ChecklistGeneratedAt, t.ChecklistRulesVersion,
+                t.AnniversaryEnabled, t.CreatedAt, t.UpdatedAt, t.DeletedAt, t.Version)).ToList(),
+            stops.Select(s => new TripStopDto(s.Id, s.TripId, s.Order, s.CountryCode, s.CityName, s.Lat, s.Lng, s.GeoProviderId,
+                s.Nights, s.CreatedAt, s.UpdatedAt, s.DeletedAt, s.Version)).ToList(),
+            flights.Select(f => new FlightDto(f.Id, f.TripId, f.Order, f.Direction, f.Airline, f.FlightNumber, f.DepartureAirport,
+                f.ArrivalAirport, f.DepartureLocalTime, f.ArrivalLocalTime, f.DepartureTimeZone, f.ArrivalTimeZone, f.BookingCode,
+                f.Seat, f.Terminal, f.CreatedAt, f.UpdatedAt, f.DeletedAt, f.Version)).ToList());
+    }
+
     public Task<bool> OwnsTripAsync(Guid userId, Guid tripId, CancellationToken cancellationToken) =>
         db.Set<Trip>().AnyAsync(t => t.Id == tripId && t.OwnerId == userId && t.DeletedAt == null, cancellationToken);
 

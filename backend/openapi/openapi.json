@@ -895,6 +895,99 @@
           }
         ]
       }
+    },
+    "/trips": {
+      "get": {
+        "tags": [
+          "Trips"
+        ],
+        "summary": "Your trips with their stops and flights (deleted ones left out)",
+        "operationId": "ListMyTrips",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyTripsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/sync/upload": {
+      "post": {
+        "tags": [
+          "Sync"
+        ],
+        "summary": "Saves the phone's waiting changes (create, change, delete), one result per change",
+        "description": "Each change is applied column by column; the change that reaches the server last wins (S4). A rejected change comes back with status \"rejected\" and the reasons; the others are still saved. The answer is 200 whenever the request itself is valid, so the phone never retries a rejected change forever.",
+        "operationId": "SyncUpload",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncUploadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncUploadResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -986,6 +1079,142 @@
           },
           "marketingConsent": {
             "type": "boolean"
+          }
+        }
+      },
+      "FlightDto": {
+        "required": [
+          "id",
+          "tripId",
+          "order",
+          "direction",
+          "airline",
+          "flightNumber",
+          "departureAirport",
+          "arrivalAirport",
+          "departureLocalTime",
+          "arrivalLocalTime",
+          "departureTimeZone",
+          "arrivalTimeZone",
+          "bookingCode",
+          "seat",
+          "terminal",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tripId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "airline": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "flightNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "departureAirport": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "arrivalAirport": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "departureLocalTime": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "arrivalLocalTime": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "departureTimeZone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "arrivalTimeZone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "bookingCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "seat": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "terminal": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
           }
         }
       },
@@ -1151,6 +1380,34 @@
           "refreshToken": {
             "maxLength": 200,
             "type": "string"
+          }
+        }
+      },
+      "MyTripsResponse": {
+        "required": [
+          "trips",
+          "stops",
+          "flights"
+        ],
+        "type": "object",
+        "properties": {
+          "trips": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TripDto"
+            }
+          },
+          "stops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TripStopDto"
+            }
+          },
+          "flights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlightDto"
+            }
           }
         }
       },
@@ -1390,6 +1647,314 @@
           }
         }
       },
+      "SyncChange": {
+        "required": [
+          "op",
+          "type",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string"
+          },
+          "type": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "data": {
+            "type": [
+              "null",
+              "object"
+            ]
+          }
+        }
+      },
+      "SyncChangeResult": {
+        "required": [
+          "id",
+          "type",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "problems": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "SyncUploadRequest": {
+        "required": [
+          "changes"
+        ],
+        "type": "object",
+        "properties": {
+          "changes": {
+            "maxItems": 500,
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncChange"
+            }
+          }
+        }
+      },
+      "SyncUploadResponse": {
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncChangeResult"
+            }
+          }
+        }
+      },
+      "TripDto": {
+        "required": [
+          "id",
+          "ownerId",
+          "name",
+          "type",
+          "startDate",
+          "endDate",
+          "activities",
+          "status",
+          "finishedAt",
+          "coverMediaId",
+          "passportCountrySnapshot",
+          "homeCurrencySnapshot",
+          "checklistGeneratedAt",
+          "checklistRulesVersion",
+          "anniversaryEnabled",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "endDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string"
+          },
+          "finishedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "coverMediaId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "passportCountrySnapshot": {
+            "type": "string"
+          },
+          "homeCurrencySnapshot": {
+            "type": "string"
+          },
+          "checklistGeneratedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "checklistRulesVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "anniversaryEnabled": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "TripStopDto": {
+        "required": [
+          "id",
+          "tripId",
+          "order",
+          "countryCode",
+          "cityName",
+          "lat",
+          "lng",
+          "geoProviderId",
+          "nights",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tripId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "countryCode": {
+            "type": "string"
+          },
+          "cityName": {
+            "type": "string"
+          },
+          "lat": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "lng": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "geoProviderId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "nights": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
       "VerifyCodeRequest": {
         "required": [
           "email",
@@ -1439,6 +2004,12 @@
     },
     {
       "name": "Me"
+    },
+    {
+      "name": "Trips"
+    },
+    {
+      "name": "Sync"
     }
   ]
 }

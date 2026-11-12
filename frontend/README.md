@@ -45,6 +45,8 @@ Other scripts: `npm run format` (fix formatting), `npm test`, `npm run web` (qui
 
 No emails are sent in development: the 6-digit code is printed in the API window, in a line with `[dev email]`. Google/Apple login says "not connected yet" until the sign-in sheets are added. To use the old mock login without a backend (any email, code `123456`), set `EXPO_PUBLIC_AUTH_MODE=mock` in `.env.local`.
 
+**Trips are saved on the server** (KAN-16): the app reads `GET /trips` and saves through `POST /sync/upload`, so trips stay after a reload and on another phone with the same account. The app needs the API running to show and save trips until the phone gets its own offline database (PowerSync, KAN-15). Mock login also switches trips back to sample data; to use sample trips with the real login, set `EXPO_PUBLIC_DATA_MODE=mock` in `.env.local`.
+
 ## Project structure
 
 | Path | What |
@@ -54,7 +56,7 @@ No emails are sent in development: the 6-digit code is printed in the API window
 | `src/theme/` | **The theme file** (`tokens.ts`), fonts, ThemeProvider |
 | `src/components/core/` | Component kit, atoms (tiny building blocks): AppText, Button, Input, Checkbox, Chip, Card, CodeInput, Logo, PhotoPlaceholder, SyncIndicator, Screen, tab bar style |
 | `src/components/feature/` | Component kit, groups of core components always used together: EmptyState, TripStub, SocialButtons, OptionPicker. Rules: see CLAUDE.md "Components: atomic design" |
-| `src/data/` | Types (match the data model), repositories, mock data, `useAsync` |
+| `src/data/` | Types (match the data model), repositories (`apiTripRepository.ts` = server, `tripRepository.ts` = mock), mock data, `useAsync`; data mode in `index.ts` |
 | `src/lib/` | Pure logic with tests (dates, trip groups, stop dates, flags) |
 | `src/store/` | Zustand screen state |
 | `src/services/` | Device storage (MMKV), Sentry |

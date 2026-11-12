@@ -44,6 +44,10 @@ dotnet run --project src/TravelApp.Api   # API on http://localhost:5001
 - Google and Apple need the client ids in `Auth:GoogleClientIds` / `Auth:AppleClientIds` (user secrets or environment); until then those two endpoints answer `invalid_token`.
 - In Scalar or Postman: call `/auth/signup`, then `/auth/signup/verify` with the code from the log, and use the `accessToken` as the Bearer token for `/me`.
 
+**Trying trip saving locally (KAN-16):** with the same token, `POST /sync/upload` with a body like
+`{"changes":[{"op":"PUT","type":"trips","id":"<new uuid>","data":{"name":"Rome","type":"solo","status":"planned","passport_country_snapshot":"AL","home_currency_snapshot":"EUR"}},{"op":"PUT","type":"trip_stops","id":"<new uuid>","data":{"trip_id":"<the trip id>","order":0,"country_code":"IT","city_name":"Rome","nights":3}}]}`,
+then `GET /trips` shows it. PowerSync (in Docker) checks the same tokens with the API's public key, so start the API before using PowerSync.
+
 **Before every commit:**
 
 ```bash
@@ -130,7 +134,8 @@ One API project organised by feature (`src/TravelApp.Api/Features/<Feature>/`) p
 | --- | --- |
 | Auth (KAN-12) | `POST /auth/signup`, `/auth/signup/verify`, `/auth/login`, `/auth/login/verify`, `/auth/google`, `/auth/apple`, `/auth/code/resend`, `/auth/password/forgot`, `/auth/password/reset`, `/auth/refresh`, `/auth/logout`; `GET /.well-known/jwks.json` |
 | Me | `GET /me`, `POST /me/profile` (KAN-12); later `PATCH /me`, `POST /me/delete`, `POST /me/restore`, `POST /me/data-request` |
-| Sync | Write endpoint for the PowerSync upload queue; PowerSync sync rules for reads |
+| Sync (KAN-16) | `POST /sync/upload`: the phone's waiting changes `{ op: PUT/PATCH/DELETE, type: table, id, data: { snake_case columns } }`, one result per change (`ok` or `rejected` + reasons); PowerSync Sync Streams for reads |
+| Trips | `GET /trips`: your trips with stops and flights (the app reads here until PowerSync is on the phone) |
 | Rules and data | `GET /checklist-rules?version=`, `GET /weather?lat=&lng=&from=&to=`, FX rates for trip dates |
 | Media | `POST /media/{id}/upload-url`, `POST /media/{id}/uploaded`, `GET /media/{id}/url?size=thumb|full` |
 | Part 2 | `POST /trips/{id}/invite-link`, `POST /invites/{token}/accept`, member remove and leave, `POST /trips/{id}/video`, RevenueCat webhook |

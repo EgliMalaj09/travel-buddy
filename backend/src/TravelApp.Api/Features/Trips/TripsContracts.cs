@@ -61,3 +61,65 @@ public interface ITripWriteRules
     /// <summary>A trip needs at least one stop; checked when a stop is deleted.</summary>
     Task<int> CountStopsAsync(Guid tripId, CancellationToken cancellationToken);
 }
+
+/// <summary>A trip as the API returns it (field names as in the data model).</summary>
+public sealed record TripDto(
+    Guid Id,
+    Guid OwnerId,
+    string Name,
+    string Type,
+    DateOnly? StartDate,
+    DateOnly? EndDate,
+    IReadOnlyList<string> Activities,
+    string Status,
+    DateTimeOffset? FinishedAt,
+    Guid? CoverMediaId,
+    string PassportCountrySnapshot,
+    string HomeCurrencySnapshot,
+    DateTimeOffset? ChecklistGeneratedAt,
+    string? ChecklistRulesVersion,
+    bool AnniversaryEnabled,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset UpdatedAt,
+    DateTimeOffset? DeletedAt,
+    long Version);
+
+public sealed record TripStopDto(
+    Guid Id,
+    Guid TripId,
+    int Order,
+    string CountryCode,
+    string CityName,
+    double? Lat,
+    double? Lng,
+    string? GeoProviderId,
+    int Nights,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset UpdatedAt,
+    DateTimeOffset? DeletedAt,
+    long Version);
+
+/// <summary>Departure and arrival times are local at the airport, without offset ("2027-04-12T09:40:00").</summary>
+public sealed record FlightDto(
+    Guid Id,
+    Guid TripId,
+    int Order,
+    string Direction,
+    string? Airline,
+    string? FlightNumber,
+    string? DepartureAirport,
+    string? ArrivalAirport,
+    DateTime? DepartureLocalTime,
+    DateTime? ArrivalLocalTime,
+    string? DepartureTimeZone,
+    string? ArrivalTimeZone,
+    string? BookingCode,
+    string? Seat,
+    string? Terminal,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset UpdatedAt,
+    DateTimeOffset? DeletedAt,
+    long Version);
+
+/// <summary>All of the user's trips that are not deleted, with their stops and flights (in order).</summary>
+public sealed record MyTripsResponse(IReadOnlyList<TripDto> Trips, IReadOnlyList<TripStopDto> Stops, IReadOnlyList<FlightDto> Flights);

@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import { AppText, Card, EmptyState, Screen, SyncIndicator } from '@/components';
-import { repositories, useAsync, useDataVersion } from '@/data';
+import { dataMode, repositories, useAsync, useDataVersion } from '@/data';
 import { formatDateRange, todayIso } from '@/lib/dates';
 import { groupTrips, phaseLine } from '@/lib/trips';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -55,7 +55,7 @@ export default function HomeScreen() {
           onAction={() => router.push('/trip/new')}
         />
       )}
-      <AppText variant="caption">Sample data (mock mode).</AppText>
+      {dataMode === 'mock' ? <AppText variant="caption">Sample data (mock mode).</AppText> : null}
     </Screen>
   );
 }
