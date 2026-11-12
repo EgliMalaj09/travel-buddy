@@ -35,3 +35,28 @@ jest.mock('expo-apple-authentication', () => ({
   signInAsync: jest.fn(),
   AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 },
 }));
+
+// PowerSync's phone library is native (local SQLite). Tests of the local trip repository use
+// Node's own SQLite instead (localTripRepository.test.ts); this stub only lets modules load.
+jest.mock('@powersync/react-native', () => {
+  class Table {}
+  class Schema {}
+  class PowerSyncDatabase {
+    onChange = jest.fn(() => () => undefined);
+    registerListener = jest.fn(() => () => undefined);
+    connect = jest.fn(async () => undefined);
+    disconnect = jest.fn(async () => undefined);
+    disconnectAndClear = jest.fn(async () => undefined);
+    getAll = jest.fn(async () => []);
+    getCrudBatch = jest.fn(async () => null);
+    writeTransaction = jest.fn(async (run: (tx: unknown) => unknown) =>
+      run({ execute: jest.fn(async () => undefined), getAll: jest.fn(async () => []) }),
+    );
+  }
+  return {
+    Table,
+    Schema,
+    PowerSyncDatabase,
+    column: { text: 'text', integer: 'integer', real: 'real' },
+  };
+});

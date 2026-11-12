@@ -46,6 +46,23 @@ export function setTokenProvider(provider: TokenProvider | null) {
   tokens = provider;
 }
 
+/** The current access token (refreshed when needed), or null when logged out. Used by PowerSync. */
+export function currentAccessToken(): Promise<string | null> {
+  return tokens?.getAccessToken() ?? Promise.resolve(null);
+}
+
+/**
+ * Where PowerSync (the sync service) runs. EXPO_PUBLIC_POWERSYNC_URL wins when set (a real phone
+ * on Wi-Fi: http://192.168.1.20:8080). Otherwise port 8080 on this computer, like the API.
+ */
+export function defaultPowerSyncUrl(
+  os: string = Platform.OS,
+  envUrl = process.env.EXPO_PUBLIC_POWERSYNC_URL,
+) {
+  if (envUrl) return envUrl.replace(/\/+$/, '');
+  return os === 'android' ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
+}
+
 /** Adds "Authorization: Bearer …" to every call and retries once with a fresh token after a 401. */
 const authMiddleware: Middleware = {
   async onRequest({ request }) {

@@ -8,12 +8,17 @@ import { create } from 'zustand';
 export type SyncStatus = 'synced' | 'syncing' | 'offline' | 'error';
 
 interface UiState {
-  /** Shown by the SyncIndicator. In mock mode it stays "synced". */
+  /** Shown by the SyncIndicator. Set from PowerSync's status; in mock and api mode it stays "synced". */
   syncStatus: SyncStatus;
   setSyncStatus: (status: SyncStatus) => void;
+  /** Why the server last refused a change made on this phone (the change was undone). */
+  syncProblem: string | null;
+  setSyncProblem: (problem: string | null) => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
   syncStatus: 'synced',
   setSyncStatus: (syncStatus) => set({ syncStatus }),
+  syncProblem: null,
+  setSyncProblem: (syncProblem) => set({ syncProblem }),
 }));

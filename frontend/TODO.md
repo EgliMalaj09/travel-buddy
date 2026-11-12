@@ -23,7 +23,7 @@ Suggested order. The owner works on the frontend with **mock data** while the ba
 | [ ] | 1 | FE - App foundation (Expo, router, theme, component kit, data layer + mock mode, API types, Sentry) | KAN-57 | KAN-56 (AF1–AF5) | 426065 |
 | [ ] | 2 | 🔌 FE - Sync engine test (airplane mode, one week): needs the backend local setup (KAN-58, KAN-16) | KAN-14 | KAN-13 (S1–S6 agreed) | 524289 |
 | [ ] | 3 | FE - Login and onboarding (**built with mock login, merged to `main` 11 Nov 2026, waiting for owner test**; real API connected 12 Nov; Google/Apple sheets added 12 Nov, setup steps in `docs/google-apple-login.md`) | KAN-11 | KAN-10 (L1–L6 agreed) | 196808 |
-| [ ] | 4 | 🔌 FE - Offline sync (local DB, upload connector, sync indicator): needs the backend | KAN-15 | KAN-13 | 524289 |
+| [ ] | 4 | 🔌 FE - Offline sync (local DB, upload connector, sync indicator). **Built 12 Nov 2026** (PowerSync + op-sqlite, `local` data mode), waiting for merge and the owner's airplane-mode test on the phone. Still to do later: sync details on tap, logout warning with waiting changes | KAN-15 | KAN-13 | 524289 |
 | [ ] | 5 | FE - Create a trip (**built with mock data on `feature/KAN-18-create-trip`, waiting for owner test**; Mapbox city search and saving to the local database come later). **Trips now save to the server** (KAN-16 PR, 12 Nov 2026): `api` data mode, offline comes with KAN-15 | KAN-18 | KAN-17 (T1–T7) | 557057 |
 | [ ] | 6 | FE - Trip page (header, 5 tabs, quick add) | KAN-53 | KAN-52 (TP1–TP4) | 491538 |
 | [ ] | 7 | FE - Places | KAN-34 | KAN-33 (PL1–PL5) | 622593 |

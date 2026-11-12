@@ -45,7 +45,7 @@ Other scripts: `npm run format` (fix formatting), `npm test`, `npm run web` (qui
 
 No emails are sent in development: the 6-digit code is printed in the API window, in a line with `[dev email]`. Google/Apple login says "not connected yet" until the sign-in sheets are added. To use the old mock login without a backend (any email, code `123456`), set `EXPO_PUBLIC_AUTH_MODE=mock` in `.env.local`.
 
-**Trips are saved on the server** (KAN-16): the app reads `GET /trips` and saves through `POST /sync/upload`, so trips stay after a reload and on another phone with the same account. The app needs the API running to show and save trips until the phone gets its own offline database (PowerSync, KAN-15). Mock login also switches trips back to sample data; to use sample trips with the real login, set `EXPO_PUBLIC_DATA_MODE=mock` in `.env.local`.
+**Trips work offline** (KAN-15): on the phone, trips are saved in the phone's own database first (SQLite via PowerSync), so creating, editing and deleting trips works with no signal. PowerSync sends the changes to the API (`POST /sync/upload`) when the connection is back and brings down changes from other phones. The sync icon shows Synced / Syncing / Offline, saved on this phone / Couldn't sync; if the server refuses a change, the change is undone and the You tab says why. This needs a **new development build** (native libraries). The web preview has no local database and uses the server directly (`api` mode). Mock login switches trips to sample data; to use sample trips with the real login set `EXPO_PUBLIC_DATA_MODE=mock` in `.env.local`, and to skip the phone database set `EXPO_PUBLIC_DATA_MODE=api`.
 
 ## Project structure
 

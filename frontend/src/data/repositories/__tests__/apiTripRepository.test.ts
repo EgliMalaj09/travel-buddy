@@ -179,7 +179,8 @@ describe('API trip repository', () => {
 
 describe('data mode', () => {
   it('uses the server by default and mock data with mock login', () => {
-    expect(pickDataMode(undefined, undefined)).toBe('api');
+    expect(pickDataMode(undefined, undefined)).toBe('local');
+    expect(pickDataMode('local', undefined)).toBe('local');
     expect(pickDataMode(undefined, 'mock')).toBe('mock');
     expect(pickDataMode('mock', undefined)).toBe('mock');
     expect(pickDataMode('api', 'mock')).toBe('api');
