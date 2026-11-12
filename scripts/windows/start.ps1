@@ -118,7 +118,19 @@ if (PortListening 5001) {
   Ok "API is already running on $ApiUrl"
 } else {
   # Same settings as the "http" launch profile, but without opening a browser.
-  $apiCmd = "`$env:ASPNETCORE_ENVIRONMENT = 'Development'; `$env:ASPNETCORE_URLS = '$ApiUrl'; " +
+  # Google login: the API accepts the same client ids the app uses (frontend\.env.local).
+  $googleEnv = ''
+  $envFile = Join-Path $Frontend '.env.local'
+  if (Test-Path $envFile) {
+    $i = 0
+    foreach ($name in @('EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID', 'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID')) {
+      $pattern = "^\s*$name\s*=\s*(\S+)"
+      $line = Get-Content $envFile | Where-Object { $_ -match $pattern } | Select-Object -First 1
+      if ($line -and ($line -match $pattern)) { $googleEnv += "`$env:Auth__GoogleClientIds__$i = '$($Matches[1])'; "; $i++ }
+    }
+    if ($i -gt 0) { Info "Google login: $i client id(s) from frontend\.env.local" }
+  }
+  $apiCmd = "`$env:ASPNETCORE_ENVIRONMENT = 'Development'; `$env:ASPNETCORE_URLS = '$ApiUrl'; $googleEnv" +
             "dotnet run --project $ApiProject --no-launch-profile"
   $p = Start-Window 'Travel App - API (close to stop)' $Backend $apiCmd
   $state.apiWindowPid = $p.Id
