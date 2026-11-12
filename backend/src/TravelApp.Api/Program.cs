@@ -3,6 +3,7 @@ using TravelApp.Api.Data;
 using TravelApp.Api.Features.AppInfo;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Health;
+using TravelApp.Api.Features.Sync;
 using TravelApp.Api.Features.Trips;
 using TravelApp.Api.Shared;
 
@@ -23,6 +24,7 @@ builder.Services.AddTravelAppDatabase(builder.Configuration);
 builder.Services.AddHealthFeature();
 builder.Services.AddAuthFeature(builder.Configuration);
 builder.Services.AddTripsFeature();
+builder.Services.AddSyncFeature();
 
 // The web build of the app (npm run web, http://localhost:8081) calls the API from another port,
 // so the browser needs CORS. Development only: phones do not use CORS.
@@ -51,6 +53,8 @@ if (app.Environment.IsDevelopment())
 app.MapHealthEndpoints();
 app.MapAppInfoEndpoints();
 app.MapAuthEndpoints();
+app.MapTripsEndpoints();
+app.MapSyncEndpoints();
 
 app.Run();
 

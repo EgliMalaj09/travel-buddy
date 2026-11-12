@@ -32,7 +32,10 @@ services:
       POWERSYNC_CONFIG_PATH: /config/powersync.yaml
       PS_DATA_SOURCE_URI: postgresql://powersync_role:powersync_local@postgres:5432/travelapp
       PS_STORAGE_SOURCE_URI: postgresql://travelapp:${POSTGRES_PASSWORD:-travelapp_local}@postgres:5432/powersync_storage
-      PS_DEV_JWT_SECRET_BASE64URL: ${PS_DEV_JWT_SECRET_BASE64URL:-bG9jYWwtZGV2LW9ubHktbm90LWEtcmVhbC1zZWNyZXQ}
+      # Public key of the API's access tokens (the API runs on the laptop, outside Docker).
+      PS_JWKS_URI: ${PS_JWKS_URI:-http://host.docker.internal:5001/.well-known/jwks.json}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     ports:
       - '8080:8080'
     volumes:

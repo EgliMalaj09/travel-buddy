@@ -16,16 +16,14 @@ port: 8080
 sync_config:
   path: sync-rules.yaml
 
-# Local development: the API signs PowerSync tokens with this dev key (added with "BE - Offline sync").
-# Beta and production use asymmetric keys published by the API (jwks_uri), never this one.
+# The phone gives PowerSync its normal access token from our API (ES256, audience "travel-app-powersync").
+# PowerSync checks it with the API's public key at /.well-known/jwks.json (KAN-16, A1). The API runs on the
+# laptop with `dotnet run`, so PowerSync (inside Docker) reaches it at host.docker.internal.
+# block_local_jwks is off only because that address is local; beta and production use a public https address.
 client_auth:
   audience: ['travel-app-powersync']
-  jwks:
-    keys:
-      - kty: oct
-        alg: HS256
-        kid: local-dev
-        k: !env PS_DEV_JWT_SECRET_BASE64URL
+  jwks_uri: !env PS_JWKS_URI
+  block_local_jwks: false
 
 telemetry:
   disable_telemetry_sharing: true
