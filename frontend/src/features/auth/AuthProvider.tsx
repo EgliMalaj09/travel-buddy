@@ -16,8 +16,21 @@ import type { AuthService } from './authService';
 import { unlockWithBiometric } from './biometric';
 import { createAuthService } from './authMode';
 import { resetMockAuth } from './mockAuthService';
-import { getDeviceId, getRefreshToken, setRefreshToken } from './secureStore';
-import type { AuthUser, Consents, LoginResult, Profile, Session } from './types';
+import {
+  getDeviceId,
+  getRefreshToken,
+  getSavedUser,
+  setRefreshToken,
+  setSavedUser,
+} from './secureStore';
+import {
+  AuthError,
+  type AuthUser,
+  type Consents,
+  type LoginResult,
+  type Profile,
+  type Session,
+} from './types';
 
 /**
  * The logged-in user, shared through React Context (agreed: Context for theme and user).
@@ -56,6 +69,17 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const INTRO_FLAG = 'introSeen';
+
+/**
+ * Only these answers mean the login is really over. Anything else (no signal, API down,
+ * too many requests) keeps the user logged in: a travel app must open offline.
+ */
+export function endsSession(error: unknown): boolean {
+  return (
+    error instanceof AuthError &&
+    (error.code === 'session_expired' || error.code === 'invalid_token')
+  );
+}
 export const BIOMETRIC_OFFERED_FLAG = 'biometricOffered';
 
 export function AuthProvider({
@@ -83,6 +107,7 @@ export function AuthProvider({
   const applySession = useCallback(
     async (s: Session | null, locked = false) => {
       await setRefreshToken(s?.refreshToken ?? null);
+      await setSavedUser(s?.user ?? null);
       setSession(s);
       setPhase(phaseFor(s, locked));
     },
@@ -98,11 +123,20 @@ export function AuthProvider({
         if (active) setPhase(phaseFor(null));
         return;
       }
+      const locked = getDeviceSettings().biometricUnlock;
       try {
         const restored = await auth.refresh(saved);
-        if (active) await applySession(restored, getDeviceSettings().biometricUnlock);
-      } catch {
-        if (active) await applySession(null);
+        if (active) await applySession(restored, locked);
+      } catch (error) {
+        if (!active) return;
+        if (endsSession(error)) return applySession(null);
+        // Offline or the API is busy: open with the saved user. The access token is fetched
+        // again on the next API call (the API client refreshes after a 401).
+        const user = await getSavedUser();
+        if (!user) return setPhase(phaseFor(null));
+        const offline: Session = { accessToken: '', refreshToken: saved, user };
+        setSession(offline);
+        setPhase(phaseFor(offline, locked));
       }
     })();
     return () => {
@@ -120,10 +154,11 @@ export function AuthProvider({
         try {
           const next = await auth.refresh(current.refreshToken);
           await setRefreshToken(next.refreshToken);
+          await setSavedUser(next.user);
           setSession(next);
           return next.accessToken;
-        } catch {
-          await applySession(null);
+        } catch (error) {
+          if (endsSession(error)) await applySession(null);
           return null;
         }
       },
@@ -165,6 +200,7 @@ export function AuthProvider({
         if (!current) return;
         const user = await auth.saveProfile(current.accessToken, profile, consents);
         const next = { ...current, user };
+        await setSavedUser(user);
         setSession(next);
         setPhase(phaseFor(next));
       },
@@ -174,13 +210,14 @@ export function AuthProvider({
         await applySession(null);
       },
       async resetForTesting() {
-        await applySession(null);
-        resetMockAuth();
+        // Clear the flags first, so the logged-out phase is "intro" and the app opens the intro
+        // right away (not the Log in screen).
         setFlag(INTRO_FLAG, false);
         setFlag(BIOMETRIC_OFFERED_FLAG, false);
         setDeviceSettings({ biometricUnlock: false });
         setBiometric(false);
-        setPhase('intro');
+        resetMockAuth();
+        await applySession(null);
       },
       async unlock() {
         const ok = await unlockWithBiometric();
