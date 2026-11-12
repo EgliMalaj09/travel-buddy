@@ -46,6 +46,10 @@ The repository is the memory, not the chat. Long chats get summarised and lose d
 - `main` = finished work only.
 - One branch per feature: `feature/KAN-<n>-<short-name>` (e.g. `feature/KAN-11-login`). Merge to `main` when finished, then move the Jira task to In Review for the owner's test.
 
+## Run the app locally
+
+When the owner says "start the app" / "run everything" on Windows, run `scripts\windows\start.cmd` (Docker DB, migrations, API, Android emulator, Expo). "Stop the app" = `scripts\windows\stop.cmd`. Details and options: [`scripts/README.md`](scripts/README.md). Mac version not written yet.
+
 ## Where things are
 
 | What | Where |
