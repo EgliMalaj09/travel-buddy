@@ -72,14 +72,17 @@ public sealed class CapturingEmailSender : IAuthEmailSender
     public int Count(string email) => _count.GetValueOrDefault(email);
 }
 
-/// <summary>ID tokens look like "google|subject|email|FirstName"; anything else is refused.</summary>
+/// <summary>
+/// ID tokens look like "google|subject|email|FirstName", with an optional "|nonceClaim" at the end
+/// (the hashed nonce the real token would carry); anything else is refused.
+/// </summary>
 internal sealed class FakeExternalTokenValidator : IExternalTokenValidator
 {
     public Task<ExternalIdentity?> ValidateAsync(string provider, string idToken, CancellationToken ct)
     {
         var parts = idToken.Split('|');
-        return Task.FromResult(parts.Length == 4 && parts[0] == provider
-            ? new ExternalIdentity(parts[1], parts[2], parts[3].Length == 0 ? null : parts[3])
+        return Task.FromResult(parts.Length is 4 or 5 && parts[0] == provider
+            ? new ExternalIdentity(parts[1], parts[2], parts[3].Length == 0 ? null : parts[3], parts.Length == 5 ? parts[4] : null)
             : null);
     }
 }

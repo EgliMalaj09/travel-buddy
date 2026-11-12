@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Modal, View } from 'react-native';
 
 import {
   ActionSheet,
@@ -19,6 +19,7 @@ import {
   SocialButtons,
   SyncIndicator,
 } from '@/components';
+import { AnimatedSplash } from '@/features/splash/AnimatedSplash';
 import { useUiStore, type SyncStatus } from '@/store/uiStore';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -31,6 +32,7 @@ export default function DesignKitScreen() {
   const [sheet, setSheet] = useState(false);
   const [code, setCode] = useState('123');
   const [pick, setPick] = useState<string | undefined>('AL');
+  const [splash, setSplash] = useState<'first' | 'later' | null>(null);
 
   return (
     <Screen>
@@ -117,6 +119,19 @@ export default function DesignKitScreen() {
           { value: 'MA', label: 'Morocco', hint: 'MAD' },
         ]}
       />
+
+      <AppText variant="heading">Opening animation</AppText>
+      <Button
+        title="Play first-launch version"
+        kind="secondary"
+        onPress={() => setSplash('first')}
+      />
+      <Button title="Play everyday version" kind="ghost" onPress={() => setSplash('later')} />
+      <Modal visible={splash !== null} animationType="none" onRequestClose={() => setSplash(null)}>
+        {splash && (
+          <AnimatedSplash firstLaunch={splash === 'first'} ready onDone={() => setSplash(null)} />
+        )}
+      </Modal>
     </Screen>
   );
 }

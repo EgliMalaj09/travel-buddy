@@ -216,6 +216,9 @@ export function AuthProvider({
         setFlag(BIOMETRIC_OFFERED_FLAG, false);
         setDeviceSettings({ biometricUnlock: false });
         setBiometric(false);
+        // End the session on the server too (API mode), like "Log out". Offline is fine: still reset.
+        const current = sessionRef.current;
+        if (current) await auth.logout(current.refreshToken).catch(() => undefined);
         resetMockAuth();
         await applySession(null);
       },

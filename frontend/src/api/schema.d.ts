@@ -266,7 +266,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Your trips with their stops and flights (deleted ones left out) */
+        /**
+         * Your trips with their stops and flights (deleted ones left out), one page at a time
+         * @description Up to `limit` trips (default 50, max 100). When `nextCursor` is set, call again with `after=<nextCursor>` for the next page.
+         */
         get: operations["ListMyTrips"];
         put?: never;
         post?: never;
@@ -391,6 +394,7 @@ export interface components {
             trips: components["schemas"]["TripDto"][];
             stops: components["schemas"]["TripStopDto"][];
             flights: components["schemas"]["FlightDto"][];
+            nextCursor: null | string;
         };
         ProblemDetails: {
             type?: null | string;
@@ -443,6 +447,7 @@ export interface components {
             idToken: string;
             deviceId: string;
             firstName?: null | string;
+            nonce?: null | string;
         };
         SyncChange: {
             op: string;
@@ -1310,7 +1315,10 @@ export interface operations {
     };
     ListMyTrips: {
         parameters: {
-            query?: never;
+            query?: {
+                limit?: number | string;
+                after?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1324,6 +1332,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MyTripsResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
                 };
             };
             /** @description Unauthorized */

@@ -8,6 +8,9 @@ jest.mock('react-native-nitro-modules', () => ({
 jest.mock('expo-crypto', () => ({
   getRandomValues: (array: Uint8Array) => require('crypto').getRandomValues(array),
   randomUUID: () => require('crypto').randomUUID(),
+  CryptoDigestAlgorithm: { SHA256: 'SHA-256' },
+  digestStringAsync: async (_algorithm: string, data: string) =>
+    require('crypto').createHash('sha256').update(data).digest('hex'),
 }));
 
 // The Google and Apple sign-in sheets are native; tests replace them (see socialSignIn.test.ts).
@@ -31,4 +34,43 @@ jest.mock('expo-apple-authentication', () => ({
   isAvailableAsync: jest.fn(async () => true),
   signInAsync: jest.fn(),
   AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 },
+}));
+
+// PowerSync's phone library is native (local SQLite). Tests of the local trip repository use
+// Node's own SQLite instead (localTripRepository.test.ts); this stub only lets modules load.
+jest.mock('@powersync/react-native', () => {
+  class Table {}
+  class Schema {}
+  class PowerSyncDatabase {
+    onChange = jest.fn(() => () => undefined);
+    registerListener = jest.fn(() => () => undefined);
+    connect = jest.fn(async () => undefined);
+    disconnect = jest.fn(async () => undefined);
+    disconnectAndClear = jest.fn(async () => undefined);
+    getAll = jest.fn(async () => []);
+    getCrudBatch = jest.fn(async () => null);
+    writeTransaction = jest.fn(async (run: (tx: unknown) => unknown) =>
+      run({ execute: jest.fn(async () => undefined), getAll: jest.fn(async () => []) }),
+    );
+  }
+  return {
+    Table,
+    Schema,
+    PowerSyncDatabase,
+    column: { text: 'text', integer: 'integer', real: 'real' },
+  };
+});
+// Local notifications are native; tests see a phone where reminders are allowed.
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(async () => null),
+  getPermissionsAsync: jest.fn(async () => ({ status: 'granted' })),
+  requestPermissionsAsync: jest.fn(async () => ({ status: 'granted' })),
+  scheduleNotificationAsync: jest.fn(async () => 'id'),
+  cancelAllScheduledNotificationsAsync: jest.fn(async () => undefined),
+  getLastNotificationResponse: jest.fn(() => null),
+  clearLastNotificationResponse: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  AndroidImportance: { DEFAULT: 3 },
+  SchedulableTriggerInputTypes: { DATE: 'date' },
 }));

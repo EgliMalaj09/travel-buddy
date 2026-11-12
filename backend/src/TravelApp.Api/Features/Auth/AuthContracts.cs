@@ -14,6 +14,8 @@ public static class AuthLimits
     public const int DeviceNameMax = 100;
     public const int FirstNameMax = 60;
     public const int IdTokenMax = 8000;
+    public const int NonceMin = 16;
+    public const int NonceMax = 128;
     public const string CodePattern = "^[0-9]{6}$";
     public const string CountryPattern = "^[A-Z]{2}$";
     public const string CurrencyPattern = "^[A-Z]{3}$";
@@ -52,10 +54,15 @@ public sealed record LoginResponse(string Kind, SessionResponse? Session);
 /// <param name="IdToken">The ID token from the Google or Apple sign-in sheet.</param>
 /// <param name="DeviceId">This phone.</param>
 /// <param name="FirstName">Apple gives the name to the app only on the first sign-in; send it then.</param>
+/// <param name="Nonce">
+/// The random text the app made for this sign-in (not hashed). The app gave its SHA-256 (hex) to the sign-in sheet,
+/// so the token carries it; the API checks they match. Required for Apple; for Google only when the token has a nonce.
+/// </param>
 public sealed record SocialLoginRequest(
     [property: Required, MaxLength(AuthLimits.IdTokenMax)] string IdToken,
     [property: Required, MinLength(8), MaxLength(AuthLimits.DeviceIdMax)] string DeviceId,
-    [property: MaxLength(AuthLimits.FirstNameMax)] string? FirstName = null);
+    [property: MaxLength(AuthLimits.FirstNameMax)] string? FirstName = null,
+    [property: MinLength(AuthLimits.NonceMin), MaxLength(AuthLimits.NonceMax)] string? Nonce = null);
 
 /// <param name="Purpose">"signup" or "login".</param>
 public sealed record ResendCodeRequest(

@@ -901,8 +901,30 @@
         "tags": [
           "Trips"
         ],
-        "summary": "Your trips with their stops and flights (deleted ones left out)",
+        "summary": "Your trips with their stops and flights (deleted ones left out), one page at a time",
+        "description": "Up to `limit` trips (default 50, max 100). When `nextCursor` is set, call again with `after=<nextCursor>` for the next page.",
         "operationId": "ListMyTrips",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "401": {
             "description": "Unauthorized",
@@ -920,6 +942,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MyTripsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
                 }
               }
             }
@@ -1387,7 +1419,8 @@
         "required": [
           "trips",
           "stops",
-          "flights"
+          "flights",
+          "nextCursor"
         ],
         "type": "object",
         "properties": {
@@ -1408,6 +1441,12 @@
             "items": {
               "$ref": "#/components/schemas/FlightDto"
             }
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -1640,6 +1679,14 @@
           },
           "firstName": {
             "maxLength": 60,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "nonce": {
+            "maxLength": 128,
+            "minLength": 16,
             "type": [
               "null",
               "string"

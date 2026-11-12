@@ -59,10 +59,24 @@ describe('Apple sheet', () => {
       identityToken: 'apple-tok',
       fullName: { givenName: 'Ana' },
     } as never);
-    await expect(load(undefined).signInWithApple()).resolves.toEqual({
-      idToken: 'apple-tok',
-      firstName: 'Ana',
-    });
+    const result = await load(undefined).signInWithApple();
+    expect(result).toEqual({ idToken: 'apple-tok', firstName: 'Ana', nonce: expect.any(String) });
+  });
+
+  it('gives Apple the SHA-256 of a fresh nonce and returns the plain nonce for the backend', async () => {
+    apple.signInAsync.mockResolvedValue({ identityToken: 'apple-tok', fullName: null } as never);
+    const sheets = load(undefined);
+    const first = await sheets.signInWithApple();
+    const second = await sheets.signInWithApple();
+
+    expect(first.nonce).toMatch(/^[0-9a-f]{64}$/);
+    expect(second.nonce).not.toEqual(first.nonce);
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- Node's crypto, tests only
+    const sha256 = (s: string) => require('crypto').createHash('sha256').update(s).digest('hex');
+    expect(apple.signInAsync).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ nonce: sha256(first.nonce!) }),
+    );
   });
 
   it('turns a closed sheet into "cancelled"', async () => {

@@ -54,7 +54,12 @@ function fakeServer(reject?: (c: SyncChange) => string | null) {
     async list() {
       const rows = (t: SyncChange['type']) =>
         [...tables[t].values()].filter((r) => !r.deletedAt) as never[];
-      return { trips: rows('trips'), stops: rows('trip_stops'), flights: rows('flights') };
+      return {
+        trips: rows('trips'),
+        stops: rows('trip_stops'),
+        flights: rows('flights'),
+        nextCursor: null,
+      };
     },
     async upload(changes) {
       uploads.push(changes);
@@ -174,9 +179,38 @@ describe('API trip repository', () => {
 
 describe('data mode', () => {
   it('uses the server by default and mock data with mock login', () => {
-    expect(pickDataMode(undefined, undefined)).toBe('api');
+    expect(pickDataMode(undefined, undefined)).toBe('local');
+    expect(pickDataMode('local', undefined)).toBe('local');
     expect(pickDataMode(undefined, 'mock')).toBe('mock');
     expect(pickDataMode('mock', undefined)).toBe('mock');
     expect(pickDataMode('api', 'mock')).toBe('api');
+  });
+
+  it('reads every page of GET /trips and keeps each trip with its stops', async () => {
+    const server = fakeServer();
+    const repo = createApiTripRepository(server.api);
+    const a = await repo.createTrip({ ...input, name: 'A' }, owner);
+    const b = await repo.createTrip({ ...input, name: 'B' }, owner);
+    const c = await repo.createTrip({ ...input, name: 'C' }, owner);
+    const full = await server.api.list();
+    // Split what the server has into pages of one trip each, chained by cursors.
+    const pages = full.trips.map((t, i) => ({
+      trips: [t],
+      stops: full.stops.filter((s) => s.tripId === t.id),
+      flights: full.flights.filter((f) => f.tripId === t.id),
+      nextCursor: i < full.trips.length - 1 ? `c${i + 1}` : null,
+    }));
+    const calls: (string | undefined)[] = [];
+    const paged = createApiTripRepository({
+      ...server.api,
+      list: async (after) => {
+        calls.push(after);
+        return pages[after ? Number(after.slice(1)) : 0]!;
+      },
+    });
+
+    expect((await paged.listTrips()).map((t) => t.id)).toEqual([a.id, b.id, c.id]);
+    expect(calls).toEqual([undefined, 'c1', 'c2']);
+    expect((await paged.listStops(c.id)).length).toBeGreaterThan(0);
   });
 });

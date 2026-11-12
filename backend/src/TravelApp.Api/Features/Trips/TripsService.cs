@@ -57,13 +57,36 @@ internal sealed partial class TripsService(AppDbContext db) : ITripWriteRules
         return problems.Result;
     }
 
-    /// <summary>The user's trips that are not deleted, with their live stops and flights.</summary>
-    public async Task<MyTripsResponse> ListMineAsync(Guid userId, CancellationToken ct)
+    /// <summary>
+    /// One page of the user's trips that are not deleted, with their live stops and flights.
+    /// Order: dated trips by first day, then Someday trips; ties by creation time, then id. Returns null when
+    /// <paramref name="after"/> is not a cursor this API made.
+    /// </summary>
+    public async Task<MyTripsResponse?> ListMineAsync(Guid userId, int limit, string? after, CancellationToken ct)
     {
-        var trips = await db.Set<Trip>().AsNoTracking()
-            .Where(t => t.OwnerId == userId && t.DeletedAt == null)
-            .OrderBy(t => t.StartDate == null).ThenBy(t => t.StartDate).ThenBy(t => t.CreatedAt)
+        var query = db.Set<Trip>().AsNoTracking().Where(t => t.OwnerId == userId && t.DeletedAt == null);
+        if (after is not null)
+        {
+            if (TripsCursor.Read(after) is not { } c)
+            {
+                return null;
+            }
+
+            // Keyset paging: everything that sorts after the last trip of the previous page.
+            query = c.StartDate is { } start
+                ? query.Where(t => t.StartDate == null || t.StartDate > start
+                    || (t.StartDate == start && (t.CreatedAt > c.CreatedAt || (t.CreatedAt == c.CreatedAt && t.Id.CompareTo(c.Id) > 0))))
+                : query.Where(t => t.StartDate == null
+                    && (t.CreatedAt > c.CreatedAt || (t.CreatedAt == c.CreatedAt && t.Id.CompareTo(c.Id) > 0)));
+        }
+
+        // One extra row tells whether there is a next page.
+        var page = await query
+            .OrderBy(t => t.StartDate == null).ThenBy(t => t.StartDate).ThenBy(t => t.CreatedAt).ThenBy(t => t.Id)
+            .Take(limit + 1)
             .ToListAsync(ct);
+        var trips = page.Take(limit).ToList();
+        var nextCursor = page.Count > limit ? TripsCursor.Write(trips[^1]) : null;
         var tripIds = trips.Select(t => t.Id).ToList();
         var stops = await db.Set<TripStop>().AsNoTracking()
             .Where(s => tripIds.Contains(s.TripId) && s.DeletedAt == null)
@@ -81,7 +104,8 @@ internal sealed partial class TripsService(AppDbContext db) : ITripWriteRules
                 s.Nights, s.CreatedAt, s.UpdatedAt, s.DeletedAt, s.Version)).ToList(),
             flights.Select(f => new FlightDto(f.Id, f.TripId, f.Order, f.Direction, f.Airline, f.FlightNumber, f.DepartureAirport,
                 f.ArrivalAirport, f.DepartureLocalTime, f.ArrivalLocalTime, f.DepartureTimeZone, f.ArrivalTimeZone, f.BookingCode,
-                f.Seat, f.Terminal, f.CreatedAt, f.UpdatedAt, f.DeletedAt, f.Version)).ToList());
+                f.Seat, f.Terminal, f.CreatedAt, f.UpdatedAt, f.DeletedAt, f.Version)).ToList(),
+            nextCursor);
     }
 
     public Task<bool> OwnsTripAsync(Guid userId, Guid tripId, CancellationToken cancellationToken) =>

@@ -193,8 +193,11 @@ if (DeviceConnected) {
 
 # ---------- 6. App (Expo) ----------
 Step 'App (Expo)'
-if (-not (Test-Path (Join-Path $Frontend 'node_modules'))) {
-  Info 'Installing app packages (one time, a few minutes)...'
+# Install again when package-lock.json changed after the last install (a git pull added a library).
+$lockFile = Join-Path $Frontend 'package-lock.json'
+$installedLock = Join-Path $Frontend 'node_modules\.package-lock.json'
+if (-not (Test-Path $installedLock) -or ((Get-Item $lockFile).LastWriteTime -gt (Get-Item $installedLock).LastWriteTime)) {
+  Info 'Installing app packages (a few minutes)...'
   Push-Location $Frontend
   try {
     npm install

@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.IdentityModel.JsonWebTokens;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Tests.Infrastructure;
@@ -10,6 +12,13 @@ namespace TravelApp.Api.Tests.Features.Auth;
 public sealed class SessionAndProfileTests(ApiFactory factory)
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
+
+    /// <summary>What the app does: a random nonce, and its SHA-256 (hex) that ends up in the Apple token.</summary>
+    private static (string Nonce, string Claim) NewNonce()
+    {
+        var nonce = Guid.NewGuid().ToString("N");
+        return (nonce, Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(nonce))));
+    }
 
     private static readonly ProfileRequest Profile = new("Egli", "AL", "IT", "EUR", Language: "en", TimeZone: "Europe/Rome");
 
@@ -142,8 +151,9 @@ public sealed class SessionAndProfileTests(ApiFactory factory)
     {
         using var client = new AuthTestClient(factory);
         var email = AuthTestClient.NewEmail();
+        var (nonce, claim) = NewNonce();
         var apple = await AuthTestClient.Read<SessionResponse>(await client.Post("/auth/apple",
-            new SocialLoginRequest($"apple|{Guid.NewGuid()}|{email}|", AuthTestClient.NewDevice(), "Sam")));
+            new SocialLoginRequest($"apple|{Guid.NewGuid()}|{email}||{claim}", AuthTestClient.NewDevice(), "Sam", nonce)));
 
         var emailSession = await client.SignUp(email, AuthTestClient.NewDevice());
 
@@ -160,6 +170,48 @@ public sealed class SessionAndProfileTests(ApiFactory factory)
         var response = await client.Post("/auth/google", new SocialLoginRequest("apple|x|a@example.com|", AuthTestClient.NewDevice()));
 
         await AuthTestClient.AssertError(response, HttpStatusCode.Unauthorized, AuthErrorCodes.InvalidToken);
+    }
+
+    [Fact]
+    public async Task Apple_login_needs_the_matching_nonce()
+    {
+        using var client = new AuthTestClient(factory);
+        var email = AuthTestClient.NewEmail();
+        var subject = Guid.NewGuid();
+        var (nonce, claim) = NewNonce();
+        var (otherNonce, _) = NewNonce();
+
+        var noNonceInToken = await client.Post("/auth/apple",
+            new SocialLoginRequest($"apple|{subject}|{email}|", AuthTestClient.NewDevice(), Nonce: nonce));
+        var noNonceSent = await client.Post("/auth/apple",
+            new SocialLoginRequest($"apple|{subject}|{email}||{claim}", AuthTestClient.NewDevice()));
+        var wrongNonce = await client.Post("/auth/apple",
+            new SocialLoginRequest($"apple|{subject}|{email}||{claim}", AuthTestClient.NewDevice(), Nonce: otherNonce));
+        var ok = await client.Post("/auth/apple",
+            new SocialLoginRequest($"apple|{subject}|{email}||{claim}", AuthTestClient.NewDevice(), Nonce: nonce));
+
+        await AuthTestClient.AssertError(noNonceInToken, HttpStatusCode.Unauthorized, AuthErrorCodes.InvalidToken);
+        await AuthTestClient.AssertError(noNonceSent, HttpStatusCode.Unauthorized, AuthErrorCodes.InvalidToken);
+        await AuthTestClient.AssertError(wrongNonce, HttpStatusCode.Unauthorized, AuthErrorCodes.InvalidToken);
+        Assert.Equal(HttpStatusCode.OK, ok.StatusCode);
+    }
+
+    [Fact]
+    public async Task Google_login_checks_the_nonce_only_when_the_token_has_one()
+    {
+        using var client = new AuthTestClient(factory);
+        var (nonce, claim) = NewNonce();
+
+        var plain = await client.Post("/auth/google",
+            new SocialLoginRequest($"google|{Guid.NewGuid()}|{AuthTestClient.NewEmail()}|", AuthTestClient.NewDevice()));
+        var wrong = await client.Post("/auth/google",
+            new SocialLoginRequest($"google|{Guid.NewGuid()}|{AuthTestClient.NewEmail()}||{claim}", AuthTestClient.NewDevice(), Nonce: NewNonce().Nonce));
+        var matching = await client.Post("/auth/google",
+            new SocialLoginRequest($"google|{Guid.NewGuid()}|{AuthTestClient.NewEmail()}||{claim}", AuthTestClient.NewDevice(), Nonce: nonce));
+
+        Assert.Equal(HttpStatusCode.OK, plain.StatusCode);
+        await AuthTestClient.AssertError(wrong, HttpStatusCode.Unauthorized, AuthErrorCodes.InvalidToken);
+        Assert.Equal(HttpStatusCode.OK, matching.StatusCode);
     }
 
     [Fact]
