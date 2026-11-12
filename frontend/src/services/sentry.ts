@@ -21,3 +21,9 @@ export function initSentry(): void {
 }
 
 export const wrapWithSentry = Sentry.wrap;
+
+/** Reports an error that the user does not need to see (e.g. a reminder that failed to schedule). */
+export function captureError(error: unknown): void {
+  if (__DEV__) console.warn(error);
+  if (sentryEnabled) Sentry.captureException(error);
+}
