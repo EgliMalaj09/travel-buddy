@@ -99,3 +99,5 @@ Status: **AGREED** (owner confirmed), **PROPOSED** (waiting for the owner).
 | --- | --- | --- |
 
 Later, when the feature needs them (each gets a row first): date library (Create a trip), forms and validation (onboarding), long lists (photos), bottom sheets (place cards), animations.
+
+Animations so far (12 Nov 2026): the opening (splash) animation uses React Native's built-in `Animated` API, so no new library. If later animations need more (gestures, shared transitions), propose `react-native-reanimated` with a row first.
