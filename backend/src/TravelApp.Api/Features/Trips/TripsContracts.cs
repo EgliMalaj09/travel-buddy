@@ -62,6 +62,16 @@ public interface ITripWriteRules
     Task<int> CountStopsAsync(Guid tripId, CancellationToken cancellationToken);
 }
 
+/// <summary>
+/// Implemented by features whose records hang off a trip (Places, later Checklist, Photos, Expenses).
+/// When a trip is deleted, Trips calls every hook in the same transaction, so those records are soft-deleted
+/// with it and phones see them go. Lets Trips stay unaware of the other features (structure rule 2).
+/// </summary>
+public interface ITripDeleteHook
+{
+    Task TripDeletedAsync(Guid tripId, DateTimeOffset at, CancellationToken cancellationToken);
+}
+
 /// <summary>A trip as the API returns it (field names as in the data model).</summary>
 public sealed record TripDto(
     Guid Id,

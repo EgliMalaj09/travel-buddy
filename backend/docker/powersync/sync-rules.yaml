@@ -15,3 +15,11 @@ streams:
   my_flights:
     auto_subscribe: true
     query: select * from flights where deleted_at is null and trip_id in (select id from trips where owner_id = auth.user_id() and deleted_at is null)
+  # Places (KAN-35): the places of the user's trips, and their own bucket list (no trip).
+  # Part 2 (shared trips): personal places of other members are left out.
+  my_places:
+    auto_subscribe: true
+    query: select * from places where deleted_at is null and trip_id in (select id from trips where owner_id = auth.user_id() and deleted_at is null)
+  my_bucket_list:
+    auto_subscribe: true
+    query: select * from places where deleted_at is null and trip_id is null and created_by_user_id = auth.user_id()
