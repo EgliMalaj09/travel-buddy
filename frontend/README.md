@@ -52,6 +52,7 @@ No emails are sent in development: the 6-digit code is printed in the API window
 | Path | What |
 | --- | --- |
 | `src/app/` | Screens (Expo Router: every file is a route). `(tabs)/` = Home, Trips, Globe, You; `trip/[id].tsx` = trip screen; `design-kit.tsx` = all kit components. Login routes: `intro`, `login`, `sign-up`, `verify`, `forgot`, `reset`, `profile-name`, `profile-travel`, `lock` (thin files; the screens live in `src/features/auth/`). `_layout.tsx` guards them with `Stack.Protected` by login phase |
+| `src/features/home/` | Home dashboard: the trip happening now or the next one (countdown, tonight's city, next flight), coming up, someday ideas, simple travel numbers. Logic in `src/lib/home.ts`. Reads trips only through the trip repository |
 | `src/features/auth/` | Login feature: AuthProvider (phase, session), real API login service (`apiAuthService.ts`) and mock login (`EXPO_PUBLIC_AUTH_MODE=mock`, code `123456`), secure storage, form rules, intro slides, screens |
 | `src/theme/` | **The theme file** (`tokens.ts`), fonts, ThemeProvider |
 | `src/components/core/` | Component kit, atoms (tiny building blocks): AppText, Button, Input, Checkbox, Chip, Card, CodeInput, Logo, PhotoPlaceholder, SyncIndicator, Screen, tab bar style |

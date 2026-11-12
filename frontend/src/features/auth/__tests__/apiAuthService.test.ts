@@ -115,8 +115,65 @@ describe('api auth service', () => {
     expect(lastRequest().headers.get('Authorization')).toBe('Bearer access');
   });
 
-  it('says Google/Apple are not connected yet', async () => {
-    await expect(service.loginWithGoogle('device-1234')).rejects.toBeInstanceOf(AuthError);
+  it('sends the Google ID token and first name to /auth/google', async () => {
+    const sheets = {
+      google: jest.fn(async () => ({ idToken: 'google-token', firstName: 'Ana' })),
+      apple: jest.fn(),
+      signOut: jest.fn(async () => undefined),
+    };
+    fetchMock.mockResolvedValue(json(200, session));
+    const result = await createApiAuthService(sheets).loginWithGoogle('device-1234');
+    expect(lastRequest().url).toMatch(/\/auth\/google$/);
+    expect(await lastRequest().json()).toEqual({
+      idToken: 'google-token',
+      deviceId: 'device-1234',
+      firstName: 'Ana',
+    });
+    expect(result.accessToken).toBe('access');
+  });
+
+  it('sends the Apple ID token to /auth/apple (no name after the first time)', async () => {
+    const sheets = {
+      google: jest.fn(),
+      apple: jest.fn(async () => ({ idToken: 'apple-token' })),
+      signOut: jest.fn(async () => undefined),
+    };
+    fetchMock.mockResolvedValue(json(200, session));
+    await createApiAuthService(sheets).loginWithApple('device-1234');
+    expect(lastRequest().url).toMatch(/\/auth\/apple$/);
+    expect(await lastRequest().json()).toEqual({
+      idToken: 'apple-token',
+      deviceId: 'device-1234',
+      firstName: null,
+    });
+  });
+
+  it('does not call the API when the person closes the sheet', async () => {
+    const sheets = {
+      google: jest.fn(async () => {
+        throw new AuthError('cancelled', 'Login was cancelled.');
+      }),
+      apple: jest.fn(),
+      signOut: jest.fn(async () => undefined),
+    };
+    await expect(createApiAuthService(sheets).loginWithGoogle('device-1234')).rejects.toMatchObject(
+      { code: 'cancelled' },
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('shows the server text when the API refuses the token', async () => {
+    const sheets = {
+      google: jest.fn(async () => ({ idToken: 'bad' })),
+      apple: jest.fn(),
+      signOut: jest.fn(async () => undefined),
+    };
+    fetchMock.mockResolvedValue(
+      json(401, { title: 'This login could not be checked.', code: 'invalid_token' }),
+    );
+    await expect(createApiAuthService(sheets).loginWithGoogle('device-1234')).rejects.toMatchObject(
+      { code: 'invalid_token', message: 'This login could not be checked.' },
+    );
   });
 });
 

@@ -2,6 +2,7 @@ import { authApi } from '@/api/client';
 import type { components } from '@/api/schema';
 
 import type { AuthService } from './authService';
+import { socialSheets as defaultSheets, type SocialSheets } from './socialSignIn';
 import { AuthError, type AuthErrorCode, type AuthUser, type Session } from './types';
 
 type Schemas = components['schemas'];
@@ -87,13 +88,6 @@ export function toSession(s: Schemas['SessionResponse']): Session {
   return { accessToken: s.accessToken, refreshToken: s.refreshToken, user: toAuthUser(s.user) };
 }
 
-function socialNotReady(): never {
-  throw new AuthError(
-    'not_available',
-    'Google and Apple login are not connected yet. Use email for now.',
-  );
-}
-
 function phoneTimeZone(): string | undefined {
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
@@ -102,7 +96,7 @@ function phoneTimeZone(): string | undefined {
   }
 }
 
-export function createApiAuthService(): AuthService {
+export function createApiAuthService(sheets: SocialSheets = defaultSheets): AuthService {
   return {
     async signUp(email, password, consents) {
       await call(() => authApi.POST('/auth/signup', { body: { email, password, consents } }));
@@ -130,9 +124,28 @@ export function createApiAuthService(): AuthService {
       );
     },
 
-    // The Google and Apple sign-in sheets (which give the ID token) are not in the app yet.
-    loginWithGoogle: async () => socialNotReady(),
-    loginWithApple: async () => socialNotReady(),
+    // The phone's Google / Apple sheet gives an ID token; the API checks it and starts a session.
+    async loginWithGoogle(deviceId) {
+      const { idToken, firstName } = await sheets.google();
+      return toSession(
+        await call(() =>
+          authApi.POST('/auth/google', {
+            body: { idToken, deviceId, firstName: firstName ?? null },
+          }),
+        ),
+      );
+    },
+
+    async loginWithApple(deviceId) {
+      const { idToken, firstName } = await sheets.apple();
+      return toSession(
+        await call(() =>
+          authApi.POST('/auth/apple', {
+            body: { idToken, deviceId, firstName: firstName ?? null },
+          }),
+        ),
+      );
+    },
 
     async resendCode(email, purpose) {
       await call(() => authApi.POST('/auth/code/resend', { body: { email, purpose } }));
@@ -163,6 +176,7 @@ export function createApiAuthService(): AuthService {
     },
 
     async logout(refreshToken) {
+      await sheets.signOut();
       await call(() => authApi.POST('/auth/logout', { body: { refreshToken } }));
     },
   };

@@ -9,3 +9,26 @@ jest.mock('expo-crypto', () => ({
   getRandomValues: (array: Uint8Array) => require('crypto').getRandomValues(array),
   randomUUID: () => require('crypto').randomUUID(),
 }));
+
+// The Google and Apple sign-in sheets are native; tests replace them (see socialSignIn.test.ts).
+jest.mock('@react-native-google-signin/google-signin', () => ({
+  GoogleSignin: {
+    configure: jest.fn(),
+    hasPlayServices: jest.fn(async () => true),
+    signIn: jest.fn(),
+    signOut: jest.fn(async () => null),
+  },
+  isSuccessResponse: (r: { type: string }) => r.type === 'success',
+  isErrorWithCode: (e: unknown) => typeof (e as { code?: unknown })?.code === 'string',
+  statusCodes: {
+    SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED',
+    IN_PROGRESS: 'IN_PROGRESS',
+    PLAY_SERVICES_NOT_AVAILABLE: 'PLAY_SERVICES_NOT_AVAILABLE',
+    SIGN_IN_REQUIRED: 'SIGN_IN_REQUIRED',
+  },
+}));
+jest.mock('expo-apple-authentication', () => ({
+  isAvailableAsync: jest.fn(async () => true),
+  signInAsync: jest.fn(),
+  AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 },
+}));
