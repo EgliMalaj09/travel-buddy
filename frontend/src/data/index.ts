@@ -1,4 +1,5 @@
 import { notifyOwnerChanged } from './changes';
+import { createLocalTrips, setLocalOwner } from './local/localStore';
 import { createApiTripRepository } from './repositories/apiTripRepository';
 import { createMockTripRepository, type TripRepository } from './repositories/tripRepository';
 
@@ -12,26 +13,38 @@ export type {
 
 /**
  * Picks the data source.
- * - "api" (default): trips are saved on the server (GET /trips, POST /sync/upload, KAN-16).
+ * - "local" (default on phones): trips are saved in the phone's own database first and work with
+ *   no signal; PowerSync syncs them with the server (offline sync, KAN-15).
+ * - "api" (default in the web preview): trips are read and saved on the server directly (KAN-16).
+ *   Needs the connection. Set EXPO_PUBLIC_DATA_MODE=api to use it on a phone too.
  * - "mock": sample trips in memory, gone after a reload. Set EXPO_PUBLIC_DATA_MODE=mock, or use
  *   mock login (EXPO_PUBLIC_AUTH_MODE=mock): a mock user has no account on the server.
- * A "local" mode backed by PowerSync (offline, KAN-15) replaces "api" later without changing screens.
  */
-export type DataMode = 'mock' | 'api';
+export type DataMode = 'mock' | 'api' | 'local';
 
 export function pickDataMode(
   dataEnv = process.env.EXPO_PUBLIC_DATA_MODE,
   authEnv = process.env.EXPO_PUBLIC_AUTH_MODE,
 ): DataMode {
-  if (dataEnv === 'mock' || dataEnv === 'api') return dataEnv;
-  return authEnv === 'mock' ? 'mock' : 'api';
+  if (dataEnv === 'mock' || dataEnv === 'api' || dataEnv === 'local') return dataEnv;
+  return authEnv === 'mock' ? 'mock' : 'local';
 }
 
-export const dataMode: DataMode = pickDataMode();
+function createTrips(mode: DataMode): { mode: DataMode; trips: TripRepository } {
+  if (mode === 'mock') return { mode, trips: createMockTripRepository() };
+  if (mode === 'local') {
+    const trips = createLocalTrips();
+    if (trips) return { mode, trips };
+  }
+  return { mode: 'api', trips: createApiTripRepository() };
+}
 
-export const repositories: { trips: TripRepository } = {
-  trips: dataMode === 'api' ? createApiTripRepository() : createMockTripRepository(),
-};
+const chosen = createTrips(pickDataMode());
+
+/** The data source in use ("local" falls back to "api" where there is no local database: web). */
+export const dataMode: DataMode = chosen.mode;
+
+export const repositories: { trips: TripRepository } = { trips: chosen.trips };
 
 let owner: string | null = null;
 
@@ -43,6 +56,7 @@ let owner: string | null = null;
 export function setDataOwner(userId: string | null): void {
   if (userId === owner) return;
   owner = userId;
+  if (dataMode === 'local') setLocalOwner(userId);
   repositories.trips.reset?.();
   notifyOwnerChanged();
 }

@@ -49,3 +49,12 @@ export function getFlag(name: string): boolean {
 export function setFlag(name: string, value: boolean): void {
   storage.set(`flag.${name}`, value);
 }
+
+/** A short text value for this phone (for example the user whose trips the local database holds). */
+export function getDeviceValue(name: string): string | null {
+  return storage.getString(`value.${name}`) ?? null;
+}
+
+export function setDeviceValue(name: string, value: string): void {
+  storage.set(`value.${name}`, value);
+}
