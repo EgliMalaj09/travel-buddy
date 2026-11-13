@@ -44,9 +44,22 @@ re-confirm list could not be read from the cloud chat; everything below is PROPO
 `.github/workflows/infra.yml`, the image build in `.github/workflows/backend.yml`,
 `backoffice/public/staticwebapp.config.json`. Tests: `Features/Auth/EmailTests.cs`, `Shared/HostingTests.cs`.
 
-## KAN-62: legal texts
+## KAN-62: legal texts (drafts)
 
-Not started yet.
+Drafts written 13 Nov 2026 in [`legal/`](../../legal/): privacy policy, terms of use, entry-rules note. **All marked
+DRAFT for legal review**; a lawyer checks them before the public launch. Placeholders the owner fills in: legal name
+or company, postal address, contact email, country for the terms, supervisory authority.
+
+| # | Question | Choice | Status |
+| --- | --- | --- | --- |
+| L-a | Where do the texts live? | Markdown files in `legal/`, versioned with the code, so a PR that collects something new updates the policy in the same change. Version id `draft-1` = the `Auth:TermsVersion` / `Auth:PrivacyVersion` the API already stores when a user accepts | PROPOSED |
+| L-b | What do they say we collect? | Exactly what Part 1 does: account, profile, consents, trips and everything in them, photos (EXIF and GPS removed), settings, login safety records, marketing only with consent, logs and crash reports without personal data, team actions. Things we do **not** collect are listed too (GPS position, contacts, birth date, payments, ads) | PROPOSED |
+| L-c | Which outside services are named? | Azure (EU), PowerSync (EU), email provider (Brevo planned, EU), Sentry (EU, when on), Google / Apple (only if used), Pwned Passwords (hash prefix only), Open-Meteo, Photon and the Currency API (asked by our server, no user data), OpenFreeMap (the phone loads tiles, sees its IP) | PROPOSED |
+| L-d | How long is data kept? | Matches the code: account until deleted, then erased 30 days later (+7 days for backups), deleted photos 30 days, trusted phones 1 year after last use, server logs 30 days, team log 2 years, crash reports up to 90 days | PROPOSED |
+| L-e | Age | 16 or older (already asked at sign-up) | AGREED earlier (onboarding) |
+| L-f | Entry rules | Not official advice, check official sources, we are not responsible for refused boarding. A short note, a line per item, and a full note. Replaces the current shorter wording when agreed (with the KAN-26 rule review) | PROPOSED |
+| L-g | Showing them in the app | Not built yet. Proposal for KAN-60: links on sign-up ("terms" and "privacy policy" open the text) and on the You tab under About, read from the bundled text. Needs the owner's OK before building | OPEN |
+| L-h | Open points for the lawyer | Legal bases (crash reports have no opt-out yet), processor agreements (Microsoft, PowerSync, email provider, Sentry), transfer wording for non-EU parent companies, liability section for the owner's country, DPO / EU representative | Open (lawyer) |
 
 ## KAN-60: phone builds
 

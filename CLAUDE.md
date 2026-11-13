@@ -60,7 +60,9 @@ When the owner says "start the app" / "run everything" on Windows, run `scripts\
 | All manual test cases (add yours here) | [`docs/test-cases/ALL-TEST-CASES.md`](docs/test-cases/ALL-TEST-CASES.md) |
 | Data model | [`decisions/data-model.md`](decisions/data-model.md) |
 | Tech stack and why | [`decisions/tech-stack.md`](decisions/tech-stack.md) |
-| Release plan, switch list | [`decisions/releases.md`](decisions/releases.md) |
+| Release plan, switch list, beta checklist | [`decisions/releases.md`](decisions/releases.md) |
+| Privacy policy, terms, entry-rules note (DRAFTS, update when the app collects something new) | [`legal/`](legal/) |
+| Beta server setup (Azure) | [`infra/azure/`](infra/azure/), steps in `docs/COMMANDS.md` |
 | All 34 features, Jira keys, Confluence page ids | [`decisions/features/README.md`](decisions/features/README.md) |
 | Frontend: setup, structure, rules, work list | [`frontend/README.md`](frontend/README.md), [`frontend/CLAUDE.md`](frontend/CLAUDE.md), [`frontend/TODO.md`](frontend/TODO.md) |
 | Backend: setup, structure, rules, work list | [`backend/README.md`](backend/README.md), [`backend/CLAUDE.md`](backend/CLAUDE.md), [`backend/TODO.md`](backend/TODO.md) |

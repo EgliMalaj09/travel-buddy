@@ -192,7 +192,7 @@ The step-by-step setup is in `docs/COMMANDS.md`, "Beta server (KAN-61)"; the cho
 - [ ] OpenFreeMap tiles: still free, no key; keep the attribution; listed in the privacy policy (KAN-62)
 - [ ] Photon (komoot public server): fair use only; fine for two testers; **own Photon or paid host if traffic grows**; keep the OpenStreetMap attribution; listed in the privacy policy
 - [ ] Currency API (fawazahmed0): free, no service promise; check it still answers before beta starts; listed in the privacy policy
-- [ ] Privacy policy and terms (drafts, KAN-62) shown in the app and checked by a lawyer before the public launch
+- [ ] Privacy policy, terms and entry-rules note: drafts in `legal/` (KAN-62). Fill in the `[placeholders]`, show them in the app (KAN-60), a lawyer checks them before the public launch
 
 | Area | During development | Switch to | When |
 | --- | --- | --- | --- |

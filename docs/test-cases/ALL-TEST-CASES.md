@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #38 (up to the beta server, KAN-61).
+Last updated: 13 Nov 2026, after PRs #1 to #39 (up to the beta server and its gap cases) and the legal drafts (KAN-62).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -36,9 +36,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 22. [Atlas: globe, lifetime stats and passport](#22-atlas-globe-lifetime-stats-and-passport-kan-49-kan-50-kan-51)
 23. [Back office](#23-back-office-kan-55)
 24. [Beta server](#24-beta-server-kan-61)
-25. [API base and backend checks](#25-api-base-and-backend-checks-kan-58)
-26. [Privacy: no personal data in logs (GDPR)](#26-privacy-no-personal-data-in-logs-gdpr)
-27. [Known gaps](#27-known-gaps)
+25. [Legal texts (drafts)](#25-legal-texts-drafts-kan-62)
+26. [API base and backend checks](#26-api-base-and-backend-checks-kan-58)
+27. [Privacy: no personal data in logs (GDPR)](#27-privacy-no-personal-data-in-logs-gdpr)
+28. [Known gaps](#28-known-gaps)
 
 ---
 
@@ -645,7 +646,22 @@ addresses step 5 printed. BETA-01 is the only one for your PC. Cases that need t
 | BETA-17 | | Postman against `apiUrl`: send **POST /auth/login** with a wrong password 31 times within one minute from your PC. Then, within that minute, send it once more from another network (e.g. a laptop on your phone's hotspot) | The PC gets **429** after 30 tries; the other network is **not** blocked (the limit counts each caller, not the whole server) | |
 | BETA-18 | | After the first deploy (and after any deploy with a database change), open the back office **Dashboard** | It loads with numbers (the API set up the database tables itself when it started; nobody ran a migration by hand) | |
 
-## 25. API base and backend checks (KAN-58)
+## 25. Legal texts (drafts) (KAN-62)
+
+Reading checks, no app needed. Open the files in `legal/` on GitHub. They are drafts for a lawyer; these checks make
+sure they match what the app really does before the lawyer sees them.
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| LEGAL-01 | | Open `legal/privacy-policy.md`, `legal/terms.md` and `legal/entry-rules-disclaimer.md` | Each starts with "DRAFT for legal review … Not legal advice" | |
+| LEGAL-02 | | Search each file for `[` | Every `[PLACEHOLDER]` is something you can fill in: your name or company, address, contact email, country, supervisory authority, email provider | |
+| LEGAL-03 | | Privacy policy section 3: go through the app's sign-up, profile, trip, photo, expense and settings screens | Everything the app asks you for is in the table; nothing in the table is something the app does not do | |
+| LEGAL-04 | | Privacy policy section 5 against the beta checklist in `decisions/releases.md` | Azure, PowerSync, the email provider, Sentry, Google/Apple, Pwned Passwords, Open-Meteo, Photon, OpenFreeMap and the Currency API are all listed | |
+| LEGAL-05 | | Privacy policy section 6 against the app: delete an account (ACC cases), delete a photo | 30 days to restore, then erased; deleted photo files erased after 30 days: same numbers as the policy | |
+| LEGAL-06 | | Privacy policy section 7: follow the paths it gives (You → Settings → Download my data / Delete my account) | The buttons are where the policy says | |
+| LEGAL-07 | | Compare the entry-rules short note with the note at the bottom of a trip's checklist | Same meaning; the policy's version is the one to use once you agree it (with KAN-26) | |
+
+## 26. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
@@ -655,7 +671,7 @@ addresses step 5 printed. BETA-01 is the only one for your PC. Cases that need t
 | API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (194 on 13 Nov 2026, with the beta server) | ✅ |
 | API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (283 on 13 Nov 2026, with finish trip) | |
 
-## 26. Privacy: no personal data in logs (GDPR)
+## 27. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
@@ -672,7 +688,7 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 | GDPR-09 | | Do BO-01 to BO-27. Read the API window and the browser console (F12 → Console) | API window: only ids, roles and timings ("Back office login by <id> (owner)", "Account <id> suspended…"); no email, password, code, search words or settings values. Browser console: nothing printed | |
 | GDPR-10 | | On the beta server: sign up, log in and reset a password (BETA-07), then read the logs (BETA-08 command) and the back office audit log | Only ids, purposes, status codes and timings. No email address, code, password or SMTP reply text; a failed email shows only "Code email (login) not sent, SMTP status …" | |
 
-## 27. Known gaps
+## 28. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.
