@@ -14,6 +14,7 @@ import { TripMap } from '@/features/map/TripMap';
 import { TripPhotos, useAddPhotos } from '@/features/photos/TripPhotos';
 import { TripPlaces } from '@/features/places/TripPlaces';
 import { todayIso } from '@/lib/dates';
+import { canFinish } from '@/lib/finishTrip';
 import {
   openingTripTab,
   parseTripTab,
@@ -139,6 +140,17 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
         title={trip.name}
         actions={[
           { label: 'Edit trip', onPress: () => router.push(`/trip/edit/${trip.id}`) },
+          ...(canFinish(trip, today)
+            ? [{ label: 'Finish trip', onPress: () => router.push(`/trip/finish/${trip.id}`) }]
+            : []),
+          ...(trip.status === 'finished'
+            ? [
+                {
+                  label: 'Open trip again',
+                  onPress: () => void repositories.trips.reopenTrip(trip.id),
+                },
+              ]
+            : []),
           { label: 'Delete trip', destructive: true, onPress: openSheetNext('delete') },
         ]}
         onClose={() => setSheet(null)}

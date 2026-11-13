@@ -3,4 +3,5 @@
 export { EmptyState } from './EmptyState';
 export { OptionPicker, type PickerOption } from './OptionPicker';
 export { OrDivider, SocialButtons } from './SocialButtons';
+export { PassportGrid, type PassportGridStamp } from './PassportGrid';
 export { TripStub } from './TripStub';

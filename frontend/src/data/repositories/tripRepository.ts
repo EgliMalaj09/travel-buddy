@@ -1,3 +1,4 @@
+import { todayIso } from '@/lib/dates';
 import { newId } from '@/lib/ids';
 
 import { notifyDataChanged } from '../changes';
@@ -45,10 +46,48 @@ export interface TripRepository {
   listFlights(tripId: string): Promise<Flight[]>;
   createTrip(input: TripInput, owner: TripOwner): Promise<Trip>;
   updateTrip(id: string, input: TripInput): Promise<Trip>;
+  /**
+   * Finish trip (KAN-47): status finished, the time, the rating and the note, in one change.
+   * Only a trip with dates that has started (`finishTripProblem`).
+   */
+  finishTrip(id: string, input: FinishInput): Promise<Trip>;
+  /** Opens a finished trip again (status planned). The rating and note stay for next time. */
+  reopenTrip(id: string): Promise<Trip>;
   /** Soft delete of the trip and everything in it (T6: the screen asks first). */
   deleteTrip(id: string): Promise<void>;
   /** Forgets anything loaded so far (another user logged in). */
   reset?(): void;
+}
+
+/** What the Finish trip screen sends. */
+export interface FinishInput {
+  /** 1 to 5. */
+  rating: number;
+  /** Optional, up to FINISH_NOTE_MAX characters. */
+  note: string | null;
+}
+
+export const FINISH_NOTE_MAX = 200;
+
+/** The same checks the backend makes when a trip is finished (TripsService.CheckFinish). */
+export function finishTripProblem(trip: Trip, input: FinishInput, today: IsoDate): string | null {
+  if (!trip.startDate || !trip.endDate) return 'Add the dates of the trip before you finish it.';
+  if (today < trip.startDate) return 'This trip has not started yet.';
+  if (!Number.isInteger(input.rating) || input.rating < 1 || input.rating > 5)
+    return 'Pick from 1 to 5 suns.';
+  if ((input.note?.trim().length ?? 0) > FINISH_NOTE_MAX)
+    return `The note can be up to ${FINISH_NOTE_MAX} characters.`;
+  return null;
+}
+
+/** The note as it is saved: trimmed, empty means none. */
+export const cleanFinishNote = (note: string | null) => note?.trim() || null;
+
+/** Checks a finish and throws the problem, so every repository answers the same. */
+export function checkFinish(trip: Trip | null, input: FinishInput, at: string): asserts trip {
+  if (!trip) throw new Error('Trip not found.');
+  const problem = finishTripProblem(trip, input, todayIso(new Date(at)));
+  if (problem) throw new Error(problem);
 }
 
 /** The same checks the backend's sync write endpoint makes (Create a trip, Technical). */
@@ -152,6 +191,8 @@ export function createMockTripRepository(
         activities: input.activities,
         status: 'planned',
         finishedAt: null,
+        rating: null,
+        finishNote: null,
         coverMediaId: null,
         passportCountrySnapshot: owner.passportCountry,
         homeCurrencySnapshot: owner.homeCurrency,
@@ -177,6 +218,28 @@ export function createMockTripRepository(
       });
       data.trips[i] = trip;
       writeChildren(id, input);
+      notifyDataChanged();
+      return trip;
+    },
+    async finishTrip(id, input) {
+      const i = data.trips.findIndex((t) => t.id === id && !t.deletedAt);
+      const at = now();
+      checkFinish(data.trips[i] ?? null, input, at);
+      const trip = touch(data.trips[i]!, {
+        status: 'finished',
+        finishedAt: at,
+        rating: input.rating,
+        finishNote: cleanFinishNote(input.note),
+      });
+      data.trips[i] = trip;
+      notifyDataChanged();
+      return trip;
+    },
+    async reopenTrip(id) {
+      const i = data.trips.findIndex((t) => t.id === id && !t.deletedAt);
+      if (i < 0) throw new Error('Trip not found.');
+      const trip = touch(data.trips[i]!, { status: 'planned', finishedAt: null });
+      data.trips[i] = trip;
       notifyDataChanged();
       return trip;
     },

@@ -16,9 +16,13 @@ import {
   Logo,
   OptionPicker,
   OrDivider,
+  PassportGrid,
   PhotoPlaceholder,
   Screen,
   SocialButtons,
+  Stamp,
+  StatTile,
+  SunRating,
   SyncIndicator,
   TabRow,
 } from '@/components';
@@ -37,6 +41,7 @@ export default function DesignKitScreen() {
   const [pick, setPick] = useState<string | undefined>('AL');
   const [tab, setTab] = useState('plan');
   const [splash, setSplash] = useState<'first' | 'later' | null>(null);
+  const [suns, setSuns] = useState(4);
 
   return (
     <Screen>
@@ -132,7 +137,38 @@ export default function DesignKitScreen() {
         </AppMapMarker>
       </AppMap>
 
+      <AppText variant="heading">Core: finish trip (KAN-47)</AppText>
+      <SunRating value={suns} onChange={setSuns} />
+      <SunRating value={3} size={20} />
+      <View style={{ flexDirection: 'row', gap: space.md }}>
+        <Stamp code="PT" name="Portugal" date="NOV 2026" rotate={-9} />
+        <Stamp code="IT" name="Italy" date="APR 2027" rotate={6} opacity={0.85} />
+      </View>
+      <View style={{ flexDirection: 'row', gap: space.sm }}>
+        <StatTile value="12" label="places visited" />
+        <StatTile value="€845.20" label="spent" />
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: space.sm,
+          backgroundColor: colors.accent,
+          padding: space.md,
+          borderRadius: radii.lg,
+        }}
+      >
+        <StatTile onAccent value="48" label="photos" />
+        <StatTile onAccent value="7" label="countries now" />
+      </View>
+
       <AppText variant="heading">Feature: groups</AppText>
+      <PassportGrid
+        stamps={[
+          { code: 'IT', name: 'Italy', date: 'APR 2026' },
+          { code: 'AT', name: 'Austria', date: 'JUN 2026' },
+          { code: 'PT', name: 'Portugal', date: 'NOV 2026' },
+        ]}
+      />
       <SocialButtons onApple={() => undefined} onGoogle={() => undefined} />
       <OrDivider />
       <OptionPicker

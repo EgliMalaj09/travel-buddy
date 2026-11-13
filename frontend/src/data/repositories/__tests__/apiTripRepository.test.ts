@@ -150,6 +150,31 @@ describe('API trip repository', () => {
     expect(await repo.getTrip(trip.id)).toBeNull();
   });
 
+  it('finishes a trip with one PATCH and opens it again (KAN-47)', async () => {
+    const server = fakeServer();
+    const repo = createApiTripRepository(server.api);
+    const trip = await repo.createTrip(
+      { ...input, startDate: '2026-04-12', endDate: '2026-04-19' },
+      owner,
+    );
+
+    const done = await repo.finishTrip(trip.id, { rating: 4, note: ' ' });
+
+    const change = server.uploads[1]!;
+    expect(change).toHaveLength(1);
+    expect(change[0]).toMatchObject({
+      op: 'PATCH',
+      type: 'trips',
+      data: { status: 'finished', rating: 4, finish_note: null },
+    });
+    expect(change[0]!.data!.finished_at).toEqual(expect.any(String));
+    expect(done).toMatchObject({ status: 'finished', rating: 4 });
+
+    const again = await repo.reopenTrip(trip.id);
+    expect(server.uploads[2]![0]!.data).toEqual({ status: 'planned', finished_at: null });
+    expect(again.status).toBe('planned');
+  });
+
   it("shows the server's reason when it rejects a change", async () => {
     const server = fakeServer((c) =>
       c.type === 'trips' ? 'The last day is before the first day.' : null,

@@ -82,6 +82,9 @@ function AppStack() {
           <Stack.Screen name="trip/[id]" options={{ title: '' }} />
           <Stack.Screen name="trip/new" options={{ title: '' }} />
           <Stack.Screen name="trip/edit/[id]" options={{ title: '' }} />
+          <Stack.Screen name="trip/finish/[id]" options={{ title: '' }} />
+          <Stack.Screen name="trip/recap/[id]" options={{ title: '' }} />
+          <Stack.Screen name="trip/stamp/[id]" options={{ title: '' }} />
           <Stack.Screen name="settings" options={{ title: 'Settings' }} />
           <Stack.Screen name="profile-edit" options={{ title: 'Edit profile' }} />
           <Stack.Screen name="account-delete" options={{ title: '' }} />

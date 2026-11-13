@@ -153,6 +153,8 @@ describe('steps and flights', () => {
         activities: ['food'],
         status: 'planned',
         finishedAt: null,
+        rating: null,
+        finishNote: null,
         coverMediaId: null,
         passportCountrySnapshot: 'AL',
         homeCurrencySnapshot: 'ALL',

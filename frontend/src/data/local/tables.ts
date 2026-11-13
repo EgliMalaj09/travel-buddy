@@ -25,6 +25,8 @@ export const tripTables = {
     activities: 'text',
     status: 'text',
     finished_at: 'text',
+    rating: 'integer',
+    finish_note: 'text',
     cover_media_id: 'text',
     passport_country_snapshot: 'text',
     home_currency_snapshot: 'text',

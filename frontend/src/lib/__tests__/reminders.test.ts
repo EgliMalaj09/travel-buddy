@@ -6,6 +6,7 @@ import {
   eveningTime,
   formatReminderTime,
   planReminders,
+  reminderRoutes,
   zonedTimeToDate,
 } from '../reminders';
 
@@ -85,9 +86,25 @@ describe('planReminders', () => {
     );
   });
 
+  it('asks "How was <trip>?" the evening after the last day (Finish trip, KAN-47)', () => {
+    const [y, m, d] = rome.endDate!.split('-').map(Number);
+    expect(byId(`finish:${rome.id}`)).toMatchObject({
+      kind: 'finish',
+      title: 'How was Rome & Florence?',
+      at: local(y!, m!, d! + 1, 19),
+    });
+    expect(reminderRoutes(rome.id, 'finish')).toEqual([
+      `/trip/${rome.id}`,
+      `/trip/finish/${rome.id}`,
+    ]);
+  });
+
   it('ignores trips without dates, finished or deleted', () => {
     const others = data.trips.filter((t) => t.id !== rome.id);
-    expect(planReminders({ trips: others, flightsByTrip: new Map(), now })).toEqual([]);
+    // Only the trip happening now (Lisbon) still gets its "How was…?" question.
+    expect(
+      planReminders({ trips: others, flightsByTrip: new Map(), now }).map((r) => r.id),
+    ).toEqual(['finish:trip-lisbon']);
     expect(
       planReminders({
         trips: [{ ...rome, deletedAt: '2027-03-01T00:00:00Z' }],

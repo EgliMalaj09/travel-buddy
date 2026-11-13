@@ -26,6 +26,10 @@ export const colors = {
   /** Sync / status colours */
   success: '#3F6B4A',
   warning: '#A8642A',
+  /** Suns of the trip rating and other "highlight" moments (design guide "sun") */
+  sun: '#FFC02E',
+  /** Tiles on top of the accent colour (recap): onAccent at 14% */
+  onAccentSoft: 'rgba(247, 243, 236, 0.14)',
   /** Dimmed page behind menus and sheets (ink at 40%) */
   overlay: 'rgba(42, 33, 28, 0.4)',
 } as const;

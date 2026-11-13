@@ -14,6 +14,7 @@ import { tripHref } from './tripTabs';
  * - "Pack tonight": the evening before the first day.
  * - Evening reminders use `reminderTime` (19:00). The ones for the same trip on the same evening
  *   become one notification, so the phone does not buzz three times at 19:00.
+ * - Finish trip (KAN-47, 13 Nov 2026): "How was <trip>?" at `reminderTime` the day after the end.
  * - Quiet hours (22:00–08:00) move evening reminders out of the quiet time. The 3-hours-before
  *   flight reminder is never moved: it is about catching the plane.
  */
@@ -41,7 +42,7 @@ export const defaultReminderSettings: ReminderSettings = {
   quietHoursEnd: '08:00',
 };
 
-export type ReminderKind = 'getReady' | 'evening' | 'flightEve' | 'flightSoon';
+export type ReminderKind = 'getReady' | 'evening' | 'flightEve' | 'flightSoon' | 'finish';
 
 export interface PlannedReminder {
   /** Stable id, so planning twice gives the same list. */
@@ -82,6 +83,19 @@ export function planReminders({
     if (trip.deletedAt || trip.status === 'finished' || !trip.startDate) continue;
     const start = trip.startDate;
     const flights = (flightsByTrip.get(trip.id) ?? []).filter((f) => !f.deletedAt);
+
+    // Finish trip (KAN-47): "How was <trip>?" the evening after the last day. Tapping it opens
+    // the finish screen. Gone once the trip is finished (finished trips are skipped above).
+    if (trip.endDate) {
+      out.push({
+        id: `finish:${trip.id}`,
+        kind: 'finish',
+        tripId: trip.id,
+        at: evening(addDays(trip.endDate, 1)),
+        title: `How was ${trip.name}?`,
+        body: 'Rate it with the suns and get your recap and passport stamp.',
+      });
+    }
 
     if (settings.remindChecklist) {
       for (const days of GET_READY_DAYS) {
@@ -257,9 +271,10 @@ export function formatReminderTime(at: Date, now: Date): string {
 /**
  * Where a tapped reminder goes. "Get ready" opens the trip page on its Checklist tab (KAN-53),
  * the evening-before message ("Pack tonight") on its Packing tab (KAN-28); flight reminders open
- * the trip page.
+ * the trip page. "How was <trip>?" opens the finish screen on top of the trip page (KAN-47).
  */
 export function reminderRoutes(tripId: string, kind: string | null): string[] {
+  if (kind === 'finish') return [tripHref(tripId), `/trip/finish/${tripId}`];
   const tab = kind === 'getReady' ? 'checklist' : kind === 'evening' ? 'packing' : undefined;
   return [tripHref(tripId, tab)];
 }
