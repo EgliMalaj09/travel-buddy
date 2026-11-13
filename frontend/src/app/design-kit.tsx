@@ -12,6 +12,7 @@ import {
   Chip,
   CodeInput,
   EmptyState,
+  LegalLinks,
   Input,
   Logo,
   OptionPicker,
@@ -105,6 +106,7 @@ export default function DesignKitScreen() {
       />
 
       <EmptyState icon="images-outline" title="Empty state" message="Shown when a list is empty." />
+      <LegalLinks entryRules onOpen={() => undefined} />
 
       <Button title="Action sheet" kind="secondary" onPress={() => setSheet(true)} />
       <ActionSheet

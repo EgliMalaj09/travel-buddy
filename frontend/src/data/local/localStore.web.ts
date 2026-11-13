@@ -1,5 +1,6 @@
 import type { ChecklistRepository } from '../repositories/checklistRepository';
 import type { ExpenseRepository } from '../repositories/expenseRepository';
+import type { MediaRepository } from '../repositories/mediaRepository';
 import type { TripRepository } from '../repositories/tripRepository';
 import type { PlaceRepository } from '../repositories/placeRepository';
 import type { SettingsRepository } from '../repositories/settingsRepository';
@@ -23,6 +24,10 @@ export function createLocalChecklist(): ChecklistRepository | null {
 }
 
 export function createLocalExpenses(): ExpenseRepository | null {
+  return null;
+}
+
+export function createLocalMedia(): MediaRepository | null {
   return null;
 }
 

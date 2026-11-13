@@ -9,8 +9,9 @@
     2. Database + PowerSync + photo storage (Azurite)  docker compose up (backend\docker-compose.yml)
     3. Database tables       dotnet ef database update (EF Core migrations)
     4. API                   dotnet run, in its own window, http://localhost:5001
-    5. Android emulator      starts your first emulator (or -Avd <name>) and waits for it to boot
-    6. App                   npx expo start --dev-client --android, in its own window
+    5. Back office           npm run dev in backoffice\, in its own window, http://localhost:5173 (skip: -NoBackOffice)
+    6. Android emulator      starts your first emulator (or -Avd <name>) and waits for it to boot
+    7. App                   npx expo start --dev-client --android, in its own window
                              (first time only: npx expo run:android, which builds and installs the app)
 
   Stop everything with scripts\windows\stop.cmd.
@@ -18,7 +19,8 @@
 param(
   [string]$Avd = '',        # emulator name; default = first one in `emulator -list-avds`
   [switch]$NoEmulator,      # skip starting the emulator (for example when a phone is plugged in)
-  [switch]$Rebuild          # rebuild and reinstall the Android app (after adding a native library)
+  [switch]$Rebuild,         # rebuild and reinstall the Android app (after adding a native library)
+  [switch]$NoBackOffice     # do not start the back office web app
 )
 
 # 'Continue' on purpose: in Windows PowerShell 5.1, 'Stop' turns any stderr line from docker/dotnet/adb into a crash.
@@ -27,6 +29,8 @@ $ErrorActionPreference = 'Continue'
 $RepoRoot   = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $Backend    = Join-Path $RepoRoot 'backend'
 $Frontend   = Join-Path $RepoRoot 'frontend'
+$BackOffice = Join-Path $RepoRoot 'backoffice'
+$BackOfficeUrl = 'http://localhost:5173'
 $ApiProject = 'src/TravelApp.Api'
 $ApiUrl     = 'http://localhost:5001'
 $AppPackage = 'app.travelapp.mobile'
@@ -162,7 +166,39 @@ if (PortListening 5001) {
   Ok "API is running on $ApiUrl (try $ApiUrl/scalar in a browser)"
 }
 
-# ---------- 5. Android emulator ----------
+# Installs packages again when package-lock.json changed after the last install (a git pull added a library).
+function Ensure-Packages($dir, $what) {
+  $lockFile = Join-Path $dir 'package-lock.json'
+  $installedLock = Join-Path $dir 'node_modules\.package-lock.json'
+  if (-not (Test-Path $installedLock) -or ((Get-Item $lockFile).LastWriteTime -gt (Get-Item $installedLock).LastWriteTime)) {
+    Info "Installing $what packages (a few minutes)..."
+    Push-Location $dir
+    try {
+      npm install
+      if ($LASTEXITCODE -ne 0) { Fail "npm install failed in $dir. Read the red text above." }
+    } finally { Pop-Location }
+  }
+}
+
+# ---------- 5. Back office (KAN-55) ----------
+if ($NoBackOffice) {
+  Step 'Back office (skipped: -NoBackOffice)'
+} else {
+  Step 'Back office'
+  Ensure-Packages $BackOffice 'back office'
+  if (PortListening 5173) {
+    Ok "Back office is already running on $BackOfficeUrl"
+  } else {
+    $p = Start-Window 'Travel App - Back office (close to stop)' $BackOffice 'npm run dev'
+    $state.backofficeWindowPid = $p.Id
+    $deadline = (Get-Date).AddMinutes(1)
+    while (-not (PortListening 5173) -and (Get-Date) -lt $deadline) { Start-Sleep -Seconds 2 }
+    if (PortListening 5173) { Ok "Back office is running on $BackOfficeUrl (open it in your browser)" }
+    else { Write-Host '    WARNING: The back office did not start in 1 minute. Look at the "Travel App - Back office" window. The app still works without it.' -ForegroundColor Yellow }
+  }
+}
+
+# ---------- 6. Android emulator ----------
 Step 'Android emulator'
 $sdk = $env:ANDROID_HOME
 if (-not $sdk) { $sdk = $env:ANDROID_SDK_ROOT }
@@ -205,19 +241,9 @@ if (DeviceConnected) {
   Ok "Emulator '$Avd' is ready"
 }
 
-# ---------- 6. App (Expo) ----------
+# ---------- 7. App (Expo) ----------
 Step 'App (Expo)'
-# Install again when package-lock.json changed after the last install (a git pull added a library).
-$lockFile = Join-Path $Frontend 'package-lock.json'
-$installedLock = Join-Path $Frontend 'node_modules\.package-lock.json'
-if (-not (Test-Path $installedLock) -or ((Get-Item $lockFile).LastWriteTime -gt (Get-Item $installedLock).LastWriteTime)) {
-  Info 'Installing app packages (a few minutes)...'
-  Push-Location $Frontend
-  try {
-    npm install
-    if ($LASTEXITCODE -ne 0) { Fail 'npm install failed. Read the red text above.' }
-  } finally { Pop-Location }
-}
+Ensure-Packages $Frontend 'app'
 if (PortListening 8081) {
   Ok 'Expo is already running (port 8081). Press "a" in the Expo window to open the app.'
 } else {
@@ -239,6 +265,7 @@ $state | ConvertTo-Json | Set-Content -Path $StateFile -Encoding UTF8
 Write-Host ''
 Write-Host 'All started.' -ForegroundColor Green
 Write-Host "  API:     $ApiUrl/scalar   (login codes appear in the API window as [dev email])"
+if (-not $NoBackOffice) { Write-Host "  Back office: $BackOfficeUrl   (log in with your app account + authenticator code)" }
 Write-Host '  App:     on the emulator; press "r" in the Expo window to reload'
 Write-Host '  Stop:    scripts\windows\stop.cmd'
 Write-Host ''

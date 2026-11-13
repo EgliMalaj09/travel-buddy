@@ -1,5 +1,5 @@
 <#
-  Travel App: stop everything that start.ps1 started on Windows.
+  Travel App: stop everything that start.ps1 started on Windows (app, back office, API, emulator, database).
 
   Double-click scripts\windows\stop.cmd, or in PowerShell:
       C:\dev\tb\scripts\windows\stop.cmd            (stops API, Expo, database, emulator)
@@ -41,6 +41,11 @@ Step 'App (Expo)'
 if ($state) { Stop-Tree $state.expoWindowPid }
 Stop-Port 8081
 Ok 'Expo stopped'
+
+Step 'Back office'
+if ($state) { Stop-Tree $state.backofficeWindowPid }
+Stop-Port 5173
+Ok 'Back office stopped'
 
 Step 'API'
 if ($state) { Stop-Tree $state.apiWindowPid }
