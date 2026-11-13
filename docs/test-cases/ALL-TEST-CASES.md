@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #19 (everything merged into `main`).
+Last updated: 13 Nov 2026, after PRs #1 to #20 and the trip page with tabs (KAN-53).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -26,9 +26,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 12. [Settings](#12-settings-kan-21)
 13. [Places](#13-places-kan-34-kan-35)
 14. [Smart checklist](#14-smart-checklist-kan-24-kan-25)
-15. [API base and backend checks](#15-api-base-and-backend-checks-kan-58)
-16. [Privacy: no personal data in logs (GDPR)](#16-privacy-no-personal-data-in-logs-gdpr)
-17. [Known gaps](#17-known-gaps)
+15. [Trip page with tabs](#15-trip-page-with-tabs-kan-53)
+16. [API base and backend checks](#16-api-base-and-backend-checks-kan-58)
+17. [Privacy: no personal data in logs (GDPR)](#17-privacy-no-personal-data-in-logs-gdpr)
+18. [Known gaps](#18-known-gaps)
 
 ---
 
@@ -258,7 +259,7 @@ Reminders are local notifications on the phone (not on web). Tip: create a trip 
 | REM-03 | | Trip starting tomorrow, with a flight | One message at 19:00 tonight: "<trip> tomorrow" with the first flight, "Pack tonight" and "Last checks" | |
 | REM-04 | | Flight that is not the first one | "Flight tomorrow at HH:MM" at 19:00 the evening before | |
 | REM-05 | | Flight a few hours from now | "Flight in 3 hours… Time to leave for the airport" 3 h before takeoff (airport's time zone), even in quiet hours | |
-| REM-06 | | Tap a reminder | The app opens on that trip (get-ready and "tomorrow" ones open its checklist) | |
+| REM-06 | | Tap a reminder *(updated 13 Nov)* | The app opens on that trip (get-ready and "tomorrow" ones on its Checklist tab) | |
 | REM-07 | | Delete the trip | Its reminders disappear from Home and are not sent | |
 | REM-08 | | Turn notifications off in the phone settings, open Home | Reminders card shows a "Turn on" link that opens the phone settings | |
 | REM-09 | | Log out | No more reminders on this phone | |
@@ -290,7 +291,7 @@ You tab → **Settings**.
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
-| PLACE-01 | P-01 | Open a trip | A **Places** card under Stops, with "+ Add" and a short hint | |
+| PLACE-01 | P-01 | Open a trip → **Places** tab *(updated 13 Nov)* | A **Places** card with "+ Add" and a short hint | |
 | PLACE-02 | P-02 | + Add → "Colosseum", **Sight**, Day 2, a note → **Add place** | Back on the trip: "Day 2 · <date>" with Colosseum, "Sight · Rome · your note" | |
 | PLACE-03 | P-03 | Add a place with **Any day** | It is listed last, under "Any day" | |
 | PLACE-04 | P-04 | Trip with 2 cities: add a place on a day in the second city | The form says "…, <second city>, where you are that day"; the row shows that city | |
@@ -309,7 +310,7 @@ You tab → **Settings**.
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
-| CHK-01 | | Open a trip with dates | A **Checklist · X of Y done** card; tap opens the checklist | |
+| CHK-01 | | Open a trip with dates *(updated 13 Nov)* | On the Plan tab a **Checklist · X of Y done** card; tap opens the **Checklist** tab | |
 | CHK-02 | | Look at the list for a trip to another Schengen country (e.g. from Albania to Italy) | Items grouped (documents, money, health, …), with entry-rule items (passport, ETIAS/EES, 90/180 days) each linking to an official source | |
 | CHK-03 | | Tick an item, then untick it | Count on the trip card goes up and down | |
 | CHK-04 | | **Add your own item** → type a name, pick a group → Save | It appears in that group | |
@@ -322,9 +323,28 @@ You tab → **Settings**.
 | CHK-11 | | Airplane mode: tick, add and delete items, then go back online | Works offline; syncs without copies | |
 | CHK-12 | | Log in with the same account on a second phone / emulator | Same list, no doubled items | |
 | CHK-13 | | Delete the trip | The checklist is deleted with it (also on the server) | |
-| CHK-14 | | Tap a "get ready" or "tomorrow" reminder | The trip's checklist opens | |
+| CHK-14 | | Tap a "get ready" or "tomorrow" reminder *(updated 13 Nov)* | The trip page opens on its **Checklist** tab | |
 
-## 15. API base and backend checks (KAN-58)
+## 15. Trip page with tabs (KAN-53)
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| TAB-01 | | Open any trip | Header with name, dates, flags, "in N days" / "Day N of M"; under it 5 tabs: **Plan, Places, Checklist, Photos, Expenses**. Plan is underlined | |
+| TAB-02 | | Plan tab | Checklist card, **Places · N planned** card, Stops, and Flights (if any) | |
+| TAB-03 | | Tap the Places card on Plan | The **Places** tab opens with the places day by day | |
+| TAB-04 | | Tap the Checklist card on Plan | The **Checklist** tab opens with the full list, progress bar and "Add your own item" | |
+| TAB-05 | | Tap each tab in turn | Only that tab's content shows; the underline moves. On a small phone the tab row scrolls sideways | |
+| TAB-06 | | **Photos** and **Expenses** tabs | A friendly "come soon" message (they are built next) | |
+| TAB-07 | | On the Places tab, open a place, then go Back | You are still on the Places tab | |
+| TAB-08 | | Go Back to the trips list, open the same trip again | It opens on the tab you used last (until the app is closed) | |
+| TAB-09 | | Tap the round **+** button (bottom right) | "Add to this trip" with **Place** and **Checklist item**. During the trip it says **Place for today** | |
+| TAB-10 | | + → **Place** | The place form opens for this trip (on today's date while the trip is on) | |
+| TAB-11 | | + → **Checklist item** → name → Save | The item is added and the **Checklist** tab opens showing it | |
+| TAB-12 | | Scroll to the bottom of a long tab | The last row is not hidden behind the + button | |
+| TAB-13 | | ••• → Edit trip / Delete trip | Still work as before (TRIP-16, delete question) | |
+| TAB-14 | | Airplane mode: switch tabs, add a place and a checklist item | Everything works offline and syncs later | |
+
+## 16. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
@@ -334,7 +354,7 @@ You tab → **Settings**.
 | API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (66 on 13 Nov 2026) | ✅ |
 | API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (172 on 13 Nov 2026) | |
 
-## 16. Privacy: no personal data in logs (GDPR)
+## 17. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
@@ -345,7 +365,7 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 | GDPR-03 | | Read the Expo / Metro window while using the app (mock login too) | No email, name, token or trip details printed | |
 | GDPR-04 | | *(When Sentry is turned on)* Cause an error, open the report in Sentry | No user, email, request body, console lines or `?query` values in the report | |
 
-## 17. Known gaps
+## 18. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.

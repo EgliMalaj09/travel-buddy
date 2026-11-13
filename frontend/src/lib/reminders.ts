@@ -2,6 +2,7 @@ import type { Flight, IsoDate, Trip } from '@/data/types';
 
 import { addDays } from './dates';
 import { flightTitle } from './tripDraft';
+import { tripHref } from './tripTabs';
 
 /**
  * Countdown and reminders (KAN-32). Pure planning: which reminders a phone should have, and when.
@@ -254,10 +255,9 @@ export function formatReminderTime(at: Date, now: Date): string {
 }
 
 /**
- * Where a tapped reminder goes. "Get ready" and the evening-before message open the checklist
- * (on top of the trip page, so Back leads to the trip); flight reminders open the trip.
+ * Where a tapped reminder goes. "Get ready" and the evening-before message open the trip page on
+ * its Checklist tab (KAN-53); flight reminders open the trip page.
  */
 export function reminderRoutes(tripId: string, kind: string | null): string[] {
-  const trip = `/trip/${tripId}`;
-  return kind === 'getReady' || kind === 'evening' ? [trip, `/trip/checklist/${tripId}`] : [trip];
+  return [tripHref(tripId, kind === 'getReady' || kind === 'evening' ? 'checklist' : undefined)];
 }

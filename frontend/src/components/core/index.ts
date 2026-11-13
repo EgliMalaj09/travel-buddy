@@ -12,4 +12,5 @@ export { Logo } from './Logo';
 export { PhotoPlaceholder } from './PhotoPlaceholder';
 export { Screen } from './Screen';
 export { SyncIndicator } from './SyncIndicator';
+export { TabRow, type TabRowItem } from './TabRow';
 export { tabBarOptions } from './tabBar';

@@ -18,6 +18,7 @@ import {
   Screen,
   SocialButtons,
   SyncIndicator,
+  TabRow,
 } from '@/components';
 import { AnimatedSplash } from '@/features/splash/AnimatedSplash';
 import { useUiStore, type SyncStatus } from '@/store/uiStore';
@@ -32,6 +33,7 @@ export default function DesignKitScreen() {
   const [sheet, setSheet] = useState(false);
   const [code, setCode] = useState('123');
   const [pick, setPick] = useState<string | undefined>('AL');
+  const [tab, setTab] = useState('plan');
   const [splash, setSplash] = useState<'first' | 'later' | null>(null);
 
   return (
@@ -80,6 +82,19 @@ export default function DesignKitScreen() {
           ))}
         </View>
       </Card>
+
+      <AppText variant="label">Tab row (trip page)</AppText>
+      <TabRow
+        tabs={[
+          { key: 'plan', label: 'Plan' },
+          { key: 'places', label: 'Places' },
+          { key: 'checklist', label: 'Checklist' },
+          { key: 'photos', label: 'Photos' },
+          { key: 'expenses', label: 'Expenses' },
+        ]}
+        selected={tab}
+        onSelect={setTab}
+      />
 
       <EmptyState icon="images-outline" title="Empty state" message="Shown when a list is empty." />
 

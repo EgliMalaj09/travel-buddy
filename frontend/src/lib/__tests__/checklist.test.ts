@@ -215,8 +215,8 @@ describe('small helpers', () => {
   });
 
   it('get-ready and evening reminders open the checklist; flight reminders open the trip', () => {
-    expect(reminderRoutes('t1', 'getReady')).toEqual(['/trip/t1', '/trip/checklist/t1']);
-    expect(reminderRoutes('t1', 'evening')).toEqual(['/trip/t1', '/trip/checklist/t1']);
+    expect(reminderRoutes('t1', 'getReady')).toEqual(['/trip/t1?tab=checklist']);
+    expect(reminderRoutes('t1', 'evening')).toEqual(['/trip/t1?tab=checklist']);
     expect(reminderRoutes('t1', 'flightSoon')).toEqual(['/trip/t1']);
     expect(reminderRoutes('t1', null)).toEqual(['/trip/t1']);
   });
