@@ -10,6 +10,7 @@ import { ChecklistItemSheet } from '@/features/checklist/ChecklistItemSheet';
 import { ChecklistList } from '@/features/checklist/ChecklistList';
 import { addExpense, TripExpenses } from '@/features/expenses/TripExpenses';
 import { PackingList } from '@/features/packing/PackingList';
+import { TripPhotos, useAddPhotos } from '@/features/photos/TripPhotos';
 import { TripPlaces } from '@/features/places/TripPlaces';
 import { todayIso } from '@/lib/dates';
 import {
@@ -19,6 +20,7 @@ import {
   tripTabs,
   type TripTab,
 } from '@/lib/tripTabs';
+import { photoFilesSupported } from '@/services/photoFiles';
 import { useUiStore } from '@/store/uiStore';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -53,6 +55,7 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
   useEffect(() => () => clearTimeout(sheetTimer.current), []);
 
   const openTab = setTab;
+  const photoAdder = useAddPhotos(id);
   // A new link to the same page (a reminder tapped while it is open) moves to that tab.
   const [seenLinkTab, setSeenLinkTab] = useState(linkTab);
   if (linkTab !== seenLinkTab) {
@@ -143,8 +146,25 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
       <ActionSheet
         visible={sheet === 'add'}
         title="Add to this trip"
-        message="Photos and notes come in the next updates."
         actions={[
+          ...(photoFilesSupported
+            ? [
+                {
+                  label: 'Take a photo',
+                  onPress: () => {
+                    openTab('photos');
+                    void photoAdder.add('camera');
+                  },
+                },
+                {
+                  label: 'Photos from library',
+                  onPress: () => {
+                    openTab('photos');
+                    void photoAdder.add('library');
+                  },
+                },
+              ]
+            : []),
           { label: 'Expense', onPress: () => addExpense(trip.id) },
           { label: onTrip ? 'Place for today' : 'Place', onPress: addPlace },
           { label: 'Checklist item', onPress: openSheetNext('checklistItem') },
@@ -195,11 +215,7 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
           ) : tab === 'packing' ? (
             <PackingList tripId={trip.id} />
           ) : tab === 'photos' ? (
-            <EmptyState
-              icon="images-outline"
-              title="Photos and notes come soon"
-              message="You will add photos and notes for each day here, and they will stay on this phone even with no signal."
-            />
+            <TripPhotos trip={trip} today={today} adder={photoAdder} />
           ) : (
             <TripExpenses tripId={trip.id} today={today} />
           )}

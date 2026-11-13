@@ -51,7 +51,15 @@
       ],
       "expo-apple-authentication",
       "expo-asset",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Travel App to add photos from your library to your trips.",
+          "cameraPermission": "Allow Travel App to take photos for your trips.",
+          "microphonePermission": false
+        }
+      ]
     ],
     "scheme": "travelapp",
     "experiments": {

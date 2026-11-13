@@ -1,5 +1,5 @@
 /**
- * The synced tables on the phone (trips, stops, flights, places, checklist, expenses) (local SQLite via PowerSync, KAN-15).
+ * The synced tables on the phone (trips, stops, flights, places, checklist, expenses, photos) (local SQLite via PowerSync, KAN-15).
  * Names and columns are the server's (snake_case), because PowerSync copies whole rows from
  * PostgreSQL (backend/docker/powersync/sync-rules.yaml). `id` is added by PowerSync itself.
  *
@@ -131,8 +131,43 @@ export const expenseTables = {
   },
 } as const satisfies Record<string, Record<string, ColumnType>>;
 
+/**
+ * Photos (KAN-39/40). The files are not in the database: the phone keeps them under the photo's
+ * id (services/photoFiles). Booleans are 0/1; file_key … uploaded_at are set by the server.
+ */
+export const mediaTables = {
+  media: {
+    owner_user_id: 'text',
+    trip_id: 'text',
+    place_id: 'text',
+    media_type: 'text',
+    purpose: 'text',
+    scope: 'text',
+    source: 'text',
+    is_suggested: 'integer',
+    caption: 'text',
+    taken_at: 'text',
+    lat: 'real',
+    lng: 'real',
+    country_code: 'text',
+    width: 'integer',
+    height: 'integer',
+    mime_type: 'text',
+    duration_sec: 'integer',
+    content_hash: 'text',
+    quality_tier: 'text',
+    file_key: 'text',
+    thumbnail_key: 'text',
+    size_bytes: 'integer',
+    uploaded_at: 'text',
+    include_in_video: 'integer',
+    sort_order: 'integer',
+    ...sync,
+  },
+} as const satisfies Record<string, Record<string, ColumnType>>;
+
 /** Every table PowerSync keeps on the phone and the app writes. */
-export const syncedTables = { ...tripTables, ...checklistTables, ...expenseTables };
+export const syncedTables = { ...tripTables, ...checklistTables, ...expenseTables, ...mediaTables };
 
 export type SyncedTableName = keyof typeof syncedTables;
 export const syncedTableNames = Object.keys(syncedTables) as SyncedTableName[];
@@ -149,4 +184,8 @@ export const serverColumns = new Set([
   'version',
   'done_by_user_id',
   'paid_by_user_id',
+  'file_key',
+  'thumbnail_key',
+  'size_bytes',
+  'uploaded_at',
 ]);

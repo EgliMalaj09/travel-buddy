@@ -31,6 +31,7 @@ jest.mock('@/data', () => {
   const { createMockExpenseRepository } = jest.requireActual(
     '@/data/repositories/expenseRepository',
   );
+  const { createMockMediaRepository } = jest.requireActual('@/data/repositories/mediaRepository');
   const expenses = createMockExpenseRepository();
   void expenses.createExpense(
     'trip-rome-florence',
@@ -68,6 +69,7 @@ jest.mock('@/data', () => {
       places,
       expenses,
       checklist: createMemoryChecklistRepository(),
+      media: createMockMediaRepository(),
     },
   };
 });
@@ -90,7 +92,7 @@ describe('Trip page with tabs (KAN-53)', () => {
     expect(await screen.findByText('Expenses · €18.50 spent')).toBeTruthy();
   });
 
-  it('switches tabs, remembers the tab, "coming soon" for photos, and the expenses list', async () => {
+  it('switches tabs, remembers the tab, the empty photos tab, and the expenses list', async () => {
     await render(<TripScreen id="trip-rome-florence" />);
     await screen.findByText('Rome & Florence');
 
@@ -100,7 +102,8 @@ describe('Trip page with tabs (KAN-53)', () => {
     expect(useUiStore.getState().tripTabs['trip-rome-florence']).toBe('places');
 
     await fireEvent.press(screen.getByRole('tab', { name: 'Photos' }));
-    expect(screen.getByText('Photos and notes come soon')).toBeTruthy();
+    expect(await screen.findByText('No photos yet')).toBeTruthy();
+    expect(screen.getByText('Take a photo')).toBeTruthy();
     await fireEvent.press(screen.getByRole('tab', { name: 'Expenses' }));
     expect(await screen.findByText('Spent on this trip')).toBeTruthy();
     expect(screen.getByText('Pizza')).toBeTruthy();
