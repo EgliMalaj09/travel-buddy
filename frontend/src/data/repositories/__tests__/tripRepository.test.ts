@@ -111,4 +111,29 @@ describe('built-in city search', () => {
     expect((await search.search('albania')).length).toBeGreaterThan(5);
     expect(await search.search('  ')).toEqual([]);
   });
+
+  it('finishes a trip, keeps its dates while finished, and opens it again (KAN-47)', async () => {
+    const repo = createMockTripRepository(
+      { trips: [], stops: [], flights: [] },
+      () => '2027-04-20T10:00:00.000Z',
+    );
+    const trip = await repo.createTrip(input, owner);
+    await expect(repo.finishTrip(trip.id, { rating: 6, note: null })).rejects.toThrow(
+      'Pick from 1 to 5 suns.',
+    );
+    await repo.finishTrip(trip.id, { rating: 3, note: '' });
+    expect(await repo.getTrip(trip.id)).toMatchObject({
+      status: 'finished',
+      rating: 3,
+      finishNote: null,
+    });
+    await expect(
+      repo.updateTrip(trip.id, { ...input, startDate: null, endDate: null }),
+    ).rejects.toThrow('A finished trip keeps its dates.');
+    await repo.updateTrip(trip.id, { ...input, name: 'Rome again' });
+
+    await repo.reopenTrip(trip.id);
+    await repo.updateTrip(trip.id, { ...input, startDate: null, endDate: null });
+    expect(await repo.getTrip(trip.id)).toMatchObject({ status: 'planned', startDate: null });
+  });
 });

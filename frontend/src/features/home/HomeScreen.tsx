@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 import { AppText, Button, Card, EmptyState, Screen, SyncIndicator, TripStub } from '@/components';
 import { dataMode, repositories, useAsync, useDataVersion, type TripStop } from '@/data';
 import { formatDateRange, todayIso } from '@/lib/dates';
+import { finishPrompt } from '@/lib/finishTrip';
 import {
   countdown,
   formatFlightTime,
@@ -103,6 +104,8 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
   const someday = groups.find((g) => g.group === 'someday')?.trips ?? [];
   const stats = travelStats(trips, stopsByTrip, today);
   const openTrip = (id: string) => router.push(`/trip/${id}`);
+  // Finish trip (KAN-47): the day after a trip, Home asks how it was.
+  const toFinish = finishPrompt(trips, today);
 
   if (trips.length === 0) {
     return (
@@ -120,6 +123,16 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
 
   return (
     <Screen header={header}>
+      {toFinish ? (
+        <Card>
+          <AppText variant="heading">How was {toFinish.name}?</AppText>
+          <AppText variant="body" color={colors.inkSoft}>
+            Rate it and get your recap and passport stamp.
+          </AppText>
+          <Button title="Finish trip" onPress={() => router.push(`/trip/finish/${toFinish.id}`)} />
+        </Card>
+      ) : null}
+
       {focus ? (
         <FocusCard
           focus={focus}

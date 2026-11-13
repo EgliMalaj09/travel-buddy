@@ -21,6 +21,8 @@ function trip(partial: Partial<Trip> & Pick<Trip, 'id' | 'name'>): Trip {
     activities: [],
     status: 'planned',
     finishedAt: null,
+    rating: null,
+    finishNote: null,
     coverMediaId: null,
     passportCountrySnapshot: 'AL',
     homeCurrencySnapshot: 'EUR',
@@ -83,6 +85,8 @@ export function buildMockData(today = todayIso()): {
       endDate: addDays(today, -131),
       status: 'finished',
       finishedAt: NOW_ISO,
+      rating: 4,
+      finishNote: 'Snow on the last day.',
       activities: ['hiking', 'skiing'],
     }),
   ];

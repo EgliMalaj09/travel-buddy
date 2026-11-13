@@ -154,6 +154,51 @@ public sealed class SyncUploadTests(ApiFactory factory)
     }
 
     [Fact]
+    public async Task Finishing_a_trip_saves_the_rating_and_note_and_it_can_be_opened_again()
+    {
+        using var phone = await Phone.SignedInAsync(factory);
+        var tripId = Guid.CreateVersion7();
+        AllOk(await phone.Upload(TripPut(tripId), StopPut(Guid.CreateVersion7(), tripId, 0, "Rome")));
+
+        // Status, finish time and rating come together in one change (Finish trip, KAN-47).
+        var results = await phone.Upload(
+            Patch("trips", tripId, new() { ["status"] = "finished" }),
+            Patch("trips", tripId, new() { ["status"] = "finished", ["finished_at"] = "2027-04-20T10:00:00Z", ["rating"] = 6 }),
+            Patch("trips", tripId, new() { ["status"] = "finished", ["finished_at"] = "2027-04-20T10:00:00Z", ["rating"] = 5, ["finish_note"] = "  Custard tarts and too many hills.  " }));
+
+        Assert.Equal([SyncLimits.Rejected, SyncLimits.Rejected, SyncLimits.Ok], results.Select(r => r.Status));
+        Assert.Contains("rating", results[0].Problems!.Keys);
+        Assert.Contains("finished_at", results[0].Problems!.Keys);
+        Assert.Contains("rating", results[1].Problems!.Keys);
+        var trip = Assert.Single((await phone.Trips()).Trips);
+        Assert.Equal("finished", trip.Status);
+        Assert.Equal(5, trip.Rating);
+        Assert.Equal("Custard tarts and too many hills.", trip.FinishNote);
+
+        // Opened again: back to planned, no finish time, the rating stays for next time.
+        AllOk(await phone.Upload(Patch("trips", tripId, new() { ["status"] = "planned", ["finished_at"] = null })));
+        trip = Assert.Single((await phone.Trips()).Trips);
+        Assert.Equal("planned", trip.Status);
+        Assert.Null(trip.FinishedAt);
+        Assert.Equal(5, trip.Rating);
+    }
+
+    [Fact]
+    public async Task A_someday_trip_cannot_be_finished()
+    {
+        using var phone = await Phone.SignedInAsync(factory);
+        var tripId = Guid.CreateVersion7();
+        AllOk(await phone.Upload(TripPut(tripId), StopPut(Guid.CreateVersion7(), tripId, 0, "Rome"),
+            Patch("trips", tripId, new() { ["start_date"] = null, ["end_date"] = null })));
+
+        var result = Assert.Single(await phone.Upload(
+            Patch("trips", tripId, new() { ["status"] = "finished", ["finished_at"] = "2027-04-20T10:00:00Z", ["rating"] = 4 })));
+
+        Assert.Equal(SyncLimits.Rejected, result.Status);
+        Assert.Contains("status", result.Problems!.Keys);
+    }
+
+    [Fact]
     public async Task Broken_changes_are_rejected_and_the_others_still_saved()
     {
         using var phone = await Phone.SignedInAsync(factory);

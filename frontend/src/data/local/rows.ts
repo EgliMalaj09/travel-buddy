@@ -73,6 +73,8 @@ export function rowToTrip(r: Row): Trip {
     activities: textList(r.activities) as TripActivity[],
     status: (text(r.status) ?? 'planned') as Trip['status'],
     finishedAt: isoTime(r.finished_at),
+    rating: num(r.rating),
+    finishNote: text(r.finish_note),
     coverMediaId: text(r.cover_media_id),
     passportCountrySnapshot: text(r.passport_country_snapshot) ?? '',
     homeCurrencySnapshot: text(r.home_currency_snapshot) ?? '',

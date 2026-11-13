@@ -198,4 +198,38 @@ describe('local trip repository (offline, KAN-15)', () => {
     const [flight] = await repo.listFlights('t1');
     expect(flight!.departureLocalTime).toBe('2027-05-01T07:15');
   });
+
+  it('finishes a trip in one change and opens it again keeping the rating (KAN-47)', async () => {
+    const { db, sql } = sqliteDb();
+    const at = '2027-04-20T10:00:00.000Z';
+    const repo = createLocalTripRepository(db, () => at);
+    const trip = await repo.createTrip(input, owner);
+
+    await expect(repo.finishTrip(trip.id, { rating: 0, note: null })).rejects.toThrow(
+      'Pick from 1 to 5 suns.',
+    );
+    const done = await repo.finishTrip(trip.id, { rating: 5, note: '  Too many hills.  ' });
+    expect(done).toMatchObject({
+      status: 'finished',
+      finishedAt: at,
+      rating: 5,
+      finishNote: 'Too many hills.',
+    });
+    expect(sql.prepare('SELECT rating, finish_note FROM trips').get()).toEqual({
+      rating: 5,
+      finish_note: 'Too many hills.',
+    });
+
+    const again = await repo.reopenTrip(trip.id);
+    expect(again).toMatchObject({ status: 'planned', finishedAt: null, rating: 5 });
+  });
+
+  it('does not finish a trip that has not started', async () => {
+    const { db } = sqliteDb();
+    const repo = createLocalTripRepository(db, () => '2027-04-01T10:00:00.000Z');
+    const trip = await repo.createTrip(input, owner);
+    await expect(repo.finishTrip(trip.id, { rating: 4, note: null })).rejects.toThrow(
+      'This trip has not started yet.',
+    );
+  });
 });

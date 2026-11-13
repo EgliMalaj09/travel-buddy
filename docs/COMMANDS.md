@@ -4,12 +4,12 @@
 its own section at the top of "Per feature". Copy one block at a time; each says what success looks like.
 A copy is kept at `/mnt/project-files/COMMANDS.md` in the project files.
 
-Last updated: 13 Nov 2026 (profile, my data and account deletion).
+Last updated: 13 Nov 2026 (finish trip, recap and passport stamp).
 
 ## Catch up now (do this once, today)
 
 This brings your PC up to date with everything merged so far (offline trips, reminders, places, checklist,
-settings, trip tabs, packing list, expenses, photos and notes, the map, profile and account deletion).
+settings, trip tabs, packing list, expenses, photos and notes, the map, profile and account deletion, finish trip).
 
 **1. Get the newest code**
 ```powershell
@@ -46,7 +46,7 @@ scripts\windows\stop.cmd
 ```
 Success: ends without a red line (fine if nothing was running).
 
-**5. Start everything and rebuild the app once** (offline trips, reminders, photos, the map and Download my data added phone libraries)
+**5. Start everything and rebuild the app once** (offline trips, reminders, photos, the map, Download my data and the passport stamps added phone libraries)
 ```powershell
 cd C:\dev\tb
 scripts\windows\start.cmd -Rebuild
@@ -111,6 +111,39 @@ Success: `Tests: … passed`, 0 failed (268 on 13 Nov 2026).
 ## Per feature (newest first)
 
 After each feature: **Get the newest code**, **Stop**, **Start** (above), plus what the feature says here.
+
+### Finish trip, recap and passport stamp (KAN-47), 13 Nov 2026
+A new phone library (react-native-svg, for the stamps and later the globe), so the app must be **rebuilt once**.
+Two new trip columns (rating, note) are added by the start script. No new Docker container, key or account, and
+the sync service does not need a restart.
+
+**1. Get the code and the new library**
+```powershell
+cd C:\dev\tb
+git checkout main
+git pull
+cd C:\dev\tb\frontend
+npm install
+```
+Success: `added … packages` or `up to date`, no red `ERR!`.
+
+**2. Stop, then start with a rebuild**
+```powershell
+cd C:\dev\tb
+scripts\windows\stop.cmd
+scripts\windows\start.cmd -Rebuild
+```
+Success: no red `STOPPED` line; the app opens on the emulator. The API window shows the database update
+(`FinishTrip`) once. The rebuild takes several minutes.
+
+**3. (Optional) Run the automatic tests for this feature**
+```powershell
+cd C:\dev\tb\frontend
+npx jest src/features/finish src/lib/__tests__/finishTrip.test.ts
+```
+Success: `Tests: … passed`, no `failed`.
+
+Then test with section 21 (FIN-01 to FIN-23) in `docs/test-cases/ALL-TEST-CASES.md`.
 
 ### Profile, my data and account deletion (KAN-21, KAN-22), 13 Nov 2026
 A new phone library (expo-sharing, for "Download my data"), so the app must be **rebuilt once**. A new database

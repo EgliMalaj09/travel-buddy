@@ -71,4 +71,19 @@ public sealed class TripRulesTests
 
         Assert.Equal(["departureTimeZone", "direction", "flightNumber"], problems.Keys.Order());
     }
+
+    [Fact]
+    public void A_finished_trip_needs_dates_a_finish_time_and_a_rating_from_1_to_5()
+    {
+        var finished = ValidTrip with { Status = "finished", FinishedAt = DateTimeOffset.UnixEpoch, Rating = 4, FinishNote = "Tiles and hills." };
+        Assert.Empty(Rules.CheckTrip(finished));
+
+        Assert.Equal(["finishedAt", "rating"], Rules.CheckTrip(ValidTrip with { Status = "finished" }).Keys.Order());
+        Assert.Contains("status", Rules.CheckTrip(finished with { StartDate = null, EndDate = null }).Keys);
+        Assert.Contains("rating", Rules.CheckTrip(finished with { Rating = 0 }).Keys);
+        Assert.Contains("finishNote", Rules.CheckTrip(finished with { FinishNote = new string('a', 201) }).Keys);
+        // A planned trip has no finish time, but keeps its rating when it is opened again.
+        Assert.Contains("finishedAt", Rules.CheckTrip(ValidTrip with { FinishedAt = DateTimeOffset.UnixEpoch }).Keys);
+        Assert.Empty(Rules.CheckTrip(ValidTrip with { Rating = 3 }));
+    }
 }

@@ -160,6 +160,8 @@ PROPOSED additions: `staticDataVersion` and `staticDataUrl` (to update countries
 | `activities` | list of enums | no | Beach, City, Culture, Food, Hiking, Skiing, Road trip, Business, Relaxing |
 | `status` | enum: planned, finished | yes | Active is derived from the dates |
 | `finishedAt` | timestamp | no | Set by "Finish trip" |
+| `rating` | integer 1–5 | no | "How was it?" in suns. Required to finish; kept when the trip is opened again (AGREED 13 Nov 2026, KAN-47) |
+| `finishNote` | string | no | Max 200. One line to remember the trip by, the user's own words (AGREED 13 Nov 2026, KAN-47) |
 | `coverMediaId` | UUID | no | |
 | `passportCountrySnapshot` | ISO country | yes | Copied from the user at creation |
 | `homeCurrencySnapshot` | ISO currency | yes | The owner's home currency at creation. Not used for expense conversion; each person sees their own home currency (D5) |
@@ -168,6 +170,8 @@ PROPOSED additions: `staticDataVersion` and `staticDataUrl` (to update countries
 | sync fields | | yes | |
 
 Finishing a trip: the app asks "How was <trip>?" the day after the end date. The user can finish it earlier by hand.
+A country is in the passport (globe, stamps, stats) once a finished trip had a stop there; computed, not stored.
+See `features/11-finish-trip.md`.
 
 Flights moved to their own table, **Flight** (section 8b, agreed 11 Nov 2026). `flightOutAt` and `flightBackAt` are removed from Trip.
 

@@ -5,6 +5,9 @@ import { newId } from '@/lib/ids';
 import { notifyDataChanged } from '../changes';
 import type { Flight, Trip, TripActivity, TripStop } from '../types';
 import {
+  checkFinish,
+  checkFinishedEdit,
+  cleanFinishNote,
   tripInputProblem,
   type FlightInput,
   type StopInput,
@@ -123,6 +126,7 @@ function toTrip(t: Schemas['TripDto']): Trip {
     type: t.type as Trip['type'],
     status: t.status as Trip['status'],
     activities: t.activities as TripActivity[],
+    rating: t.rating == null ? null : num(t.rating),
     version: num(t.version),
   };
 }
@@ -289,10 +293,41 @@ export function createApiTripRepository(tripApi: TripApi = createHttpTripApi()):
     async updateTrip(id, input) {
       check(input);
       const current = await load(true);
-      if (!current.trips.some((t) => t.id === id)) throw new Error('Trip not found.');
+      const existing = current.trips.find((t) => t.id === id);
+      if (!existing) throw new Error('Trip not found.');
+      checkFinishedEdit(existing, input);
       await send([
         { op: 'PATCH', type: 'trips', id, data: tripColumns(input) },
         ...childChanges(id, input, current),
+      ]);
+      const trip = (await load()).trips.find((t) => t.id === id);
+      if (!trip) throw new Error('Trip not found.');
+      return trip;
+    },
+    async finishTrip(id, input) {
+      const current = await load(true);
+      const at = new Date().toISOString();
+      checkFinish(current.trips.find((t) => t.id === id) ?? null, input, at);
+      await send([
+        {
+          op: 'PATCH',
+          type: 'trips',
+          id,
+          data: {
+            status: 'finished',
+            finished_at: at,
+            rating: input.rating,
+            finish_note: cleanFinishNote(input.note),
+          },
+        },
+      ]);
+      const trip = (await load()).trips.find((t) => t.id === id);
+      if (!trip) throw new Error('Trip not found.');
+      return trip;
+    },
+    async reopenTrip(id) {
+      await send([
+        { op: 'PATCH', type: 'trips', id, data: { status: 'planned', finished_at: null } },
       ]);
       const trip = (await load()).trips.find((t) => t.id === id);
       if (!trip) throw new Error('Trip not found.');

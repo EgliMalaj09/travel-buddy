@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #30 (profile, data export and account deletion, KAN-21, KAN-22, with its review fixes).
+Last updated: 13 Nov 2026, after PRs #1 to #31 and finish trip (KAN-47).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -32,9 +32,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 18. [Photos and notes](#18-photos-and-notes-kan-39-kan-40)
 19. [Map and exact places](#19-map-and-exact-places-kan-37)
 20. [Profile, my data and deleting the account](#20-profile-my-data-and-deleting-the-account-kan-21-kan-22)
-21. [API base and backend checks](#21-api-base-and-backend-checks-kan-58)
-22. [Privacy: no personal data in logs (GDPR)](#22-privacy-no-personal-data-in-logs-gdpr)
-23. [Known gaps](#23-known-gaps)
+21. [Finish trip, recap and passport stamp](#21-finish-trip-recap-and-passport-stamp-kan-47)
+22. [API base and backend checks](#22-api-base-and-backend-checks-kan-58)
+23. [Privacy: no personal data in logs (GDPR)](#23-privacy-no-personal-data-in-logs-gdpr)
+24. [Known gaps](#24-known-gaps)
 
 ---
 
@@ -513,17 +514,49 @@ Needs the rebuilt app (new library expo-sharing, see COMMANDS.md, "Profile, my d
 | ACC-22 | | *(Shortened wait)* Delete, log in again so the restore screen shows, then leave it open until the wait is over. Tap **Restore my account** | "This account has been deleted." Nothing comes back, and you can't get past this screen with that account | |
 | ACC-23 | | *(Only if a phone still has settings from before this update)* First change settings on a second phone with the same account, then open the app on the old phone | The old phone shows the settings from the second phone. Its old phone-only choices don't overwrite them | |
 
-## 21. API base and backend checks (KAN-58)
+## 21. Finish trip, recap and passport stamp (KAN-47)
+
+Needs the rebuilt app (new library react-native-svg, see COMMANDS.md, "Finish trip"). You need a trip happening now
+(first day today or earlier, last day today or later) and one whose last day was yesterday or a few days ago.
+Create them with **+** on Home and dates in the past.
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| FIN-01 | | Open a trip that is happening now, **Plan** tab, scroll to the bottom | Card "Back home already?" with **Finish trip** | |
+| FIN-02 | | Trip that ended yesterday (not finished): open **Home** | Card at the top "How was <trip>?" with **Finish trip**. The trip's Plan tab shows the same question at the top | |
+| FIN-03 | | Trip that ended 31 or more days ago, not finished: open Home | No "How was…?" card for it (its Plan tab still offers Finish trip) | |
+| FIN-04 | | Upcoming trip and a Someday trip: open each, ••• menu | No **Finish trip** in the menu, no finish card on Plan | |
+| FIN-05 | | Tap **Finish trip** | "How was <trip>?", a faded stamp of the first country, five suns, "Tap a sun", the note field. **Finish trip** at the bottom is greyed out | |
+| FIN-06 | | Tap the 4th sun, then the 2nd | 4 suns filled and "Great", then 2 filled and "Okay". The button works now | |
+| FIN-07 | | Type a note longer than 200 characters | It stops at 200 | |
+| FIN-08 | | Pick suns, type a note, **Finish trip** | The recap opens: "<n> days in <trip>", places visited, photos, spent (home currency), countries now, your suns and your note in handwriting. The numbers count up one after another | |
+| FIN-09 | | Phone setting **Reduce motion** on (iOS: Accessibility → Motion; Android: Remove animations), finish another trip | Recap numbers and stamp appear at once, no movement | |
+| FIN-10 | | Trip with expenses in another currency added in flight mode (not converted yet), finish it in flight mode | It finishes (saved on the phone). Spent says "converting…" for those expenses | |
+| FIN-11 | | Recap → **Stamp my passport** | "<Country> is in your passport", the new stamp lands among the earlier ones. **Done** goes back to the trip page (or Home if you started there) | |
+| FIN-12 | | Finish a second trip to a country already stamped | Stamp screen: "<Country> was already in your passport"; no second stamp for it | |
+| FIN-13 | | Finished trip: open it, Plan tab | Card "Trip finished" with the suns, your note and **See recap** (opens the recap again). No packing card. Home no longer asks about it | |
+| FIN-14 | | Finished trip: ••• → **Open trip again** | Back to planned (Trips list by its dates), the "Trip finished" card goes. Finish again: your suns and note are already filled in | |
+| FIN-15 | | **Globe** tab | "Passport · <n> countries" and a stamp per country of your finished trips. Opening a trip again removes its country if no other finished trip went there | |
+| FIN-16 | | Reminders on. Create a trip whose last day is today. Wait for tomorrow at your reminder time (19:00), or check Home's reminder list | Reminder "How was <trip>?". Tapping it opens the trip with the finish screen on top. Finishing it removes the reminder | |
+| FIN-17 | | Flight mode: finish a trip. Turn flight mode off; on a second phone with the same account open the trip | It shows as finished with the same suns and note | |
+| FIN-18 | | Scalar: **POST /sync/upload** with a trips PATCH `{"status": "finished"}` only (no `finished_at`, no `rating`) | That change is `rejected` with problems for `finished_at` and `rating` | |
+| FIN-19 | | Scalar: the same with `"finished_at"`, `"rating": 6` | Rejected: "The rating is 1 to 5." | |
+| FIN-20 | | Scalar: finish a Someday trip (no dates) | Rejected: "A trip needs its dates before it can be finished." | |
+| FIN-21 | | Settings → **Download my data** after finishing a trip | The trip in the file has `rating` and `finishNote` | |
+| FIN-23 | | Finished trip: ••• → **Edit trip**, remove the dates (Someday) → **Save changes** | "A finished trip keeps its dates. Open the trip again first to make it Someday." Changing the name or stops works |
+| FIN-22 | | Design kit screen (if you open it) | Suns, stamps, stat tiles and the passport grid show, in the app's colours | |
+
+## 22. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
 | API-01 | A-01 | Open http://localhost:5001/health | 200, healthy | ✅ |
 | API-02 | A-02 | Open http://localhost:5001/app-info | name, version, environment "Development" | ✅ |
 | API-03 | A-03 | Open http://localhost:5001/scalar | Lists all endpoints | ✅ |
-| API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (150 on 13 Nov 2026, with the map) | ✅ |
-| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (258 on 13 Nov 2026, with the map) | |
+| API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (161 on 13 Nov 2026, with finish trip) | ✅ |
+| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (283 on 13 Nov 2026, with finish trip) | |
 
-## 22. Privacy: no personal data in logs (GDPR)
+## 23. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
@@ -535,8 +568,9 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 | GDPR-04 | | *(When Sentry is turned on)* Cause an error, open the report in Sentry | No user, email, request body, console lines or `?query` values in the report | |
 | GDPR-05 | | Scalar: **GET /geo/reverse** with `lat=41,8902` (comma) and `lng=12.4922`. Read the API window | 400 "The request could not be read."; the answer and the API window do not show `41,8902` (no "unhandled exception" lines for a bad request) | |
 | GDPR-06 | | Change settings, Download my data, delete and restore an account. Read the API window | Only ids, status codes and timings: no email, name, settings values or export content | |
+| GDPR-07 | | Finish a trip with a note, open the recap and stamp. Read the API window and the Expo / Metro window | No trip name, note, rating or countries printed | |
 
-## 23. Known gaps
+## 24. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.

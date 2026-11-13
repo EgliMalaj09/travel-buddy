@@ -41,6 +41,10 @@ export interface Trip extends SyncFields {
   activities: TripActivity[];
   status: 'planned' | 'finished';
   finishedAt: IsoDateTime | null;
+  /** "How was it?", 1 to 5 suns (Finish trip, KAN-47). Kept when the trip is opened again. */
+  rating: number | null;
+  /** One line to remember the trip by, the user's own words (optional, up to 200). */
+  finishNote: string | null;
   coverMediaId: string | null;
   passportCountrySnapshot: CountryCode;
   homeCurrencySnapshot: CurrencyCode;

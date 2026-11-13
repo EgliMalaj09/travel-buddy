@@ -869,6 +869,9 @@ export interface components {
             status: string;
             /** Format: date-time */
             finishedAt: null | string;
+            /** Format: int32 */
+            rating: null | number | string;
+            finishNote: null | string;
             /** Format: uuid */
             coverMediaId: null | string;
             passportCountrySnapshot: string;

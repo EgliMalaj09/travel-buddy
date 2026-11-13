@@ -3,7 +3,14 @@ import { newId } from '@/lib/ids';
 import { notifyDataChanged } from '../changes';
 import { rowToFlight, rowToStop, rowToTrip, type Row } from '../local/rows';
 import type { Trip } from '../types';
-import { tripInputProblem, type TripInput, type TripRepository } from './tripRepository';
+import {
+  checkFinish,
+  checkFinishedEdit,
+  cleanFinishNote,
+  tripInputProblem,
+  type TripInput,
+  type TripRepository,
+} from './tripRepository';
 
 /**
  * The few database calls this repository needs. PowerSync's database has exactly these
@@ -154,6 +161,8 @@ export function createLocalTripRepository(
           activities: JSON.stringify(input.activities),
           status: 'planned',
           finished_at: null,
+          rating: null,
+          finish_note: null,
           cover_media_id: null,
           passport_country_snapshot: owner.passportCountry,
           home_currency_snapshot: owner.homeCurrency,
@@ -171,7 +180,9 @@ export function createLocalTripRepository(
     },
     async updateTrip(id, input) {
       check(input);
-      if (!(await findTrip(id))) throw new Error('Trip not found.');
+      const existing = await findTrip(id);
+      if (!existing) throw new Error('Trip not found.');
+      checkFinishedEdit(existing, input);
       await db.writeTransaction(async (tx) => {
         await update(tx, 'trips', id, {
           name: input.name.trim(),
@@ -182,6 +193,34 @@ export function createLocalTripRepository(
         });
         await writeChildren(tx, id, input);
       });
+      notifyDataChanged();
+      const trip = await findTrip(id);
+      if (!trip) throw new Error('Trip not found.');
+      return trip;
+    },
+    async finishTrip(id, input) {
+      const at = now();
+      checkFinish(await findTrip(id), input, at);
+      // One change, so the server sees status, time and rating together.
+      await db.writeTransaction((tx) =>
+        update(tx, 'trips', id, {
+          status: 'finished',
+          finished_at: at,
+          rating: input.rating,
+          finish_note: cleanFinishNote(input.note),
+          updated_at: at,
+        }),
+      );
+      notifyDataChanged();
+      const trip = await findTrip(id);
+      if (!trip) throw new Error('Trip not found.');
+      return trip;
+    },
+    async reopenTrip(id) {
+      if (!(await findTrip(id))) throw new Error('Trip not found.');
+      await db.writeTransaction((tx) =>
+        update(tx, 'trips', id, { status: 'planned', finished_at: null, updated_at: now() }),
+      );
       notifyDataChanged();
       const trip = await findTrip(id);
       if (!trip) throw new Error('Trip not found.');

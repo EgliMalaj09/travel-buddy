@@ -33,7 +33,7 @@ Suggested order. Foundation and sync come first; the frontend's sync test (KAN-1
 | [ ] | 14 | BE - Beta environment (Azure free account, PowerSync Cloud) | KAN-61 | KAN-59 (SH1–SH4) | 98575 |
 | [ ] | 15 | AI - Legal drafts (privacy, terms, disclaimer) | KAN-62 | KAN-59 | 98575 |
 
-Map (KAN-37) has a small backend part, built 13 Nov 2026: place search `GET /geo/search` and `/geo/reverse` (Features/Geo, Photon behind it, nothing stored). Part 1 features with no backend task: Countdown and reminders, Today suggestion, Finish trip, Globe, Trip page. They use normal sync only.
+Map (KAN-37) has a small backend part, built 13 Nov 2026: place search `GET /geo/search` and `/geo/reverse` (Features/Geo, Photon behind it, nothing stored). Part 1 features with no backend task: Countdown and reminders, Today suggestion, Finish trip, Globe, Trip page. They use normal sync only. Finish trip (KAN-47, 13 Nov 2026) added the trip columns `rating` and `finish_note` with their rules (TripsService.CheckFinish, migration FinishTrip).
 
 ## Part 2: Share and remember (`part-2`)
 

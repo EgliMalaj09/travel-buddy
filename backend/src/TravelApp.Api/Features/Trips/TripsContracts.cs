@@ -12,7 +12,10 @@ public sealed record TripFields(
     IReadOnlyList<string> Activities,
     string Status,
     string PassportCountrySnapshot,
-    string HomeCurrencySnapshot);
+    string HomeCurrencySnapshot,
+    DateTimeOffset? FinishedAt = null,
+    int? Rating = null,
+    string? FinishNote = null);
 
 /// <summary>The fields of a stop as the phone sends them.</summary>
 public sealed record TripStopFields(
@@ -86,6 +89,8 @@ public sealed record TripDto(
     IReadOnlyList<string> Activities,
     string Status,
     DateTimeOffset? FinishedAt,
+    int? Rating,
+    string? FinishNote,
     Guid? CoverMediaId,
     string PassportCountrySnapshot,
     string HomeCurrencySnapshot,

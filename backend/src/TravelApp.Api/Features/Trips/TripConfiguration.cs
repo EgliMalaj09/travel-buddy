@@ -12,6 +12,7 @@ internal sealed class TripConfiguration : IEntityTypeConfiguration<Trip>
         {
             t.HasCheckConstraint("ck_trips_type", "type IN ('solo', 'shared')");
             t.HasCheckConstraint("ck_trips_status", "status IN ('planned', 'finished')");
+            t.HasCheckConstraint("ck_trips_rating", "rating IS NULL OR rating BETWEEN 1 AND 5");
             t.HasCheckConstraint("ck_trips_dates", "(start_date IS NULL) = (end_date IS NULL) AND (end_date IS NULL OR end_date >= start_date)");
         });
         builder.HasKey(t => t.Id);
@@ -22,6 +23,7 @@ internal sealed class TripConfiguration : IEntityTypeConfiguration<Trip>
         builder.Property(t => t.PassportCountrySnapshot).HasMaxLength(2).IsFixedLength();
         builder.Property(t => t.HomeCurrencySnapshot).HasMaxLength(3).IsFixedLength();
         builder.Property(t => t.ChecklistRulesVersion).HasMaxLength(20);
+        builder.Property(t => t.FinishNote).HasMaxLength(TripValues.FinishNoteMax);
         builder.Property(t => t.Version).IsConcurrencyToken();
         // Foreign key owner_id → users.id: see Data/FeatureLinks.cs.
         builder.HasIndex(t => t.OwnerId);

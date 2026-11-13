@@ -47,12 +47,14 @@ export { DUPLICATE_PHOTO } from './repositories/mediaRepository';
 export type { ChecklistEdit, ChecklistRepository } from './repositories/checklistRepository';
 export { checklistEditProblem, QUANTITY_MAX } from './repositories/checklistRepository';
 export type {
+  FinishInput,
   FlightInput,
   StopInput,
   TripInput,
   TripOwner,
   TripRepository,
 } from './repositories/tripRepository';
+export { FINISH_NOTE_MAX, finishTripProblem } from './repositories/tripRepository';
 
 /**
  * Picks the data source.
