@@ -620,6 +620,9 @@ Tip: a second browser (or a private window) lets you be two admins at once.
 | BO-29 | | Scalar: with a **Viewer** back office token, **GET /admin/users**; with a **Support** token, **PUT /admin/config** | Both 403 "Your role cannot do this. Ask an owner." | |
 | BO-30 | | **Team** → **Reset 2FA** on the test member → confirm. Log in as it in the second browser | Its open session stops working, and the login shows "Set up your authenticator app" with a new QR code again | |
 | BO-31 | | After BO-19 (minimum version `9.0.0` saved and the phone showing "Update the app"), turn on flight mode and close and reopen the app | Still "Update the app" (the phone keeps the last settings). Back online with the version set back to `1.0.0`, **Check again** lets you in | |
+| BO-32 | | Run `scripts\windows\start.cmd` | A window "Travel App - Back office" opens, the script prints `OK  Back office is running on http://localhost:5173`, and the last lines list the back office address. http://localhost:5173 opens the login | |
+| BO-33 | | Run `scripts\windows\stop.cmd`, then open http://localhost:5173 | The back office window is closed and the page no longer loads | |
+| BO-34 | | Run `scripts\windows\start.cmd -NoBackOffice` | "Back office (skipped: -NoBackOffice)"; no back office window; the API and the app start as usual | |
 
 ## 24. Beta server (KAN-61)
 
