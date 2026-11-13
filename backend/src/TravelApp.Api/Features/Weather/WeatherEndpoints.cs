@@ -8,7 +8,9 @@ public static class WeatherEndpoints
     public static IEndpointRouteBuilder MapWeatherEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/weather").WithTags("Weather").RequireAuthorization()
+            .RequireRateLimiting(WeatherSetup.RateLimitPolicy)
             .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
 
         group.MapGet("/days", GetDays).WithName("GetWeatherDays")

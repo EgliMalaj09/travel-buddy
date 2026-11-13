@@ -51,6 +51,14 @@ public sealed class WeatherDaysTests(ApiFactory factory) : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Fact]
+    public async Task More_than_60_calls_a_minute_from_one_user_answers_429()
+    {
+        HttpStatusCode last = HttpStatusCode.OK;
+        for (var i = 0; i < 61; i++) last = (await Get("-20.1", "57.5", Today, Today)).StatusCode;
+        Assert.Equal(HttpStatusCode.TooManyRequests, last);
+    }
+
     [Theory]
     [InlineData("91", "12.5", 0, 1)]
     [InlineData("41.9", "-181", 0, 1)]

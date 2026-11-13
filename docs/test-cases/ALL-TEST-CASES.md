@@ -374,6 +374,7 @@ Weather comes from Open-Meteo through our API (agreed 13 Nov 2026). For weather 
 | PACK-21 | | Scalar: same with `to` before `from`, more than 31 days, or `lat=100` | 400 with a clear message | |
 | PACK-22 | | Scalar: without the login token | 401 | |
 | PACK-23 | | Call it twice in a row, then read the API window | Second answer comes from the cache (fast). The window shows **no** latitude, longitude, dates or web address with them (GDPR) | |
+| PACK-24 | | Scalar: call it more than 60 times in one minute with the same login | 429 Too many requests (stops one account using up the free weather limit) | |
 
 ## 17. API base and backend checks (KAN-58)
 

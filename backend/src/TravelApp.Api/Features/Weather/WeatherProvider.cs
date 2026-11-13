@@ -39,6 +39,12 @@ internal sealed class WeatherOptions
 
     public Uri ForecastUrl { get; set; } = new("https://api.open-meteo.com/v1/forecast");
     public Uri ArchiveUrl { get; set; } = new("https://archive-api.open-meteo.com/v1/archive");
+
+    /// <summary>
+    /// Calls per user per minute. Keeps one account from using up the provider's free daily limit for
+    /// everyone; the app asks once per stop and then uses its own cache for 3 hours.
+    /// </summary>
+    public int RequestsPerMinutePerUser { get; set; } = 60;
 }
 
 /// <summary>

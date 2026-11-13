@@ -108,11 +108,17 @@ export async function getTripWeather(
   stops: TripStop[],
   { now = new Date(), fetchDays = fetchDaysFromApi }: { now?: Date; fetchDays?: FetchDays } = {},
 ): Promise<TripWeather | null> {
-  const requests = weatherRequests(trip, stops, todayIso(now));
+  const today = todayIso(now);
+  const requests = weatherRequests(trip, stops, today);
   if (!requests.length) return null;
   const key = weatherRequestsKey(requests);
   const cache = readCache();
-  const kept = cache[trip.id]?.key === key ? cache[trip.id] : undefined;
+  const stored = cache[trip.id]?.key === key ? cache[trip.id] : undefined;
+  // Days already over are not shown (the trip is on and the phone was offline for a while).
+  const kept = stored && {
+    ...stored,
+    stops: stored.stops.map((s) => ({ ...s, days: s.days.filter((d) => d.date >= today) })),
+  };
   if (kept && now.getTime() - Date.parse(kept.fetchedAt) < FRESH_MS) {
     return { ...kept, stale: false };
   }

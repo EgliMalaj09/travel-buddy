@@ -29,6 +29,8 @@ export interface WeatherRequest {
   lng: number;
   from: IsoDate;
   to: IsoDate;
+  /** The stop's own dates ("arrive..leave"), for the cache key: they do not move with today. */
+  span: string;
 }
 
 export interface StopWeather {
@@ -45,9 +47,12 @@ export interface TripWeather {
   attributionUrl: string;
 }
 
-/** The server takes at most 31 days per call and up to about 400 days ahead. */
+/**
+ * The server takes at most 31 days per call and up to 400 days ahead of its (UTC) today. A little
+ * less here, so a phone ahead of UTC never asks one day too far.
+ */
 const MAX_DAYS = 31;
-const MAX_AHEAD = 400;
+const MAX_AHEAD = 398;
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
@@ -68,14 +73,25 @@ export function weatherRequests(
     const from = arrive < today ? today : arrive;
     let to = leave > last ? last : leave;
     if (to > addDays(from, MAX_DAYS - 1)) to = addDays(from, MAX_DAYS - 1);
-    out.push({ stopId: stop.id, lat: round1(stop.lat), lng: round1(stop.lng), from, to });
+    out.push({
+      stopId: stop.id,
+      lat: round1(stop.lat),
+      lng: round1(stop.lng),
+      from,
+      to,
+      span: `${arrive}..${leave}`,
+    });
   }
   return out;
 }
 
-/** Changes when the stops, their places or dates change, so old weather is not shown for them. */
+/**
+ * Changes when the stops, their places or dates change, so old weather is not shown for them.
+ * It does not change as the days of the trip pass, so offline during the trip the phone still
+ * shows what it had (past days are dropped when shown).
+ */
 export const weatherRequestsKey = (requests: WeatherRequest[]) =>
-  requests.map((r) => `${r.stopId}@${r.lat},${r.lng}:${r.from}..${r.to}`).join('|');
+  requests.map((r) => `${r.stopId}@${r.lat},${r.lng}:${r.span}`).join('|');
 
 /** A day counts as rainy at 50 % or more, or (no chance given) 1 mm or more. */
 export const isRainy = (d: WeatherDay) =>

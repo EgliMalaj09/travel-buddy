@@ -84,6 +84,23 @@ describe('trip weather on the phone', () => {
     expect(moved).toBeNull();
   });
 
+  it('offline during the trip: the kept weather still shows, without the days already over', async () => {
+    const two = {
+      ...answer,
+      days: [answer.days[0]!, { ...answer.days[0]!, date: '2027-04-13' }],
+    };
+    await getTripWeather(trip, [stop], {
+      now: at('2027-04-12T08:00:00Z'),
+      fetchDays: async () => two,
+    });
+    const next = await getTripWeather(trip, [stop], {
+      now: at('2027-04-13T08:00:00Z'),
+      fetchDays: async () => null,
+    });
+    expect(next?.stale).toBe(true);
+    expect(next?.stops[0]?.days.map((d) => d.date)).toEqual(['2027-04-13']);
+  });
+
   it('no request without positions', async () => {
     const fetchDays = jest.fn<ReturnType<FetchDays>, Parameters<FetchDays>>(async () => answer);
     expect(await getTripWeather(trip, [{ ...stop, lat: null }], { fetchDays })).toBeNull();
