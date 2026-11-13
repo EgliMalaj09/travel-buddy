@@ -39,7 +39,7 @@ dotnet run --project src/TravelApp.Api   # API on http://localhost:5001
 **Trying login locally (KAN-12):**
 
 - Run `dotnet ef database update --project src/TravelApp.Api` once after pulling (creates the login tables).
-- Email codes are not sent during development: the API log prints `[dev email] signup code for you@example.com: 123456`.
+- Email codes are not sent during development: the API log prints `[dev email] signup code: 123456` (only in Development; the email address is never logged, GDPR).
 - The token signing key is created on first run in `src/TravelApp.Api/.dev-keys/` (git-ignored). Beta and production read `Auth__SigningKeyPem` from the environment.
 - Google and Apple need the client ids in `Auth:GoogleClientIds` / `Auth:AppleClientIds` (user secrets or environment); until then those two endpoints answer `invalid_token`.
 - In Scalar or Postman: call `/auth/signup`, then `/auth/signup/verify` with the code from the log, and use the `accessToken` as the Bearer token for `/me`.

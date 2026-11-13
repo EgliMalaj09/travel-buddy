@@ -32,6 +32,7 @@ The repository is the memory, not the chat. Long chats get summarised and lose d
 
 ## Hard rules (summary, full text in the linked files)
 
+- **CORE RULE, GDPR (agreed 13 Nov 2026): never log personal data**, in the backend or the app. No emails, names, tokens, codes outside local Development, passwords, trip/place/checklist details, locations or request bodies in logs, errors, analytics or crash reports. Log only opaque ids, status codes and timings. Checked in every code review.
 - **Definition of done:** a TODO item is ticked and a Jira task moved to Done only when the code is finished, **merged into `main`**, and **tested manually by the owner** (phone for the app; Postman/Scalar for the API). Claude moves tasks to In Review; only the owner's "it works" allows Done. ([frontend/CLAUDE.md](frontend/CLAUDE.md), [backend/CLAUDE.md](backend/CLAUDE.md))
 - **New library = new row first** in [`decisions/tech-stack.md`](decisions/tech-stack.md): what for, why, alternatives, date, status.
 - **Store upload rule:** before any store upload or production build, stop and remind the owner to decide the final app name and bundle id (placeholder `app.travelapp.mobile`).

@@ -76,7 +76,8 @@ export async function signInWithGoogle(): Promise<SocialCredential> {
         );
       }
       // DEVELOPER_ERROR (code 10) on Android = the Android client id or SHA-1 in Google Cloud is wrong.
-      console.warn('[google sign-in]', e.code, e.message);
+      // Only the error code is logged: the message can hold account details (GDPR core rule).
+      if (__DEV__) console.warn('[google sign-in]', e.code);
     }
     throw new AuthError('not_available', 'Google login did not work. Try again or use email.');
   }
@@ -112,7 +113,8 @@ export async function signInWithApple(): Promise<SocialCredential> {
   } catch (e) {
     if (e instanceof AuthError) throw e;
     if ((e as { code?: string }).code === 'ERR_REQUEST_CANCELED') throw cancelled();
-    console.warn('[apple sign-in]', e);
+    // Only the error code is logged, never the error itself (GDPR core rule).
+    if (__DEV__) console.warn('[apple sign-in]', (e as { code?: string }).code ?? 'unknown');
     throw new AuthError('not_available', 'Apple login did not work. Try again or use email.');
   }
 }
