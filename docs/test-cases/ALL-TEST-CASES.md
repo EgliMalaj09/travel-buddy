@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #21 and the packing list with weather (KAN-28, KAN-29).
+Last updated: 13 Nov 2026, after PRs #1 to #22 and trip expenses (KAN-42, KAN-43).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -28,9 +28,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 14. [Smart checklist](#14-smart-checklist-kan-24-kan-25)
 15. [Trip page with tabs](#15-trip-page-with-tabs-kan-53)
 16. [Packing list and weather](#16-packing-list-and-weather-kan-28-kan-29)
-17. [API base and backend checks](#17-api-base-and-backend-checks-kan-58)
-18. [Privacy: no personal data in logs (GDPR)](#18-privacy-no-personal-data-in-logs-gdpr)
-19. [Known gaps](#19-known-gaps)
+17. [Expenses](#17-expenses-kan-42-kan-43)
+18. [API base and backend checks](#18-api-base-and-backend-checks-kan-58)
+19. [Privacy: no personal data in logs (GDPR)](#19-privacy-no-personal-data-in-logs-gdpr)
+20. [Known gaps](#20-known-gaps)
 
 ---
 
@@ -376,28 +377,57 @@ Weather comes from Open-Meteo through our API (agreed 13 Nov 2026). For weather 
 | PACK-23 | | Call it twice in a row, then read the API window | Second answer comes from the cache (fast). The window shows **no** latitude, longitude, dates or web address with them (GDPR) | |
 | PACK-24 | | Scalar: call it more than 60 times in one minute with the same login | 429 Too many requests (stops one account using up the free weather limit) | |
 
-## 17. API base and backend checks (KAN-58)
+## 17. Expenses (KAN-42, KAN-43)
+
+Amounts are kept in the money you paid in. The app shows them in **your home currency** (from your profile) with the rate of the day you paid. Rates come from the free Currency API through our API (agreed 13 Nov 2026). Needs migration `Expenses` (start.cmd runs it) and the PowerSync restart below.
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| EXP-01 | | Open a trip, tab **Expenses** with nothing added | "No expenses yet" and an **Add an expense** button | |
+| EXP-02 | | Trip in Morocco, today is a trip day. Tap **Add an expense** | Amount field focused, keyboard with numbers. Currency **MAD** selected (the stop you are in today); your home currency has "(home)". Day **Today · Day N** selected | |
+| EXP-03 | | Trip in the future. Add an expense | Day **Today** selected first (bookings before the trip), currency = your home currency. Tapping a trip day changes the currency to that stop's money (until you pick one yourself) | |
+| EXP-04 | | Type `200`, leave the name empty, pick **Food**, **Add expense** | Back on the tab: "Spent on this trip" total in your home currency, the row **Food · 200.00 MAD** and below it "≈ … ALL" (your home money) | |
+| EXP-05 | | Add `12,50` in EUR, then `1.200` in EUR, then `1500` in JPY | Saved as 12.50 EUR, 1,200.00 EUR and ¥1,500. `15.5` in JPY shows "no decimals for JPY" | |
+| EXP-06 | | Type `0`, or nothing, and save | "Enter an amount more than 0…", nothing saved | |
+| EXP-07 | | Pick **Another currency**, search "dollar", pick USD | USD is selected and shown as a chip | |
+| EXP-08 | | Add expenses on 2 days and in 3 categories | List grouped by day, newest day first, each day with its total. The total card shows a bar per category, biggest first, and "Paid in: 400.00 MAD · 12.50 EUR" | |
+| EXP-09 | | Tap an expense, change the amount and the day, **Save** | The row moves to the new day, totals change | |
+| EXP-10 | | Tap an expense, **Delete expense**, confirm | Gone from the list and the total | |
+| EXP-11 | | Plan tab | An **Expenses · … spent** card with how many; tap opens the Expenses tab | |
+| EXP-12 | | Trip page **+** (quick add) | **Expense** is first in the list and opens the add form | |
+| EXP-13 | | Airplane mode on. Add an expense in a currency you have not used on that day | Saved at once. Row shows "converting…", the total card says "1 converting… (needs a connection once)" | |
+| EXP-14 | | Airplane mode off, wait a few seconds, reopen the tab | "converting…" is replaced by the home amount; the expense is on the server (Scalar, EXP-17) | |
+| EXP-15 | | Airplane mode on again, reopen the tab | Amounts already converted stay converted (the phone keeps each day's rates) | |
+| EXP-16 | | Delete the trip | Its expenses are gone too (Scalar: GET /expenses for that trip gives 404) | |
+| EXP-17 | | Scalar: **GET /expenses?tripId=…** with your token | Your expenses, newest first, amounts in minor units (`20000` = 200.00 MAD) | |
+| EXP-18 | | Scalar: **GET /fx/rates?dates=2026-11-10,2026-11-11&currencies=MAD,ALL** | For each day: `rateDate` = that day, `final: true`, `ratesToEur` with MAD, ALL and EUR = 1 | |
+| EXP-19 | | Scalar: same call with today's date, early in the morning | `final: false` and `rateDate` yesterday until today's rates are out | |
+| EXP-20 | | Scalar: `currencies=mad` or `dates=2020-01-01` | 400 with a clear message | |
+| EXP-21 | | Log in as another user on the same phone, open their trips | None of the first user's expenses or kept rates show | |
+| EXP-22 | | Change your home currency (when the profile screen allows it, KAN-22) | Totals are shown in the new home currency | ⏸ waits for KAN-22 |
+
+## 18. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
 | API-01 | A-01 | Open http://localhost:5001/health | 200, healthy | ✅ |
 | API-02 | A-02 | Open http://localhost:5001/app-info | name, version, environment "Development" | ✅ |
 | API-03 | A-03 | Open http://localhost:5001/scalar | Lists all endpoints | ✅ |
-| API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (66 on 13 Nov 2026) | ✅ |
-| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (172 on 13 Nov 2026) | |
+| API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (112 on 13 Nov 2026) | ✅ |
+| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (229 on 13 Nov 2026) | |
 
-## 18. Privacy: no personal data in logs (GDPR)
+## 19. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
 | GDPR-01 | | Sign up, log in from a new phone, reset a password. Read the API window | `[dev email]` lines show the purpose and the code, **never the email**. No password, token or request body anywhere | |
-| GDPR-02 | | Create a trip, a place and checklist items, open the Packing tab. Read the API window *(updated 13 Nov)* | No trip names, cities, place names, notes, positions or weather web addresses | |
+| GDPR-02 | | Create a trip, a place, checklist items and an expense, open the Packing and Expenses tabs. Read the API window *(updated 13 Nov)* | No trip names, cities, place or expense names, amounts, notes, positions, weather or exchange-rate web addresses | |
 | GDPR-03 | | Read the Expo / Metro window while using the app (mock login too) | No email, name, token or trip details printed | |
 | GDPR-04 | | *(When Sentry is turned on)* Cause an error, open the report in Sentry | No user, email, request body, console lines or `?query` values in the report | |
 
-## 19. Known gaps
+## 20. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.
@@ -407,3 +437,5 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 6. The checklist rule wording (entry rules) still needs your review (KAN-26).
 7. Packing lists are not yet personal in shared trips (each traveller their own list): that comes with shared trips in Part 2.
 8. Open-Meteo is free only while the app is not commercial: before the public launch, buy their plan or switch to MET Norway (on the switch list).
+9. Expenses are personal to one traveller for now; shared expenses and splitting (D6) come with shared trips in Part 2. Linking an expense to a place comes later.
+10. The free Currency API has no service promise: before the public launch, check it is still fine or move to a paid source (on the switch list).

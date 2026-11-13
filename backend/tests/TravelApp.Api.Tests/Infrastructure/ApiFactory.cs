@@ -7,7 +7,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Testcontainers.PostgreSql;
 using TravelApp.Api.Data;
 using TravelApp.Api.Features.Auth;
+using TravelApp.Api.Features.Fx;
 using TravelApp.Api.Features.Weather;
+using TravelApp.Api.Tests.Features.Fx;
 using TravelApp.Api.Tests.Features.Weather;
 
 [assembly: AssemblyFixture(typeof(TravelApp.Api.Tests.Infrastructure.ApiFactory))]
@@ -17,7 +19,7 @@ namespace TravelApp.Api.Tests.Infrastructure;
 /// <summary>
 /// Starts a real PostgreSQL 17 in Docker (Testcontainers) and the API against it, once for all tests.
 /// Applies the EF Core migrations, so tests see the real tables. Needs Docker running.
-/// Emails, Google/Apple, the leaked-password service and Open-Meteo are replaced by fakes.
+/// Emails, Google/Apple, the leaked-password service, Open-Meteo and the Currency API are replaced by fakes.
 /// </summary>
 public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
@@ -26,6 +28,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     public CapturingEmailSender Emails { get; } = new();
 
     public FakeOpenMeteo Weather { get; } = new();
+
+    public FakeCurrencyApi Fx { get; } = new();
 
     public async ValueTask InitializeAsync()
     {
@@ -49,6 +53,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.RemoveAll<ILeakedPasswordCheck>();
             services.AddSingleton<ILeakedPasswordCheck, FakeLeakedPasswordCheck>();
             services.AddHttpClient<IWeatherProvider, OpenMeteoProvider>().ConfigurePrimaryHttpMessageHandler(() => Weather);
+            services.AddHttpClient<IFxProvider, FreeCurrencyApiProvider>().ConfigurePrimaryHttpMessageHandler(() => Fx);
         });
     }
 

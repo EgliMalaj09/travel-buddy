@@ -588,6 +588,146 @@ namespace TravelApp.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TravelApp.Api.Features.Expenses.Expense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<long>("AmountMinor")
+                        .HasColumnType("bigint")
+                        .HasColumnName("amount_minor");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)")
+                        .HasColumnName("category");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("currency")
+                        .IsFixedLength();
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateOnly>("FxRateDate")
+                        .HasColumnType("date")
+                        .HasColumnName("fx_rate_date");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("note");
+
+                    b.Property<Guid?>("OwnerUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<Guid>("PaidByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("paid_by_user_id");
+
+                    b.Property<Guid?>("PlaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("place_id");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("scope");
+
+                    b.Property<DateTimeOffset>("SpentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("spent_at");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("title");
+
+                    b.Property<Guid>("TripId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("trip_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_expenses");
+
+                    b.HasIndex("CreatedByUserId")
+                        .HasDatabaseName("ix_expenses_created_by_user_id");
+
+                    b.HasIndex("TripId", "SpentAt")
+                        .HasDatabaseName("ix_expenses_trip_id_spent_at");
+
+                    b.ToTable("expenses", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_expenses_amount", "amount_minor > 0 AND amount_minor <= 1000000000000");
+
+                            t.HasCheckConstraint("ck_expenses_category", "category IN ('food', 'transport', 'stay', 'activities', 'shopping', 'other')");
+
+                            t.HasCheckConstraint("ck_expenses_currency", "currency ~ '^[A-Z]{3}$'");
+
+                            t.HasCheckConstraint("ck_expenses_owner", "(scope = 'personal') = (owner_user_id IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_expenses_scope", "scope IN ('shared', 'personal')");
+                        });
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Features.Fx.FxRate", b =>
+                {
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<string>("Currency")
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("currency")
+                        .IsFixedLength();
+
+                    b.Property<DateTimeOffset>("FetchedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fetched_at");
+
+                    b.Property<decimal>("RateToEur")
+                        .HasPrecision(28, 12)
+                        .HasColumnType("numeric(28,12)")
+                        .HasColumnName("rate_to_eur");
+
+                    b.HasKey("Date", "Currency")
+                        .HasName("pk_fx_rates");
+
+                    b.ToTable("fx_rates", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_fx_rates_currency", "currency ~ '^[A-Z]{3}$'");
+
+                            t.HasCheckConstraint("ck_fx_rates_rate", "rate_to_eur > 0");
+                        });
+                });
+
             modelBuilder.Entity("TravelApp.Api.Features.Places.Place", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1152,6 +1292,23 @@ namespace TravelApp.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_checklist_items_trip_trip_id");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Features.Expenses.Expense", b =>
+                {
+                    b.HasOne("TravelApp.Api.Features.Auth.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_expenses_users_created_by_user_id");
+
+                    b.HasOne("TravelApp.Api.Features.Trips.Trip", null)
+                        .WithMany()
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_expenses_trip_trip_id");
                 });
 
             modelBuilder.Entity("TravelApp.Api.Features.Places.Place", b =>

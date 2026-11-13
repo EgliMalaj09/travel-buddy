@@ -1014,6 +1014,56 @@
         ]
       }
     },
+    "/expenses": {
+      "get": {
+        "tags": [
+          "Expenses"
+        ],
+        "summary": "The expenses of one of your trips (deleted ones and other people's personal ones left out), newest first",
+        "operationId": "ListTripExpenses",
+        "parameters": [
+          {
+            "name": "tripId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripExpensesResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/sync/upload": {
       "post": {
         "tags": [
@@ -1186,6 +1236,80 @@
           }
         ]
       }
+    },
+    "/fx/rates": {
+      "get": {
+        "tags": [
+          "Exchange rates"
+        ],
+        "summary": "Units of each currency for 1 euro, per day. dates and currencies are comma-separated lists (e.g. dates=2026-11-10,2026-11-11&currencies=MAD,ALL). Days without their own rates get the closest earlier day, marked not final",
+        "operationId": "GetFxRates",
+        "parameters": [
+          {
+            "name": "dates",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "currencies",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FxRatesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -1277,6 +1401,118 @@
           },
           "marketingConsent": {
             "type": "boolean"
+          }
+        }
+      },
+      "ExpenseDto": {
+        "required": [
+          "id",
+          "tripId",
+          "createdByUserId",
+          "paidByUserId",
+          "scope",
+          "ownerUserId",
+          "title",
+          "category",
+          "amountMinor",
+          "currency",
+          "spentAt",
+          "fxRateDate",
+          "placeId",
+          "note",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tripId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "paidByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "ownerUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "amountMinor": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "spentAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fxRateDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "placeId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
           }
         }
       },
@@ -1425,6 +1661,56 @@
           "email": {
             "maxLength": 254,
             "type": "string"
+          }
+        }
+      },
+      "FxDayDto": {
+        "required": [
+          "date",
+          "rateDate",
+          "final",
+          "ratesToEur"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "rateDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "final": {
+            "type": "boolean"
+          },
+          "ratesToEur": {
+            "type": "object",
+            "additionalProperties": {
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+              "type": [
+                "number",
+                "string"
+              ],
+              "format": "double"
+            }
+          }
+        }
+      },
+      "FxRatesResponse": {
+        "required": [
+          "days"
+        ],
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FxDayDto"
+            }
           }
         }
       },
@@ -2239,6 +2525,20 @@
           }
         }
       },
+      "TripExpensesResponse": {
+        "required": [
+          "expenses"
+        ],
+        "type": "object",
+        "properties": {
+          "expenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpenseDto"
+            }
+          }
+        }
+      },
       "TripPlacesResponse": {
         "required": [
           "places"
@@ -2491,10 +2791,16 @@
       "name": "Places"
     },
     {
+      "name": "Expenses"
+    },
+    {
       "name": "Sync"
     },
     {
       "name": "Weather"
+    },
+    {
+      "name": "Exchange rates"
     }
   ]
 }

@@ -106,7 +106,7 @@ These must be decided before building starts on that part.
 | 1 | Expo or bare React Native | Handoff 9.12 |
 | 1 | Globe: Mapbox globe or 3D model | Handoff 9.5 |
 | 1 | Photo compression details | Handoff 9.6 |
-| 1 | Weather API: decided, Open-Meteo (owner agreed 13 Nov 2026, KAN-29); paid plan or switch to MET Norway before public launch (switch list). FX API: still open | New |
+| 1 | Weather API: decided, Open-Meteo (owner agreed 13 Nov 2026, KAN-29); paid plan or switch to MET Norway before public launch (switch list). FX API: decided, the free fawazahmed0 Currency API (owner agreed 13 Nov 2026, KAN-43); re-check before public launch (switch list) | New |
 | 1 | Terms, privacy, entry-rule disclaimer drafts | Handoff 9.13 |
 | 2 | Pricing, and the Apple and Google purchase rules | Handoff 9.7 |
 | 2 | Where the video is rendered, music source | Handoff 9.3 |
@@ -183,3 +183,4 @@ Go through this list when setting up the beta environment (KAN-61) and again bef
 | Scalar API page | On in development | Off (already off outside Development) — check | Beta |
 | Bundle id / app name | Placeholder `app.travelapp.mobile`, "Travel App" | Final name and bundle id (Store upload rule) | Before first store upload |
 | Weather provider (Open-Meteo) | Open-Meteo free tier (non-commercial use only), no key | Open-Meteo paid plan (key in configuration `Weather:*`, not in code) **or** switch to MET Norway (new `IWeatherProvider` class). Keep the CC BY 4.0 attribution in the app | Before public launch |
+| Exchange rates (Currency API) | fawazahmed0 Currency API, free, no key, no service promise | Check it still works and is still free; if not, switch to a paid source (key in configuration `Fx:*`, new `IFxProvider` class). Rates already stored in `fx_rates` stay | Before public launch |

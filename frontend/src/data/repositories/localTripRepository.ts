@@ -189,11 +189,12 @@ export function createLocalTripRepository(
     },
     async deleteTrip(id) {
       await db.writeTransaction(async (tx) => {
-        // The trip first: the server then removes its stops, flights and places with it.
+        // The trip first: the server then removes its stops, flights, places and expenses with it.
         await tx.execute('DELETE FROM trips WHERE id = ?', [id]);
         await tx.execute('DELETE FROM trip_stops WHERE trip_id = ?', [id]);
         await tx.execute('DELETE FROM flights WHERE trip_id = ?', [id]);
         await tx.execute('DELETE FROM places WHERE trip_id = ?', [id]);
+        await tx.execute('DELETE FROM expenses WHERE trip_id = ?', [id]);
       });
       notifyDataChanged();
     },

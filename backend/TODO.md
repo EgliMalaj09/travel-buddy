@@ -27,7 +27,7 @@ Suggested order. Foundation and sync come first; the frontend's sync test (KAN-1
 | [ ] | 8 | AI - Smart checklist rule set (owner reviews) | KAN-26 | KAN-23 | 98543 |
 | [ ] | 9 | BE - Packing list (weather endpoint and cache). **Built 13 Nov 2026, waiting for merge and manual test**: `GET /weather/days?lat=&lng=&from=&to=` (forecast up to 15 days ahead, then the typical weather of the last 3 years), Open-Meteo behind `IWeatherProvider`, `weather_cache` table + migration (forecast fresh 3 h, typical 30 days, stale rows served when the provider is down, else 503). Position rounded to ~11 km before caching and before calling the provider; the HTTP client's URL logs are removed (GDPR) | KAN-29 | KAN-27 (K1–K5) | 426033 |
 | [ ] | 10 | AI - Packing list rules | KAN-30 | KAN-27 | 426033 |
-| [ ] | 11 | BE - Expenses (Expense, FxRate, daily FX job) | KAN-43 | KAN-41 (E1–E5) | 98559 |
+| [ ] | 11 | BE - Expenses (Expense, FxRate). **Built 13 Nov 2026, waiting for merge and manual test**: `expenses` table + sync writes (`ExpensesSyncTable`), `GET /expenses?tripId=`, stream `my_expenses`, trip delete hook; `fx_rates` table filled on first ask from the free Currency API (no daily job needed), `GET /fx/rates?dates=&currencies=` (60/min per user). Migration `Expenses` | KAN-43 | KAN-41 (E1–E5) | 98559 |
 | [ ] | 12 | BE - Profile, settings and account deletion | KAN-22 | KAN-20 (P1–P5) | 426017 |
 | [ ] | 13 | BE - Back office (Part 1) | KAN-55 | KAN-54 (B1–B4) | 131090 |
 | [ ] | 14 | BE - Beta environment (Azure free account, PowerSync Cloud) | KAN-61 | KAN-59 (SH1–SH4) | 98575 |

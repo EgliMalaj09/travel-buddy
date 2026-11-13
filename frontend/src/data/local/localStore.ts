@@ -6,12 +6,14 @@ import { useUiStore } from '@/store/uiStore';
 
 import { notifyDataChanged } from '../changes';
 import { createHttpTripApi } from '../repositories/apiTripRepository';
+import { createLocalExpenseRepository } from '../repositories/localExpenseRepository';
 import { createLocalPlaceRepository } from '../repositories/localPlaceRepository';
 import {
   createLocalChecklistRepository,
   type ChecklistRepository,
 } from '../repositories/checklistRepository';
 import { createLocalTripRepository, type LocalDb } from '../repositories/localTripRepository';
+import type { ExpenseRepository } from '../repositories/expenseRepository';
 import type { PlaceRepository } from '../repositories/placeRepository';
 import type { TripRepository } from '../repositories/tripRepository';
 import { syncStatusFrom } from './syncStatus';
@@ -121,4 +123,9 @@ export function createLocalPlaces(): PlaceRepository | null {
 /** Checklist items in the same local database, synced the same way. */
 export function createLocalChecklist(): ChecklistRepository | null {
   return createLocalChecklistRepository(readyDb());
+}
+
+/** Expenses in the same local database, synced the same way (KAN-42). */
+export function createLocalExpenses(): ExpenseRepository | null {
+  return createLocalExpenseRepository(readyDb());
 }

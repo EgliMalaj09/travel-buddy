@@ -296,6 +296,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/expenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The expenses of one of your trips (deleted ones and other people's personal ones left out), newest first */
+        get: operations["ListTripExpenses"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/sync/upload": {
         parameters: {
             query?: never;
@@ -333,6 +350,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/fx/rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Units of each currency for 1 euro, per day. dates and currencies are comma-separated lists (e.g. dates=2026-11-10,2026-11-11&currencies=MAD,ALL). Days without their own rates get the closest earlier day, marked not final */
+        get: operations["GetFxRates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -355,6 +389,39 @@ export interface components {
             ageConfirmed: boolean;
             termsAccepted: boolean;
             marketingConsent: boolean;
+        };
+        ExpenseDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tripId: string;
+            /** Format: uuid */
+            createdByUserId: string;
+            /** Format: uuid */
+            paidByUserId: string;
+            scope: string;
+            /** Format: uuid */
+            ownerUserId: null | string;
+            title: string;
+            category: string;
+            /** Format: int64 */
+            amountMinor: number | string;
+            currency: string;
+            /** Format: date-time */
+            spentAt: string;
+            /** Format: date */
+            fxRateDate: string;
+            /** Format: uuid */
+            placeId: null | string;
+            note: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            deletedAt: null | string;
+            /** Format: int64 */
+            version: number | string;
         };
         FlightDto: {
             /** Format: uuid */
@@ -388,6 +455,19 @@ export interface components {
         };
         ForgotPasswordRequest: {
             email: string;
+        };
+        FxDayDto: {
+            /** Format: date */
+            date: string;
+            /** Format: date */
+            rateDate: null | string;
+            final: boolean;
+            ratesToEur: {
+                [key: string]: number | string;
+            };
+        };
+        FxRatesResponse: {
+            days: components["schemas"]["FxDayDto"][];
         };
         HttpValidationProblemDetails: {
             type?: null | string;
@@ -577,6 +657,9 @@ export interface components {
             deletedAt: null | string;
             /** Format: int64 */
             version: number | string;
+        };
+        TripExpensesResponse: {
+            expenses: components["schemas"]["ExpenseDto"][];
         };
         TripPlacesResponse: {
             places: components["schemas"]["PlaceDto"][];
@@ -1490,6 +1573,44 @@ export interface operations {
             };
         };
     };
+    ListTripExpenses: {
+        parameters: {
+            query: {
+                tripId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TripExpensesResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     SyncUpload: {
         parameters: {
             query?: never;
@@ -1584,6 +1705,56 @@ export interface operations {
             };
             /** @description Service Unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetFxRates: {
+        parameters: {
+            query: {
+                dates: string;
+                currencies: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FxRatesResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

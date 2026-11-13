@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TravelApp.Api.Features.Auth;
+using TravelApp.Api.Features.Expenses;
 using TravelApp.Api.Features.Places;
 using TravelApp.Api.Features.Checklist;
 using TravelApp.Api.Features.Trips;
@@ -34,4 +35,15 @@ internal sealed class ChecklistTripLink : IEntityTypeConfiguration<ChecklistItem
     // A trip's checklist goes with it when the trip row is finally removed.
     public void Configure(EntityTypeBuilder<ChecklistItem> builder) =>
         builder.HasOne<Trip>().WithMany().HasForeignKey(i => i.TripId).OnDelete(DeleteBehavior.Cascade);
+}
+
+internal sealed class ExpenseLinks : IEntityTypeConfiguration<Expense>
+{
+    // An expense goes with its trip, and a user's expenses with the account (only when rows are really removed;
+    // a normal delete is a soft delete, see ITripDeleteHook).
+    public void Configure(EntityTypeBuilder<Expense> builder)
+    {
+        builder.HasOne<Trip>().WithMany().HasForeignKey(e => e.TripId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<User>().WithMany().HasForeignKey(e => e.CreatedByUserId).OnDelete(DeleteBehavior.Cascade);
+    }
 }

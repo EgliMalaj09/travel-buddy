@@ -1,7 +1,7 @@
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 
 import { rowToPlace } from '../../local/rows';
-import { serverColumns, tripTables } from '../../local/tables';
+import { expenseTables, serverColumns, tripTables } from '../../local/tables';
 import { toSyncChange } from '../../local/uploadChanges';
 import type { SyncChange, SyncResult } from '../apiTripRepository';
 import { createApiPlaceRepository, type PlaceApi } from '../apiPlaceRepository';
@@ -16,7 +16,7 @@ import {
 
 function sqliteDb(): { db: LocalDb; sql: DatabaseSync } {
   const sql = new DatabaseSync(':memory:');
-  for (const [name, columns] of Object.entries(tripTables)) {
+  for (const [name, columns] of Object.entries({ ...tripTables, ...expenseTables })) {
     const cols = Object.entries(columns).map(([c, type]) => `"${c}" ${type}`);
     sql.exec(`CREATE TABLE ${name} (id TEXT PRIMARY KEY, ${cols.join(', ')})`);
   }
