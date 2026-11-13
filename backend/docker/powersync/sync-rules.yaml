@@ -29,3 +29,8 @@ streams:
   my_checklist_items:
     auto_subscribe: true
     query: select * from checklist_items where (deleted_at is null or source = 'auto') and trip_id in (select id from trips where owner_id = auth.user_id() and deleted_at is null)
+  # Expenses (KAN-42/43): the expenses of the user's trips. Personal expenses of other people are left out (D7, Part 2).
+  # Exchange rates are not synced: the app asks GET /fx/rates and keeps final days on the phone.
+  my_expenses:
+    auto_subscribe: true
+    query: select * from expenses where deleted_at is null and (scope = 'shared' or owner_user_id = auth.user_id()) and trip_id in (select id from trips where owner_id = auth.user_id() and deleted_at is null)

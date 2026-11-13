@@ -1,22 +1,35 @@
+import { clearFxCache } from '@/services/fxRates';
 import { clearWeatherCache } from '@/services/weather';
 
 import { notifyOwnerChanged } from './changes';
 import {
   createLocalChecklist,
+  createLocalExpenses,
   createLocalPlaces,
   createLocalTrips,
   setLocalOwner,
 } from './local/localStore';
+import { createApiExpenseRepository } from './repositories/apiExpenseRepository';
 import { createApiPlaceRepository } from './repositories/apiPlaceRepository';
 import {
   createMemoryChecklistRepository,
   type ChecklistRepository,
 } from './repositories/checklistRepository';
 import { createApiTripRepository } from './repositories/apiTripRepository';
+import {
+  createMockExpenseRepository,
+  type ExpenseRepository,
+} from './repositories/expenseRepository';
 import { createMockPlaceRepository, type PlaceRepository } from './repositories/placeRepository';
 import { createMockTripRepository, type TripRepository } from './repositories/tripRepository';
 export type { PlaceInput, PlaceRepository } from './repositories/placeRepository';
 export { PLACE_NOTE_MAX, PLACE_TITLE_MAX, placeInputProblem } from './repositories/placeRepository';
+export type { ExpenseInput, ExpenseRepository } from './repositories/expenseRepository';
+export {
+  EXPENSE_NOTE_MAX,
+  EXPENSE_TITLE_MAX,
+  expenseInputProblem,
+} from './repositories/expenseRepository';
 
 export type { ChecklistEdit, ChecklistRepository } from './repositories/checklistRepository';
 export { checklistEditProblem, QUANTITY_MAX } from './repositories/checklistRepository';
@@ -50,23 +63,33 @@ export function pickDataMode(
 interface Repositories {
   trips: TripRepository;
   places: PlaceRepository;
+  expenses: ExpenseRepository;
 }
 
 function createRepositories(mode: DataMode): { mode: DataMode; repos: Repositories } {
   if (mode === 'mock') {
     return {
       mode,
-      repos: { trips: createMockTripRepository(), places: createMockPlaceRepository() },
+      repos: {
+        trips: createMockTripRepository(),
+        places: createMockPlaceRepository(),
+        expenses: createMockExpenseRepository(),
+      },
     };
   }
   if (mode === 'local') {
     const trips = createLocalTrips();
     const places = createLocalPlaces();
-    if (trips && places) return { mode, repos: { trips, places } };
+    const expenses = createLocalExpenses();
+    if (trips && places && expenses) return { mode, repos: { trips, places, expenses } };
   }
   return {
     mode: 'api',
-    repos: { trips: createApiTripRepository(), places: createApiPlaceRepository() },
+    repos: {
+      trips: createApiTripRepository(),
+      places: createApiPlaceRepository(),
+      expenses: createApiExpenseRepository(),
+    },
   };
 }
 
@@ -101,8 +124,10 @@ export function setDataOwner(userId: string | null): void {
   if (dataMode === 'local') setLocalOwner(userId);
   repositories.trips.reset?.();
   repositories.places.reset?.();
+  repositories.expenses.reset?.();
   repositories.checklist.reset?.();
   clearWeatherCache();
+  clearFxCache();
   notifyOwnerChanged();
 }
 

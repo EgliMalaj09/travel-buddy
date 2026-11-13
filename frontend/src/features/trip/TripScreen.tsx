@@ -8,6 +8,7 @@ import { ActionSheet, EmptyState, Screen, TabRow } from '@/components';
 import { repositories, useAsync, useDataVersion } from '@/data';
 import { ChecklistItemSheet } from '@/features/checklist/ChecklistItemSheet';
 import { ChecklistList } from '@/features/checklist/ChecklistList';
+import { addExpense, TripExpenses } from '@/features/expenses/TripExpenses';
 import { PackingList } from '@/features/packing/PackingList';
 import { TripPlaces } from '@/features/places/TripPlaces';
 import { todayIso } from '@/lib/dates';
@@ -142,8 +143,9 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
       <ActionSheet
         visible={sheet === 'add'}
         title="Add to this trip"
-        message="Photos, notes and expenses come in the next updates."
+        message="Photos and notes come in the next updates."
         actions={[
+          { label: 'Expense', onPress: () => addExpense(trip.id) },
           { label: onTrip ? 'Place for today' : 'Place', onPress: addPlace },
           { label: 'Checklist item', onPress: openSheetNext('checklistItem') },
           { label: 'Something to pack', onPress: openSheetNext('packingItem') },
@@ -199,11 +201,7 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
               message="You will add photos and notes for each day here, and they will stay on this phone even with no signal."
             />
           ) : (
-            <EmptyState
-              icon="wallet-outline"
-              title="Expenses come soon"
-              message="You will track what you spend on this trip here, in any currency."
-            />
+            <TripExpenses tripId={trip.id} today={today} />
           )}
 
           {/* Keeps the last row clear of the quick-add button. */}

@@ -85,6 +85,9 @@ public sealed class SyncData(IReadOnlyDictionary<string, JsonElement> values)
 
     public void WholeNumber(string column, Action<int?> set) => Read(column, set, v => v.ValueKind == JsonValueKind.Number && v.TryGetInt32(out var i) ? (true, i) : (false, (int?)null), "a whole number");
 
+    /// <summary>A whole number that may be larger than an int (money in minor units).</summary>
+    public void LongNumber(string column, Action<long?> set) => Read(column, set, v => v.ValueKind == JsonValueKind.Number && v.TryGetInt64(out var i) ? (true, i) : (false, (long?)null), "a whole number");
+
     public void Number(string column, Action<double?> set) => Read(column, set, v => v.ValueKind == JsonValueKind.Number ? (true, v.GetDouble()) : (false, (double?)null), "a number");
 
     /// <summary>JSON true/false, or 1/0 as SQLite stores it.</summary>

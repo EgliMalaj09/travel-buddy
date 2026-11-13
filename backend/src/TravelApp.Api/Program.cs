@@ -3,6 +3,8 @@ using TravelApp.Api.Data;
 using TravelApp.Api.Features.AppInfo;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Checklist;
+using TravelApp.Api.Features.Expenses;
+using TravelApp.Api.Features.Fx;
 using TravelApp.Api.Features.Health;
 using TravelApp.Api.Features.Places;
 using TravelApp.Api.Features.Sync;
@@ -29,8 +31,10 @@ builder.Services.AddAuthFeature(builder.Configuration);
 builder.Services.AddTripsFeature();
 builder.Services.AddPlacesFeature();
 builder.Services.AddChecklistFeature();
+builder.Services.AddExpensesFeature();
 builder.Services.AddSyncFeature();
 builder.Services.AddWeatherFeature(builder.Configuration);
+builder.Services.AddFxFeature(builder.Configuration);
 
 // The web build of the app (npm run web, http://localhost:8081) calls the API from another port,
 // so the browser needs CORS. Development only: phones do not use CORS.
@@ -61,8 +65,10 @@ app.MapAppInfoEndpoints();
 app.MapAuthEndpoints();
 app.MapTripsEndpoints();
 app.MapPlacesEndpoints();
+app.MapExpensesEndpoints();
 app.MapSyncEndpoints();
 app.MapWeatherEndpoints();
+app.MapFxEndpoints();
 
 app.Run();
 

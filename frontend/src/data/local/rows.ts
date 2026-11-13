@@ -1,4 +1,4 @@
-import type { ChecklistItem, Flight, Place, Trip, TripActivity, TripStop } from '../types';
+import type { ChecklistItem, Expense, Flight, Place, Trip, TripActivity, TripStop } from '../types';
 
 /** A row as SQLite returns it. */
 export type Row = Record<string, unknown>;
@@ -163,5 +163,28 @@ export function rowToChecklistItem(r: Row): ChecklistItem {
     ownerUserId: text(r.owner_user_id),
     sortOrder: num(r.sort_order) ?? 0,
     ...sync(r),
+  };
+}
+
+export function rowToExpense(r: Row): Expense {
+  return {
+    id: String(r.id),
+    tripId: text(r.trip_id) ?? '',
+    createdByUserId: text(r.created_by_user_id) ?? '',
+    paidByUserId: text(r.paid_by_user_id) ?? text(r.created_by_user_id) ?? '',
+    scope: (text(r.scope) ?? 'shared') as Expense['scope'],
+    ownerUserId: text(r.owner_user_id),
+    title: text(r.title) ?? '',
+    category: (text(r.category) ?? 'other') as Expense['category'],
+    amountMinor: num(r.amount_minor) ?? 0,
+    currency: text(r.currency)?.trim() ?? '',
+    spentAt: isoTime(r.spent_at) ?? '',
+    fxRateDate: date(r.fx_rate_date) ?? '',
+    placeId: text(r.place_id),
+    note: text(r.note),
+    createdAt: isoTime(r.created_at) ?? '',
+    updatedAt: isoTime(r.updated_at) ?? '',
+    deletedAt: isoTime(r.deleted_at),
+    version: num(r.version) ?? 0,
   };
 }

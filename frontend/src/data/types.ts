@@ -121,6 +121,35 @@ export interface Place extends SyncFields {
   copiedFromPlaceId: string | null;
 }
 
+export type ExpenseCategory = 'food' | 'transport' | 'stay' | 'activities' | 'shopping' | 'other';
+
+/**
+ * Data model 13 (AGREED: D5, D7, D8; splitting D6 comes in Part 2). The amount stays in the
+ * currency it was paid in, in minor units. The home-currency amount is never stored: it is worked
+ * out from the daily rate of `fxRateDate`.
+ */
+export interface Expense extends SyncFields {
+  id: string;
+  tripId: string;
+  /** Set by the server. */
+  createdByUserId: string;
+  /** Set by the server (Part 1: always the creator). */
+  paidByUserId: string;
+  scope: 'shared' | 'personal';
+  ownerUserId: string | null;
+  title: string;
+  category: ExpenseCategory;
+  /** In `currency`, minor units (1250 = 12.50 EUR). */
+  amountMinor: number;
+  /** ISO 4217. */
+  currency: string;
+  spentAt: IsoDateTime;
+  /** The local day it was paid. Decides which daily rate is used. */
+  fxRateDate: IsoDate;
+  placeId: string | null;
+  note: string | null;
+}
+
 export type ChecklistItemType = 'task' | 'packing';
 
 export type TaskCategory =

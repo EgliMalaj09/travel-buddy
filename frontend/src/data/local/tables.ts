@@ -1,5 +1,5 @@
 /**
- * The synced tables on the phone (trips, stops, flights, places) (local SQLite via PowerSync, KAN-15).
+ * The synced tables on the phone (trips, stops, flights, places, checklist, expenses) (local SQLite via PowerSync, KAN-15).
  * Names and columns are the server's (snake_case), because PowerSync copies whole rows from
  * PostgreSQL (backend/docker/powersync/sync-rules.yaml). `id` is added by PowerSync itself.
  *
@@ -111,8 +111,28 @@ export const checklistTables = {
   },
 } as const satisfies Record<string, Record<string, ColumnType>>;
 
+/** Expenses (KAN-42/43). amount_minor is a whole number in minor units; fx_rate_date "2027-04-12". */
+export const expenseTables = {
+  expenses: {
+    trip_id: 'text',
+    created_by_user_id: 'text',
+    paid_by_user_id: 'text',
+    scope: 'text',
+    owner_user_id: 'text',
+    title: 'text',
+    category: 'text',
+    amount_minor: 'integer',
+    currency: 'text',
+    spent_at: 'text',
+    fx_rate_date: 'text',
+    place_id: 'text',
+    note: 'text',
+    ...sync,
+  },
+} as const satisfies Record<string, Record<string, ColumnType>>;
+
 /** Every table PowerSync keeps on the phone and the app writes. */
-export const syncedTables = { ...tripTables, ...checklistTables };
+export const syncedTables = { ...tripTables, ...checklistTables, ...expenseTables };
 
 export type SyncedTableName = keyof typeof syncedTables;
 export const syncedTableNames = Object.keys(syncedTables) as SyncedTableName[];
@@ -128,5 +148,5 @@ export const serverColumns = new Set([
   'deleted_at',
   'version',
   'done_by_user_id',
-  'owner_user_id',
+  'paid_by_user_id',
 ]);

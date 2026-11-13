@@ -17,12 +17,33 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
+jest.mock('@/features/auth/AuthProvider', () => ({
+  useAuth: () => ({ user: { id: 'user-1', profile: { homeCurrency: 'EUR' } } }),
+}));
+
 jest.mock('@/data', () => {
   const actual = jest.requireActual('@/data');
   const { createMockTripRepository } = jest.requireActual('@/data/repositories/tripRepository');
   const { createMockPlaceRepository } = jest.requireActual('@/data/repositories/placeRepository');
   const { createMemoryChecklistRepository } = jest.requireActual(
     '@/data/repositories/checklistRepository',
+  );
+  const { createMockExpenseRepository } = jest.requireActual(
+    '@/data/repositories/expenseRepository',
+  );
+  const expenses = createMockExpenseRepository();
+  void expenses.createExpense(
+    'trip-rome-florence',
+    {
+      title: 'Pizza',
+      category: 'food',
+      amountMinor: 1850,
+      currency: 'EUR',
+      spentAt: '2027-04-13T19:00:00.000Z',
+      fxRateDate: '2027-04-13',
+      note: null,
+    },
+    'user-1',
   );
   const places = createMockPlaceRepository();
   void places.createPlace(
@@ -45,6 +66,7 @@ jest.mock('@/data', () => {
     repositories: {
       trips: createMockTripRepository(),
       places,
+      expenses,
       checklist: createMemoryChecklistRepository(),
     },
   };
@@ -65,9 +87,10 @@ describe('Trip page with tabs (KAN-53)', () => {
     expect(screen.getByText('Places · 1 planned')).toBeTruthy();
     expect(screen.getByText('Stops')).toBeTruthy();
     expect(screen.getByText('Flights')).toBeTruthy();
+    expect(await screen.findByText('Expenses · €18.50 spent')).toBeTruthy();
   });
 
-  it('switches tabs, remembers the tab, and shows "coming soon" for photos and expenses', async () => {
+  it('switches tabs, remembers the tab, "coming soon" for photos, and the expenses list', async () => {
     await render(<TripScreen id="trip-rome-florence" />);
     await screen.findByText('Rome & Florence');
 
@@ -79,7 +102,9 @@ describe('Trip page with tabs (KAN-53)', () => {
     await fireEvent.press(screen.getByRole('tab', { name: 'Photos' }));
     expect(screen.getByText('Photos and notes come soon')).toBeTruthy();
     await fireEvent.press(screen.getByRole('tab', { name: 'Expenses' }));
-    expect(screen.getByText('Expenses come soon')).toBeTruthy();
+    expect(await screen.findByText('Spent on this trip')).toBeTruthy();
+    expect(screen.getByText('Pizza')).toBeTruthy();
+    expect(screen.getAllByText('€18.50').length).toBeGreaterThan(0);
   });
 
   it('opens on the tab from the link (a checklist reminder)', async () => {
@@ -96,12 +121,13 @@ describe('Trip page with tabs (KAN-53)', () => {
     expect(screen.getByText(/^0 of \d+ packed$/)).toBeTruthy();
   });
 
-  it('quick add offers a place and a checklist item', async () => {
+  it('quick add offers an expense, a place and a checklist item', async () => {
     await render(<TripScreen id="trip-rome-florence" />);
     await screen.findByText('Rome & Florence');
     await fireEvent.press(screen.getByLabelText('Quick add'));
     expect(screen.getByText('Add to this trip')).toBeTruthy();
     expect(screen.getByText('Something to pack')).toBeTruthy();
+    expect(screen.getByText('Expense')).toBeTruthy();
     await fireEvent.press(screen.getByText('Place'));
     expect(mockPush).toHaveBeenCalledWith({
       pathname: '/place/edit',

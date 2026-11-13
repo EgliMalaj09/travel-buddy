@@ -346,7 +346,9 @@ How conversion works (D5):
 - The home amount is not stored on the expense. It is computed from the **FxRate** table, so it never changes once that day's rate exists (this keeps the agreed rule "the rate is stored at the time of the expense and never changes").
 - Offline with no rate for that day yet: the original amount shows, the home amount shows "converting…" until the phone is online.
 
-**FxRate** (server, read-only, cached on the phone for the trip's dates): `date`, `currency`, `rateToEur` (decimal). One row per currency per day, filled daily by the server from an FX API. A past day's row never changes.
+**FxRate** (server, read-only, cached on the phone for the trip's dates): `date`, `currency`, `rateToEur` (decimal: units of that currency for 1 euro). One row per currency per day. A past day's row never changes. *Built 13 Nov 2026:* table `fx_rates`, filled when a day is first asked for (`GET /fx/rates`), not by a daily job; source the free Currency API (owner agreed). A day without its own rates yet (today before they are out, a future day) gets the closest earlier day, marked not final, and is asked again later.
+
+*Built 13 Nov 2026 (KAN-43):* `paidByUserId` is set by the server to the creator (Part 1 trips are solo); `placeId` is refused until linking to places is built; `fxRateDate` may differ from the UTC day of `spentAt` by at most 1 day (the phone's local day).
 
 Conversion: `home amount = amount ÷ rateToEur(currency, date) × rateToEur(homeCurrency, date)`, rounded to the home currency's minor units.
 

@@ -18,7 +18,7 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 8 | Places (bucket list, planned, visited). First build 12 Nov 2026: choices in [04-places.md](04-places.md) until Confluence is updated | 1 | 622593 | KAN-33 | KAN-34 FE, KAN-35 BE |
 | 9 | Map | 1 | 557074 | KAN-36 | KAN-37 FE |
 | 10 | Photos and notes | 1 | 524314 | KAN-38 | KAN-39 FE, KAN-40 BE |
-| 11 | Expenses | 1 | 98559 | KAN-41 | KAN-42 FE, KAN-43 BE |
+| 11 | Expenses. First build 13 Nov 2026: choices in [07-expenses.md](07-expenses.md) | 1 | 98559 | KAN-41 | KAN-42 FE, KAN-43 BE |
 | 12 | Today suggestion | 1 | 131074 | KAN-44 | KAN-45 FE |
 | 13 | Finish trip | 1 | 426049 | KAN-46 | KAN-47 FE |
 | 14 | Globe and lifetime stats | 1 | 557090 | KAN-48 | KAN-49 FE test, KAN-50 FE, KAN-51 Template |

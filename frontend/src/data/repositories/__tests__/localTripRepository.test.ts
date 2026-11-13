@@ -1,13 +1,13 @@
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 
-import { tripTables } from '../../local/tables';
+import { expenseTables, tripTables } from '../../local/tables';
 import { createLocalTripRepository, type LocalDb } from '../localTripRepository';
 import type { TripInput } from '../tripRepository';
 
 /** The phone's tables in a plain SQLite database (PowerSync uses the same table and column names). */
 function sqliteDb(): { db: LocalDb; sql: DatabaseSync } {
   const sql = new DatabaseSync(':memory:');
-  for (const [name, columns] of Object.entries(tripTables)) {
+  for (const [name, columns] of Object.entries({ ...tripTables, ...expenseTables })) {
     const cols = Object.entries(columns).map(([c, type]) => `"${c}" ${type}`);
     sql.exec(`CREATE TABLE ${name} (id TEXT PRIMARY KEY, ${cols.join(', ')})`);
   }
