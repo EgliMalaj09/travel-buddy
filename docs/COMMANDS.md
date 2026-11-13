@@ -381,22 +381,18 @@ scripts\windows\start.cmd
 ```
 Success: no red `STOPPED` line.
 
-**4. Install the back office** (once, in a **new** PowerShell window)
+**4. Start it** (every time): the normal start script now starts the back office too (since 13 Nov 2026).
 ```powershell
-cd C:\dev\tb\backoffice
-npm install
-Copy-Item .env.example .env.local
+cd C:\dev\tb
+git pull
+scripts\windows\start.cmd
 ```
-Success: `added … packages`, no `ERR!`.
+Success: the line `OK  Back office is running on http://localhost:5173` and a window "Travel App - Back office".
+The first time it installs the back office packages by itself (a few minutes). Add `-NoBackOffice` to skip it.
 
-**5. Open the back office** (every time; leave this window open)
-```powershell
-cd C:\dev\tb\backoffice
-npm run dev
-```
-Success: `Local: http://localhost:5173/`. Open that address in your browser, log in with the email and password from
-step 2, scan the QR code with your authenticator app and type the 6-digit code.
-Stop it with `Ctrl+C`.
+**5. Open the back office**: go to **http://localhost:5173** in your browser, log in with the email and password from
+step 2, scan the QR code with your authenticator app and type the 6-digit code. `scripts\windows\stop.cmd` closes it
+together with everything else.
 
 **6. (Optional) Run the automatic tests**
 ```powershell
