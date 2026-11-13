@@ -115,6 +115,7 @@ Same as the frontend (see `../frontend/README.md`):
 | Email | Azure Communication Services | AGREED (L4) |
 | Files | Azure Blob Storage (EU); records hold keys, never URLs; short-lived upload and read URLs | Proposed in data model |
 | Back office | Separate web app in `../backoffice/` (owner's request 13 Nov 2026) calling `/admin` endpoints here; roles viewer/support/owner, password + authenticator code (TOTP), own token audience, audit log (decisions/features/16-back-office.md) | AGREED app, rest PROPOSED (KAN-55) |
+| Beta server (KAN-61) | Container image (`Dockerfile`) on Azure Container Apps, Azure PostgreSQL, Azure Storage, PowerSync Cloud; whole setup in `../infra/azure/main.bicep`, deployed by hand with the "Deploy beta" workflow. Code emails by SMTP (`Email:*`). Outside Development the API refuses to start without the beta settings (`Shared/Hosting.cs`). **A new synced table needs `ALTER PUBLICATION powersync ADD TABLE …` on the beta database** (decisions/features/18-ship-part-1.md) | PROPOSED (built, waits for the hosting decision) |
 | Background jobs | Daily jobs in the API host to start; heavy renders as Azure Container Apps jobs (V1) | Re-confirm |
 | CI | GitHub Actions (AF3) | Re-confirm |
 

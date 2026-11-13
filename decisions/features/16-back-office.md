@@ -25,7 +25,7 @@ Compare with B1–B4 when the Atlassian connector works; anything that differs g
 | BO-l | Services page | Each outside service checks itself (database, photo storage, email, Open-Meteo, Currency API, Photon, OpenFreeMap tiles, PowerSync): working or not, the plan we use now and **what to do before the public launch** (the switch list). Answers kept 1 minute; checks use fixed sample values, never a user's data | PROPOSED (built) |
 | BO-m | Audit log | Every admin action (login, wrong code, search, open account, suspend, lift, sign out, export, erase, deletion queue, settings change, team changes) with who, when, action and target id. **Ids and codes only**: never an email, search words, names or trip content. Kept **2 years** (`Admin:AuditKeepDays`), older entries removed after each admin login. Owners only | PROPOSED (built) |
 | BO-n | Moderation | **Not in Part 1**: every trip, place and photo is private to its owner, so there is nothing public to moderate. Comes with shared trips (Part 2 back office, KAN-85), with reports from users | PROPOSED |
-| BO-o | Hosting in beta | Decided with the beta server (KAN-61). The web app is static files after `npm run build`, so it can be hosted for free (for example Azure Static Web Apps free plan or the API itself). `Admin:AllowedOrigins` lists its address for CORS | Open (KAN-61) |
+| BO-o | Hosting in beta | **Azure Static Web Apps, Free plan**, created by `infra/azure/main.bicep` and filled by the "Deploy beta" workflow (KAN-61, [18-ship-part-1.md](18-ship-part-1.md) S-f). `Admin:AllowedOrigins` gets its address automatically. Security headers and `noindex` in `backoffice/public/staticwebapp.config.json` | PROPOSED (built in KAN-61) |
 
 ## Design
 

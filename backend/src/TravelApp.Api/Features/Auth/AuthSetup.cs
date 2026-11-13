@@ -50,7 +50,16 @@ public static class AuthSetup
         services.AddSingleton<IAdminAccess, AdminAccess>();
         services.AddScoped<IUserDirectory, UserDirectory>();
         services.AddScoped<TravelApp.Api.Features.Admin.IServiceStatusCheck, EmailStatusCheck>();
-        services.AddSingleton<IAuthEmailSender, LogAuthEmailSender>();
+        // Real emails when "Email:Host" is set (beta, KAN-61); otherwise codes in the API log (development only).
+        services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.Section));
+        if (configuration.GetSection(EmailOptions.Section).Get<EmailOptions>()?.IsConfigured == true)
+        {
+            services.AddSingleton<IAuthEmailSender, SmtpAuthEmailSender>();
+        }
+        else
+        {
+            services.AddSingleton<IAuthEmailSender, LogAuthEmailSender>();
+        }
         services.AddSingleton<IExternalTokenValidator, OpenIdTokenValidator>();
         services.AddHttpClient<ILeakedPasswordCheck, PwnedPasswordsCheck>(http =>
         {

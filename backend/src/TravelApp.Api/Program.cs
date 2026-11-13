@@ -21,6 +21,7 @@ using TravelApp.Api.Shared;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddTravelAppLogging();
+builder.AddTravelAppHosting();
 builder.Services.AddTravelAppErrors();
 builder.Services.AddValidation();
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, _, _) =>
@@ -58,6 +59,8 @@ if (builder.Environment.IsDevelopment())
 
 var app = builder.Build();
 
+// Behind the platform's front door: read the real caller address (beta, KAN-61).
+app.UseTravelAppHosting();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 // The default policy (web build of the app) exists in development only; the "admin" policy (back office) everywhere.

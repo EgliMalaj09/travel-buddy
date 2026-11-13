@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #36 (up to the back office, KAN-55).
+Last updated: 13 Nov 2026, after PRs #1 to #37 (up to the back office and its gap cases) and the beta server (KAN-61).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -35,9 +35,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 21. [Finish trip, recap and passport stamp](#21-finish-trip-recap-and-passport-stamp-kan-47)
 22. [Atlas: globe, lifetime stats and passport](#22-atlas-globe-lifetime-stats-and-passport-kan-49-kan-50-kan-51)
 23. [Back office](#23-back-office-kan-55)
-24. [API base and backend checks](#24-api-base-and-backend-checks-kan-58)
-25. [Privacy: no personal data in logs (GDPR)](#25-privacy-no-personal-data-in-logs-gdpr)
-26. [Known gaps](#26-known-gaps)
+24. [Beta server](#24-beta-server-kan-61)
+25. [API base and backend checks](#25-api-base-and-backend-checks-kan-58)
+26. [Privacy: no personal data in logs (GDPR)](#26-privacy-no-personal-data-in-logs-gdpr)
+27. [Known gaps](#27-known-gaps)
 
 ---
 
@@ -618,17 +619,41 @@ Tip: a second browser (or a private window) lets you be two admins at once.
 | BO-30 | | **Team** → **Reset 2FA** on the test member → confirm. Log in as it in the second browser | Its open session stops working, and the login shows "Set up your authenticator app" with a new QR code again | |
 | BO-31 | | After BO-19 (minimum version `9.0.0` saved and the phone showing "Update the app"), turn on flight mode and close and reopen the app | Still "Update the app" (the phone keeps the last settings). Back online with the version set back to `1.0.0`, **Check again** lets you in | |
 
-## 24. API base and backend checks (KAN-58)
+## 24. Beta server (KAN-61)
+
+Only after the beta is set up with docs/COMMANDS.md, "Beta server (KAN-61)". `apiUrl` and `backofficeUrl` are the
+addresses step 5 printed. BETA-01 is the only one for your PC. Cases that need the phone's beta build come with KAN-60.
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| BETA-01 | | On your PC: start the app as usual and ask for a login code | Works as before: the code is in the API window (`[dev email]`), no email is sent | |
+| BETA-02 | | COMMANDS step 2: **Deploy beta** → **image** | Green tick; the summary shows `Image: ghcr.io/…/travel-app-api:…` | |
+| BETA-03 | | COMMANDS steps 5 and 6 | The outputs list `apiUrl`, `jwksUrl`, `backofficeUrl`, `backofficeName`, `apiName`, `databaseHost`; `wal_level` says `logical` | |
+| BETA-04 | | Open `apiUrl/health` in the browser (wait up to 20 seconds the first time) | `Healthy`, and the address starts with `https://` | |
+| BETA-05 | | Open `apiUrl/app-info` and `apiUrl/scalar` | app-info shows environment `Beta`; `/scalar` is **404** (the API page is off on the server) | |
+| BETA-06 | | Open `apiUrl/.well-known/jwks.json` | One key with `"kty": "EC"`, `"crv": "P-256"`; no `d` field (only the public part) | |
+| BETA-07 | | Postman: import `backend/openapi/openapi.json`, set the base URL to `apiUrl`, send **POST /auth/signup** with a real email of yours, a password and the consents (Postman fills an example body) | A code email arrives within a minute from your Brevo sender; the subject has **no** code, the body has the 6 digits and "10 minutes" | |
+| BETA-08 | | Right after BETA-07: `az containerapp logs show --resource-group travel-beta --name travelbeta-api --tail 100` | JSON lines only; **no email address and no code** anywhere | |
+| BETA-09 | | Open `backofficeUrl`, log in with your app account, set up the authenticator, open **Services** | Dashboard opens; Services shows Email "Email service (SMTP)" OK and the database as Azure | |
+| BETA-10 | | In the back office open **Users**, then press F5 (reload) | The Users page loads again (no "404 Not Found" from Azure) | |
+| BETA-11 | | Back office in the browser: F12 → Network, reload, click the page document → Response headers | `content-security-policy`, `x-content-type-options: nosniff`, `referrer-policy: no-referrer`, `x-robots-tag: noindex, nofollow` | |
+| BETA-12 | | Safety check: `az containerapp update --resource-group travel-beta --name travelbeta-api --remove-env-vars Email__Host --output none`, wait 1 minute, read the logs (BETA-08 command). Then put it back: `az containerapp update --resource-group travel-beta --name travelbeta-api --set-env-vars Email__Host=smtp-relay.brevo.com --output none` | The logs show "Beta settings missing or unsafe: Email:Host and Email:From are needed…" (names only, no values); after putting it back `apiUrl/health` is `Healthy` again | |
+| BETA-13 | | Change something small on `main`, then **Deploy beta** → **both** | Three green ticks; the "Health check" step says "API is up"; the back office still works | |
+| BETA-14 | | Leave the beta alone for 30 minutes, then open `apiUrl/health` | Answers within about 20 seconds (it was asleep: that is how it stays free) | |
+| BETA-15 | | COMMANDS step 9 (PowerSync Cloud) | PowerSync's dashboard shows the database connection and the sync rules as healthy | |
+| BETA-16 | | Azure portal → **Cost Management** → **Cost analysis** for `travel-beta`, a week after setup | €0.00 (or only free-account credit used) | |
+
+## 25. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
 | API-01 | A-01 | Open http://localhost:5001/health | 200, healthy | ✅ |
 | API-02 | A-02 | Open http://localhost:5001/app-info | name, version, environment "Development" | ✅ |
 | API-03 | A-03 | Open http://localhost:5001/scalar | Lists all endpoints | ✅ |
-| API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (161 on 13 Nov 2026, with finish trip) | ✅ |
+| API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (194 on 13 Nov 2026, with the beta server) | ✅ |
 | API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (283 on 13 Nov 2026, with finish trip) | |
 
-## 25. Privacy: no personal data in logs (GDPR)
+## 26. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
@@ -643,8 +668,9 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 | GDPR-07 | | Finish a trip with a note, open the recap and stamp. Read the API window and the Expo / Metro window | No trip name, note, rating or countries printed | |
 | GDPR-08 | | Open the Atlas, tap stamps and countries, drag the globe. Read the Expo / Metro window and the API window | No countries, trip names or positions printed; the API gets no new calls from the Atlas | |
 | GDPR-09 | | Do BO-01 to BO-27. Read the API window and the browser console (F12 → Console) | API window: only ids, roles and timings ("Back office login by <id> (owner)", "Account <id> suspended…"); no email, password, code, search words or settings values. Browser console: nothing printed | |
+| GDPR-10 | | On the beta server: sign up, log in and reset a password (BETA-07), then read the logs (BETA-08 command) and the back office audit log | Only ids, purposes, status codes and timings. No email address, code, password or SMTP reply text; a failed email shows only "Code email (login) not sent, SMTP status …" | |
 
-## 26. Known gaps
+## 27. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.
