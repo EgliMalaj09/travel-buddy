@@ -73,14 +73,22 @@ export async function searchPlaces(
   };
 }
 
-/** What is at the point (after the pin was moved), or null when nothing or offline. */
+/** A bad connection must not keep "Use this spot" waiting: the spot is saved without an address. */
+const REVERSE_TIMEOUT_MS = 10_000;
+
+/** What is at the point (after the pin was moved), or null when nothing, offline or too slow. */
 export async function reversePlace(lat: number, lng: number): Promise<GeoPlace | null> {
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), REVERSE_TIMEOUT_MS);
   try {
     const { data, response } = await api.GET('/geo/reverse', {
       params: { query: { lat, lng } },
+      signal: abort.signal,
     });
     return response.ok && data?.place ? toPlace(data.place) : null;
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }

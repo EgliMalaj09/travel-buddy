@@ -10,6 +10,7 @@ public static class ErrorHandling
             options.CustomizeProblemDetails = context =>
                 context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
         });
+        services.AddExceptionHandler<BadRequestHandler>();
         return services;
     }
 }

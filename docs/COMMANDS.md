@@ -100,7 +100,7 @@ Docker Desktop must be running.
 cd C:\dev\tb\backend
 dotnet test
 ```
-Success: `Passed!` with 0 failed (148 tests on 13 Nov 2026).
+Success: `Passed!` with 0 failed (150 tests on 13 Nov 2026).
 
 ```powershell
 cd C:\dev\tb\frontend

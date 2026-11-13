@@ -93,7 +93,7 @@ export function SpotPickerModal({
             disabled={saving || !moved || !center}
             onPress={() => void done()}
           />
-          <Button title="Cancel" kind="ghost" onPress={onClose} />
+          <Button title="Cancel" kind="ghost" disabled={saving} onPress={onClose} />
         </View>
       </SafeAreaView>
     </Modal>

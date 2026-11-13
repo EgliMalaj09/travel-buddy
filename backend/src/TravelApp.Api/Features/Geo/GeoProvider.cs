@@ -70,7 +70,9 @@ internal sealed class PhotonProvider(HttpClient http, IOptions<GeoOptions> optio
 
     private async Task<IReadOnlyList<PhotonFeature>> GetAsync(string path, string query, CancellationToken ct)
     {
-        var uri = new UriBuilder(new Uri(options.Value.PhotonUrl, path)) { Query = query }.Uri;
+        // A base address without the last "/" (a self-hosted Photon under /photon) must keep its path.
+        var root = options.Value.PhotonUrl.AbsoluteUri.TrimEnd('/') + "/";
+        var uri = new UriBuilder(new Uri(new Uri(root), path)) { Query = query }.Uri;
         try
         {
             using var response = await http.GetAsync(uri, ct);

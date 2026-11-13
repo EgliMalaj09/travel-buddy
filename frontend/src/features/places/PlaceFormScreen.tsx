@@ -1,8 +1,7 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState, type ComponentRef } from 'react';
 import { ScrollView, View } from 'react-native';
-
-import Ionicons from '@expo/vector-icons/Ionicons';
 
 import {
   ActionSheet,

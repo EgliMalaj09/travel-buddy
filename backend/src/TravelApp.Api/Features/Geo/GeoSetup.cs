@@ -19,6 +19,8 @@ public static class GeoSetup
         services.AddHttpClient<IGeoProvider, PhotonProvider>(http =>
             {
                 http.Timeout = TimeSpan.FromSeconds(8);
+                // Twelve results are a few kilobytes; never read a huge answer into memory.
+                http.MaxResponseContentBufferSize = 1024 * 1024;
                 // Photon's fair-use rules ask for an app name. No contact details (they would be personal data).
                 http.DefaultRequestHeaders.UserAgent.ParseAdd("TravelApp/1.0");
             })

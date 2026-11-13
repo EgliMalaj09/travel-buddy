@@ -46,12 +46,23 @@ public sealed class GeoSearchTests(ApiFactory factory) : IAsyncLifetime
     [InlineData("/geo/search?q=rome&lat=41.9")]
     [InlineData("/geo/search?q=rome&lat=91&lng=12")]
     [InlineData("/geo/reverse?lat=41.9&lng=181")]
+    [InlineData("/geo/reverse?lat=41,8902&lng=12.4922")]
     public async Task Bad_input_answers_400(string url)
     {
         var response = await Get(url);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public async Task A_value_that_cannot_be_read_is_not_repeated_in_the_answer()
+    {
+        var response = await Get("/geo/reverse?lat=41,8902&lng=12.4922");
+        var body = await response.Content.ReadAsStringAsync(Ct);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.DoesNotContain("41,8902", body, StringComparison.Ordinal);
     }
 
     [Fact]
