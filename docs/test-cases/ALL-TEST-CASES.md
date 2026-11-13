@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #32 (finish trip, KAN-47, with its review fixes).
+Last updated: 13 Nov 2026, after PRs #1 to #32 (finish trip, KAN-47, with its review fixes) and the Atlas (KAN-49/50/51).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -33,9 +33,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 19. [Map and exact places](#19-map-and-exact-places-kan-37)
 20. [Profile, my data and deleting the account](#20-profile-my-data-and-deleting-the-account-kan-21-kan-22)
 21. [Finish trip, recap and passport stamp](#21-finish-trip-recap-and-passport-stamp-kan-47)
-22. [API base and backend checks](#22-api-base-and-backend-checks-kan-58)
-23. [Privacy: no personal data in logs (GDPR)](#23-privacy-no-personal-data-in-logs-gdpr)
-24. [Known gaps](#24-known-gaps)
+22. [Atlas: globe, lifetime stats and passport](#22-atlas-globe-lifetime-stats-and-passport-kan-49-kan-50-kan-51)
+23. [API base and backend checks](#23-api-base-and-backend-checks-kan-58)
+24. [Privacy: no personal data in logs (GDPR)](#24-privacy-no-personal-data-in-logs-gdpr)
+25. [Known gaps](#25-known-gaps)
 
 ---
 
@@ -251,7 +252,7 @@ On a phone or the emulator ("Data: local"). Real phone on Wi-Fi: `frontend/.env.
 | HOME-04 | | Have a trip with today inside its dates | Big card shows "Day X of Y" and "Tonight in <city>" | |
 | HOME-05 | | Have 4+ upcoming trips | "Coming up" shows up to 3, then "See all trips" | |
 | HOME-06 | | Have trips with no dates | "Someday" shows how many; tap goes to Trips | |
-| HOME-07 | | Have past trips | "Your travels": past trips, countries and days away | |
+| HOME-07 | | Have finished trips *(updated 13 Nov, atlas)* | "Your travels": three tiles (countries, trips, days away) counting **finished** trips only, and **Open atlas** (opens the Atlas tab). Not shown before the first finished trip | |
 | HOME-08 | | Tap **+ Plan a new trip** at the bottom | The new-trip flow opens | |
 
 ## 11. Reminders and Today (KAN-32, KAN-45)
@@ -536,7 +537,7 @@ Create them with **+** on Home and dates in the past.
 | FIN-12 | | Finish a second trip to a country already stamped | Stamp screen: "<Country> was already in your passport"; no second stamp for it | |
 | FIN-13 | | Finished trip: open it, Plan tab | Card "Trip finished" with the suns, your note and **See recap** (opens the recap again). No packing card. Home no longer asks about it | |
 | FIN-14 | | Finished trip: ••• → **Open trip again** | Back to planned (Trips list by its dates), the "Trip finished" card goes. Finish again: your suns and note are already filled in | |
-| FIN-15 | | **Globe** tab | "Passport · <n> countries" and a stamp per country of your finished trips. Opening a trip again removes its country if no other finished trip went there | |
+| FIN-15 | | **Atlas** tab *(updated 13 Nov, atlas)* | A stamp per country of your finished trips in the Passport strip. Opening a trip again removes its country if no other finished trip went there. More Atlas cases in section 22 | |
 | FIN-16 | | Reminders on. Create a trip whose last day is today. Wait for tomorrow at your reminder time (19:00), or check Home's reminder list | Reminder "How was <trip>?". Tapping it opens the trip with the finish screen on top. Finishing it removes the reminder | |
 | FIN-17 | | Flight mode: finish a trip. Turn flight mode off; on a second phone with the same account open the trip | It shows as finished with the same suns and note | |
 | FIN-18 | | Scalar: **POST /sync/upload** with a trips PATCH `{"status": "finished"}` only (no `finished_at`, no `rating`) | That change is `rejected` with problems for `finished_at` and `rating` | |
@@ -548,7 +549,32 @@ Create them with **+** on Home and dates in the past.
 | FIN-24 | | Same as FIN-23 in **flight mode** | The same message at once; the trip keeps its dates and is still finished after you go back online | |
 | FIN-25 | | Finished trip: ••• → **Open trip again**, then **Edit trip** → remove the dates → **Save changes** | Saved: the trip is now under Someday | |
 
-## 22. API base and backend checks (KAN-58)
+## 22. Atlas: globe, lifetime stats and passport (KAN-49, KAN-50, KAN-51)
+
+No rebuild and no new library (the globe uses react-native-svg from Finish trip). Get the newest code, stop, start.
+"Visited" = a country with a stop of a **finished** trip (finish trips as in section 21). Use a mid-range phone for
+ATL-14 if you have one: that is the globe test (KAN-49).
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| ATL-01 | | New account (or no finished trips): open the **Atlas** tab | The tab is called **Atlas** (globe icon). Title "Atlas", "0 OF 195" on the right, the dotted globe turns in and keeps turning slowly. Tiles 0 countries, 0 trips, 0 days away. "Your first stamp is waiting / Finish a trip and its country lights up on the globe." | |
+| ATL-02 | | Finish a trip to Italy, open Atlas | Globe turns to Italy; Italy's dots are in the accent colour; legend "Been there". "1 OF 195", tiles 1 country, 1 trip, <days of the trip> days away (numbers count up). Passport strip with the Italy stamp, Countries list "IT Italy · 1 trip · last <MON YEAR>" | |
+| ATL-03 | | Drag the globe left and right, then up and down | It follows your finger both ways; after a quick flick it drifts a little and then turns slowly on its own again. Up/down stops before the globe turns upside down. The page does not scroll while you drag on the globe | |
+| ATL-04 | | Finish trips to 3 or more countries. Tap a stamp in the Passport strip, then a row in Countries | The globe turns to that country each time; the tapped row's code gets the accent colour | |
+| ATL-05 | | Finish a trip to Malta (or Andorra, Singapore, Monaco) | That tiny country still shows as one accent dot on the globe | |
+| ATL-06 | | Have a trip happening **now** (today between its first and last day) | A **yellow** dot on today's country; legend "Here now · <Country>". The globe turns there when it opens | |
+| ATL-07 | | Two finished trips whose dates overlap (e.g. 1–5 May and 4–8 May) | "days away" counts each day once (8, not 10) | |
+| ATL-08 | | Two finished trips to the same country | Countries list says "2 trips" and is first in the list; still one stamp | |
+| ATL-09 | | Finish a trip → recap → **Stamp my passport** → **See your atlas** | The Atlas tab opens and the globe turns to the new country. **Done** still goes back where you started | |
+| ATL-10 | | Leave the Atlas for Home and come back | The globe turns back to your latest country and turns slowly again. It does not turn while another tab is shown | |
+| ATL-11 | | Phone setting **Reduce motion** on, open Atlas, drag the globe | No turn-in, no slow turning, no drift: the globe sits still and only moves while your finger moves. Numbers show at once | |
+| ATL-12 | | Flight mode on, open Atlas | Everything shows the same (read from the phone); no error | |
+| ATL-13 | | Dark mode, and text size at the largest setting | Globe, tiles and lists readable; tile numbers shrink to fit, nothing cut off | |
+| ATL-14 | | **Globe test (KAN-49):** on a mid-range Android phone, drag the globe around for 20 seconds and let it turn | Smooth enough to feel fine (no long stutters). If it feels slow, say "ATL-14 fail" and how; the fix is a lighter dot grid or the 3D version | |
+| ATL-15 | | Screen reader on (TalkBack / VoiceOver), touch the globe, a stamp, a country row | Globe: "Globe. Visited: Italy, …"; stamp: "<Country>, <MON YEAR>. Show on the globe"; row: "<Country>, 1 trip. Show on the globe" | |
+| ATL-16 | | Design kit screen (if you open it) | A small globe (Italy, Austria, Greece and Portugal coloured, Portugal yellow) and three compact stat tiles | |
+
+## 23. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
@@ -558,7 +584,7 @@ Create them with **+** on Home and dates in the past.
 | API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (161 on 13 Nov 2026, with finish trip) | ✅ |
 | API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (283 on 13 Nov 2026, with finish trip) | |
 
-## 23. Privacy: no personal data in logs (GDPR)
+## 24. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
@@ -571,8 +597,9 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 | GDPR-05 | | Scalar: **GET /geo/reverse** with `lat=41,8902` (comma) and `lng=12.4922`. Read the API window | 400 "The request could not be read."; the answer and the API window do not show `41,8902` (no "unhandled exception" lines for a bad request) | |
 | GDPR-06 | | Change settings, Download my data, delete and restore an account. Read the API window | Only ids, status codes and timings: no email, name, settings values or export content | |
 | GDPR-07 | | Finish a trip with a note, open the recap and stamp. Read the API window and the Expo / Metro window | No trip name, note, rating or countries printed | |
+| GDPR-08 | | Open the Atlas, tap stamps and countries, drag the globe. Read the Expo / Metro window and the API window | No countries, trip names or positions printed; the API gets no new calls from the Atlas | |
 
-## 24. Known gaps
+## 25. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.

@@ -2,18 +2,21 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
-import { AppText, Button, Card, EmptyState, Screen, SyncIndicator, TripStub } from '@/components';
+import {
+  AppText,
+  Button,
+  Card,
+  EmptyState,
+  Screen,
+  StatTile,
+  SyncIndicator,
+  TripStub,
+} from '@/components';
 import { dataMode, repositories, useAsync, useDataVersion, type TripStop } from '@/data';
 import { formatDateRange, todayIso } from '@/lib/dates';
+import { lifetimeStats } from '@/lib/atlas';
 import { finishPrompt } from '@/lib/finishTrip';
-import {
-  countdown,
-  formatFlightTime,
-  greeting,
-  homeFocus,
-  nextFlight,
-  travelStats,
-} from '@/lib/home';
+import { countdown, formatFlightTime, greeting, homeFocus, nextFlight } from '@/lib/home';
 import { formatReminderTime, planReminders, type PlannedReminder } from '@/lib/reminders';
 import { todayPlan, type TodayItem } from '@/lib/today';
 import { flightTitle } from '@/lib/tripDraft';
@@ -102,7 +105,7 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
     (t) => t.id !== focus?.trip.id,
   );
   const someday = groups.find((g) => g.group === 'someday')?.trips ?? [];
-  const stats = travelStats(trips, stopsByTrip, today);
+  const stats = lifetimeStats(trips, stopsByTrip);
   const openTrip = (id: string) => router.push(`/trip/${id}`);
   // Finish trip (KAN-47): the day after a trip, Home asks how it was.
   const toFinish = finishPrompt(trips, today);
@@ -207,17 +210,28 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
 
       {stats.trips > 0 ? (
         <View style={{ gap: space.sm }}>
-          <SectionTitle title="Your travels" />
-          <Card>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-              <Stat value={stats.trips} label={stats.trips === 1 ? 'trip' : 'trips'} />
-              <Stat
-                value={stats.countries}
-                label={stats.countries === 1 ? 'country' : 'countries'}
-              />
-              <Stat value={stats.days} label={stats.days === 1 ? 'day away' : 'days away'} />
-            </View>
-          </Card>
+          <SectionTitle
+            title="Your travels"
+            action="Open atlas"
+            onAction={() => router.push('/globe')}
+          />
+          <View style={{ flexDirection: 'row', gap: space.sm }}>
+            <StatTile
+              compact
+              value={String(stats.countries)}
+              label={stats.countries === 1 ? 'country' : 'countries'}
+            />
+            <StatTile
+              compact
+              value={String(stats.trips)}
+              label={stats.trips === 1 ? 'trip' : 'trips'}
+            />
+            <StatTile
+              compact
+              value={String(stats.days)}
+              label={stats.days === 1 ? 'day away' : 'days away'}
+            />
+          </View>
         </View>
       ) : null}
 
@@ -408,18 +422,6 @@ function SectionTitle({
           </AppText>
         </Pressable>
       ) : null}
-    </View>
-  );
-}
-
-function Stat({ value, label }: { value: number; label: string }) {
-  const { colors } = useTheme();
-  return (
-    <View style={{ alignItems: 'center' }}>
-      <AppText variant="heading" color={colors.accent}>
-        {value}
-      </AppText>
-      <AppText variant="caption">{label}</AppText>
     </View>
   );
 }

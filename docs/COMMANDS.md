@@ -4,12 +4,12 @@
 its own section at the top of "Per feature". Copy one block at a time; each says what success looks like.
 A copy is kept at `/mnt/project-files/COMMANDS.md` in the project files.
 
-Last updated: 13 Nov 2026 (finish trip, recap and passport stamp).
+Last updated: 13 Nov 2026 (Atlas: globe, lifetime stats and passport).
 
 ## Catch up now (do this once, today)
 
 This brings your PC up to date with everything merged so far (offline trips, reminders, places, checklist,
-settings, trip tabs, packing list, expenses, photos and notes, the map, profile and account deletion, finish trip).
+settings, trip tabs, packing list, expenses, photos and notes, the map, profile and account deletion, finish trip, the Atlas).
 
 **1. Get the newest code**
 ```powershell
@@ -106,11 +106,40 @@ Success: `Passed!` with 0 failed (158 tests on 13 Nov 2026).
 cd C:\dev\tb\frontend
 npm run check
 ```
-Success: `Tests: … passed`, 0 failed (268 on 13 Nov 2026).
+Success: `Tests: … passed`, 0 failed (293 on 13 Nov 2026).
 
 ## Per feature (newest first)
 
 After each feature: **Get the newest code**, **Stop**, **Start** (above), plus what the feature says here.
+
+### Atlas: globe, lifetime stats and passport (KAN-49, KAN-50, KAN-51), 13 Nov 2026
+App only. No new library, so **no rebuild**. No database change, no new Docker container, key or account.
+
+**1. Get the code**
+```powershell
+cd C:\dev\tb
+git checkout main
+git pull
+```
+Success: the last lines list files under `frontend/src/features/atlas`, no `error`.
+
+**2. Stop, then start (normal start, no -Rebuild)**
+```powershell
+cd C:\dev\tb
+scripts\windows\stop.cmd
+scripts\windows\start.cmd
+```
+Success: no red `STOPPED` line; the app opens on the emulator. The fourth tab is now called **Atlas**.
+
+**3. (Optional) Run the automatic tests for this feature**
+```powershell
+cd C:\dev\tb\frontend
+npx jest src/lib/__tests__/atlas.test.ts
+```
+Success: `Tests: … passed`, no `failed`.
+
+Then test with section 22 (ATL-01 to ATL-16) and GDPR-08 in `docs/test-cases/ALL-TEST-CASES.md`.
+ATL-14 is the globe test: try it on a mid-range phone if you have one.
 
 ### Finish trip, recap and passport stamp (KAN-47), 13 Nov 2026
 A new phone library (react-native-svg, for the stamps and later the globe), so the app must be **rebuilt once**.
