@@ -1,3 +1,4 @@
+using TravelApp.Api.Features.Account;
 using TravelApp.Api.Features.Sync;
 using TravelApp.Api.Features.Trips;
 
@@ -13,6 +14,7 @@ public static class ChecklistSetup
     public static IServiceCollection AddChecklistFeature(this IServiceCollection services)
     {
         services.AddScoped<ISyncTable, ChecklistSyncTable>();
+        services.AddScoped<IUserData, ChecklistUserData>();
         services.AddScoped<ITripDeleteHook, ChecklistTripDeleteHook>();
         return services;
     }

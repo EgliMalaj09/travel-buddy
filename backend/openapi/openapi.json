@@ -845,7 +845,7 @@
         "tags": [
           "Me"
         ],
-        "summary": "Profile setup: first name, countries, home currency (and consents for Google/Apple users)",
+        "summary": "Profile setup: first name, countries, home currency (and consents for Google/Apple users). Also used to edit the profile",
         "operationId": "SaveProfile",
         "requestBody": {
           "content": {
@@ -884,6 +884,174 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AuthUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/me/delete": {
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Delete my account: body {confirm: \"DELETE\"}. Ends every session now; everything is erased after 30 days unless restored",
+        "operationId": "DeleteAccount",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/me/restore": {
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Undo \"Delete my account\" during the 30 days (log in first)",
+        "operationId": "RestoreAccount",
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthUserResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/me/export": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Download my data: everything the server keeps about you, as JSON (GDPR right of access). 5 per hour",
+        "operationId": "ExportMyData",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountExportResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -1920,6 +2088,48 @@
   },
   "components": {
     "schemas": {
+      "AccountDeletionDto": {
+        "required": [
+          "requestedAt",
+          "deleteAfter"
+        ],
+        "type": "object",
+        "properties": {
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleteAfter": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AccountExportResponse": {
+        "required": [
+          "exportedAt",
+          "formatVersion",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "exportedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "formatVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
       "AppInfoResponse": {
         "required": [
           "name",
@@ -1988,6 +2198,16 @@
                 "$ref": "#/components/schemas/ConsentsDto"
               }
             ]
+          },
+          "deletion": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AccountDeletionDto"
+              }
+            ]
           }
         }
       },
@@ -2007,6 +2227,18 @@
           },
           "marketingConsent": {
             "type": "boolean"
+          }
+        }
+      },
+      "DeleteAccountRequest": {
+        "required": [
+          "confirm"
+        ],
+        "type": "object",
+        "properties": {
+          "confirm": {
+            "pattern": "^DELETE$",
+            "type": "string"
           }
         }
       },

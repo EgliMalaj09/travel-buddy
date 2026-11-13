@@ -95,18 +95,30 @@ public sealed record ProfileRequest(
 
 public sealed record ProfileDto(string FirstName, string PassportCountry, string ResidenceCountry, string HomeCurrency);
 
+/// <summary>Set while the account waits to be erased (KAN-22). The app then shows only "Restore" or "Log out".</summary>
+/// <param name="RequestedAt">When the user asked to delete the account.</param>
+/// <param name="DeleteAfter">From this moment everything is erased for good.</param>
+public sealed record AccountDeletionDto(DateTimeOffset RequestedAt, DateTimeOffset DeleteAfter);
+
 /// <summary>The logged-in user as the app sees it.</summary>
 /// <param name="AuthProviders">"email", "google", "apple".</param>
 /// <param name="Profile">Empty until profile setup is done.</param>
 /// <param name="SuggestedFirstName">First name from Google/Apple, the default in profile setup.</param>
 /// <param name="Consents">Empty for Google/Apple users until profile setup.</param>
+/// <param name="Deletion">Set when the account is waiting to be erased; empty for a normal account.</param>
 public sealed record AuthUserResponse(
     Guid Id,
     string Email,
     IReadOnlyList<string> AuthProviders,
     ProfileDto? Profile,
     string? SuggestedFirstName,
-    ConsentsDto? Consents);
+    ConsentsDto? Consents,
+    AccountDeletionDto? Deletion = null);
+
+/// <summary>"Delete my account". The user must type the word DELETE, so a stray tap or a replayed call cannot do it.</summary>
+/// <param name="Confirm">Exactly "DELETE".</param>
+public sealed record DeleteAccountRequest(
+    [property: Required, RegularExpression("^DELETE$", ErrorMessage = "Type DELETE to confirm.")] string Confirm);
 
 /// <param name="AccessToken">JWT (ES256), valid 15 minutes. Works for this API and PowerSync.</param>
 /// <param name="AccessTokenExpiresAt">When the access token stops working.</param>
@@ -130,6 +142,12 @@ public static class AuthErrorCodes
     public const string PasswordLeaked = "password_leaked";
     public const string InvalidToken = "invalid_token";
     public const string ConsentRequired = "consent_required";
+
+    /// <summary>The account is waiting to be erased: the phone removes this account's data and shows the login.</summary>
+    public const string AccountDeleted = "account_deleted";
+
+    /// <summary>Restore asked for an account that is not waiting to be erased.</summary>
+    public const string NotDeleted = "not_deleted";
 }
 
 /// <summary>A public signing key (JSON Web Key, EC P-256).</summary>

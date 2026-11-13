@@ -45,6 +45,12 @@ public sealed class AuthOptions
 
     /// <summary>Check new passwords against Pwned Passwords. Off only in tests.</summary>
     public bool CheckLeakedPasswords { get; set; } = true;
+
+    /// <summary>
+    /// Days between "Delete my account" and erasing everything for good (owner's choice, 13 Nov 2026).
+    /// During this time a login offers "Restore". 0 erases at the next run of the purge job.
+    /// </summary>
+    public int DeletionGraceDays { get; set; } = 30;
 }
 
 /// <summary>Code rules (A5) and password lockout (A8).</summary>

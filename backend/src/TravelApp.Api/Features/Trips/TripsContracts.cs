@@ -60,6 +60,9 @@ public interface ITripWriteRules
 
     /// <summary>A trip needs at least one stop; checked when a stop is deleted.</summary>
     Task<int> CountStopsAsync(Guid tripId, CancellationToken cancellationToken);
+
+    /// <summary>Ids of every trip the user owns, deleted ones too (data export and account erase, KAN-22).</summary>
+    Task<IReadOnlyList<Guid>> TripIdsOfOwnerAsync(Guid userId, CancellationToken cancellationToken);
 }
 
 /// <summary>

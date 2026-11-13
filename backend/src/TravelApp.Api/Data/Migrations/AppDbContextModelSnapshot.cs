@@ -104,6 +104,100 @@ namespace TravelApp.Api.Data.Migrations
                     b.ToTable("user_tokens", (string)null);
                 });
 
+            modelBuilder.Entity("TravelApp.Api.Features.Account.UserSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DefaultPlaceScope")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("default_place_scope");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("DistanceUnit")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("distance_unit");
+
+                    b.Property<string>("QuietHoursEnd")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasColumnName("quiet_hours_end");
+
+                    b.Property<string>("QuietHoursStart")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasColumnName("quiet_hours_start");
+
+                    b.Property<bool>("RemindAnniversary")
+                        .HasColumnType("boolean")
+                        .HasColumnName("remind_anniversary");
+
+                    b.Property<bool>("RemindChecklist")
+                        .HasColumnType("boolean")
+                        .HasColumnName("remind_checklist");
+
+                    b.Property<bool>("RemindFlight")
+                        .HasColumnType("boolean")
+                        .HasColumnName("remind_flight");
+
+                    b.Property<bool>("RemindPackTonight")
+                        .HasColumnType("boolean")
+                        .HasColumnName("remind_pack_tonight");
+
+                    b.Property<string>("ReminderTime")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasColumnName("reminder_time");
+
+                    b.Property<bool>("RemindersEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("reminders_enabled");
+
+                    b.Property<string>("TemperatureUnit")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("temperature_unit");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_settings");
+
+                    b.ToTable("user_settings", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_user_settings_default_place_scope", "default_place_scope IN ('shared', 'personal')");
+
+                            t.HasCheckConstraint("ck_user_settings_distance_unit", "distance_unit IN ('km', 'mi')");
+
+                            t.HasCheckConstraint("ck_user_settings_temperature_unit", "temperature_unit IN ('C', 'F')");
+
+                            t.HasCheckConstraint("ck_user_settings_times", "reminder_time ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$' AND quiet_hours_start ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$' AND quiet_hours_end ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'");
+                        });
+                });
+
             modelBuilder.Entity("TravelApp.Api.Features.Auth.AuthCode", b =>
                 {
                     b.Property<Guid>("Id")
@@ -293,9 +387,17 @@ namespace TravelApp.Api.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<DateTimeOffset?>("DeleteAfter")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delete_after");
+
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
+
+                    b.Property<DateTimeOffset?>("DeletionRequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletion_requested_at");
 
                     b.Property<string>("DisplayName")
                         .HasMaxLength(60)
@@ -446,6 +548,10 @@ namespace TravelApp.Api.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_users");
+
+                    b.HasIndex("DeleteAfter")
+                        .HasDatabaseName("ix_users_delete_after")
+                        .HasFilter("delete_after IS NOT NULL");
 
                     b.HasIndex("NormalizedEmail")
                         .IsUnique()
@@ -1445,6 +1551,16 @@ namespace TravelApp.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_tokens_users_user_id");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Features.Account.UserSettings", b =>
+                {
+                    b.HasOne("TravelApp.Api.Features.Auth.User", null)
+                        .WithOne()
+                        .HasForeignKey("TravelApp.Api.Features.Account.UserSettings", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_settings_asp_net_users_id");
                 });
 
             modelBuilder.Entity("TravelApp.Api.Features.Auth.RefreshToken", b =>

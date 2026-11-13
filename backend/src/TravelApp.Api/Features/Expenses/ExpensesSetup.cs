@@ -1,3 +1,4 @@
+using TravelApp.Api.Features.Account;
 using TravelApp.Api.Features.Sync;
 using TravelApp.Api.Features.Trips;
 
@@ -14,6 +15,7 @@ public static class ExpensesSetup
         services.AddScoped<ExpensesService>();
         services.AddScoped<ITripDeleteHook>(sp => sp.GetRequiredService<ExpensesService>());
         services.AddScoped<ISyncTable, ExpensesSyncTable>();
+        services.AddScoped<IUserData, ExpensesUserData>();
         return services;
     }
 }

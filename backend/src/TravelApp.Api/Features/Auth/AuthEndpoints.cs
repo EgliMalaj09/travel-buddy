@@ -50,7 +50,13 @@ public static class AuthEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized);
         me.MapGet("/", GetMe).WithName("GetMe").WithSummary("The logged-in user");
         me.MapPost("/profile", SaveProfile).WithName("SaveProfile")
-            .WithSummary("Profile setup: first name, countries, home currency (and consents for Google/Apple users)");
+            .WithSummary("Profile setup: first name, countries, home currency (and consents for Google/Apple users). Also used to edit the profile");
+        me.MapPost("/delete", RequestDeletion).WithName("DeleteAccount")
+            .WithSummary("Delete my account: body {confirm: \"DELETE\"}. Ends every session now; everything is erased after 30 days unless restored");
+        me.MapPost("/restore", Restore).WithName("RestoreAccount")
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status410Gone)
+            .WithSummary("Undo \"Delete my account\" during the 30 days (log in first)");
 
         return app;
     }
@@ -80,7 +86,12 @@ public static class AuthEndpoints
         NoContentOr(await service.ResetPasswordAsync(request, ct));
 
     internal static async Task<Results<Ok<SessionResponse>, ProblemHttpResult>> Refresh(RefreshRequest request, SessionService sessions, CancellationToken ct) =>
-        await sessions.RefreshAsync(request.RefreshToken, ct) is { } session ? TypedResults.Ok(session) : Problem(AuthService.SessionExpired);
+        await sessions.RefreshAsync(request.RefreshToken, ct) switch
+        {
+            { Session: { } session } => TypedResults.Ok(session),
+            { AccountDeleted: true } => Problem(AuthService.AccountDeleted),
+            _ => Problem(AuthService.SessionExpired),
+        };
 
     internal static async Task<NoContent> Logout(LogoutRequest request, SessionService sessions, CancellationToken ct)
     {
@@ -93,6 +104,12 @@ public static class AuthEndpoints
 
     internal static async Task<Results<Ok<AuthUserResponse>, ProblemHttpResult>> SaveProfile(ProfileRequest request, ClaimsPrincipal user, AuthService service, CancellationToken ct) =>
         OkOr(await service.SaveProfileAsync(user.UserId(), request, ct));
+
+    internal static async Task<Results<Ok<AuthUserResponse>, ProblemHttpResult>> RequestDeletion(DeleteAccountRequest request, ClaimsPrincipal user, AccountDeletionService service, CancellationToken ct) =>
+        OkOr(await service.RequestAsync(user.UserId(), ct));
+
+    internal static async Task<Results<Ok<AuthUserResponse>, ProblemHttpResult>> Restore(ClaimsPrincipal user, AccountDeletionService service, CancellationToken ct) =>
+        OkOr(await service.RestoreAsync(user.UserId(), ct));
 
     private static Results<Ok<T>, ProblemHttpResult> OkOr<T>(AuthResult<T> result) =>
         result.Error is { } error ? Problem(error) : TypedResults.Ok(result.Value!);

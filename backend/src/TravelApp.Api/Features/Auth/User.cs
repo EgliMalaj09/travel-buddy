@@ -56,6 +56,12 @@ public sealed class User : IdentityUser<Guid>
     /// <summary>server. "active" or "deletion_requested".</summary>
     public string Status { get; set; } = UserStatus.Active;
 
+    /// <summary>server. When the user asked to delete the account (KAN-22). Empty when active.</summary>
+    public DateTimeOffset? DeletionRequestedAt { get; set; }
+
+    /// <summary>server. From this moment the account and all its data are erased for good (30 days after the request).</summary>
+    public DateTimeOffset? DeleteAfter { get; set; }
+
     // Sync fields (the User row syncs like every other record).
     public DateTimeOffset CreatedAt { get; set; }
 

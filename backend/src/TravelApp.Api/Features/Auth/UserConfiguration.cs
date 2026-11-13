@@ -35,6 +35,8 @@ internal sealed class UserConfiguration :
         // Same email = one account (L3). Identity's default email index is not unique.
         builder.HasIndex(u => u.NormalizedEmail).HasDatabaseName("ix_users_normalized_email").IsUnique();
         builder.HasIndex(u => u.UpdatedAt);
+        // The purge job looks for accounts whose 30 days are over.
+        builder.HasIndex(u => u.DeleteAfter).HasFilter("delete_after IS NOT NULL");
     }
 
     public void Configure(EntityTypeBuilder<IdentityUserLogin<Guid>> builder) => builder.ToTable("user_logins");

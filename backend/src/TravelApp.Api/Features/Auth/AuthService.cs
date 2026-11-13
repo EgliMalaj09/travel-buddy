@@ -43,6 +43,7 @@ public sealed class AuthService(
     internal static readonly AuthFailure ConsentRequired = new(400, AuthErrorCodes.ConsentRequired, "Confirm you are 16 or older and accept the terms and privacy.");
     internal static readonly AuthFailure InvalidToken = new(401, AuthErrorCodes.InvalidToken, "The sign-in could not be checked. Try again.");
     internal static readonly AuthFailure SessionExpired = new(401, AuthErrorCodes.SessionExpired, "Please log in again.");
+    internal static readonly AuthFailure AccountDeleted = new(401, AuthErrorCodes.AccountDeleted, "This account is waiting to be deleted. Log in to restore it.");
 
     public async Task<AuthResult<bool>> SignUpAsync(SignUpRequest request, CancellationToken ct)
     {

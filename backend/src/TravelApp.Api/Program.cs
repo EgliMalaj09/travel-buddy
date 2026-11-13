@@ -1,5 +1,6 @@
 using Scalar.AspNetCore;
 using TravelApp.Api.Data;
+using TravelApp.Api.Features.Account;
 using TravelApp.Api.Features.AppInfo;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Checklist;
@@ -30,6 +31,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddTravelAppDatabase(builder.Configuration);
 builder.Services.AddHealthFeature();
 builder.Services.AddAuthFeature(builder.Configuration);
+builder.Services.AddAccountFeature(builder.Configuration);
 builder.Services.AddTripsFeature();
 builder.Services.AddPlacesFeature();
 builder.Services.AddChecklistFeature();
@@ -67,6 +69,7 @@ if (app.Environment.IsDevelopment())
 app.MapHealthEndpoints();
 app.MapAppInfoEndpoints();
 app.MapAuthEndpoints();
+app.MapAccountEndpoints();
 app.MapTripsEndpoints();
 app.MapPlacesEndpoints();
 app.MapExpensesEndpoints();
