@@ -3,15 +3,15 @@
 Part 1. Confluence page 98575. Jira: epic KAN-59, KAN-60 (FE, phone builds), KAN-61 (BE, beta server),
 KAN-62 (AI, legal texts). The back office (KAN-55) was built first, see [16-back-office.md](16-back-office.md).
 
-**Status:** KAN-61 code written 13 Nov 2026. **Nothing is created in Azure and nothing costs money** until the owner
-answers the hosting card and runs the steps in `docs/COMMANDS.md`, "Beta server (KAN-61)". The Confluence
+**Status:** KAN-61 code written 13 Nov 2026; hosting (S-a) AGREED by the owner the same day. **Nothing is created
+in Azure and nothing costs money** until the owner runs the steps in `docs/COMMANDS.md`, "Beta server (KAN-61)". The Confluence
 re-confirm list could not be read from the cloud chat; everything below is PROPOSED unless it says AGREED.
 
 ## KAN-61: beta server
 
 | # | Question | Choice | Status |
 | --- | --- | --- | --- |
-| S-a | Where does the beta run? | **Azure free account, West Europe (Netherlands)**: €0 for 12 months, then about €15-25 a month (mostly the database). Hetzner (€4-5 a month from day one, you look after the server) and "stay local" were offered | Waiting for the owner's decision card (recommended option built) |
+| S-a | Where does the beta run? | **Azure free account, West Europe (Netherlands)**: €0 for 12 months, then about €15-25 a month (mostly the database). Hetzner (€4-5 a month from day one, you look after the server) and "stay local" were offered | **AGREED** (owner, decision card, 13 Nov 2026) |
 | S-b | What runs where? | API: **Azure Container Apps**, scales to zero, at most 1 copy, 0.25 CPU / 0.5 GB. Database: **Azure Database for PostgreSQL** B1ms, 32 GB, PostgreSQL 17, 7 days of backups. Photos: **Azure Storage**, private container `media`. Back office: **Static Web Apps Free**. Sync: **PowerSync Cloud Free, EU**. Logs: Log Analytics, 30 days, capped at 0.1 GB a day. All in one resource group, one EU region | PROPOSED (built) |
 | S-c | How are code emails sent? | **SMTP** with .NET's own mail client, settings `Email:Host/Port/UserName/Password/From`. Works with Azure Communication Services (pay per email, a few cents a month at beta size) or **Brevo free** (300 emails a day, EU company). The provider is picked when setting up; no code change to switch. The code is in the body, not the subject (not shown on a locked phone). The address, the code and the server's reply are never logged; a failed send logs only the purpose and the SMTP status number | PROPOSED (built). Provider: owner picks at setup (Brevo free recommended for €0) |
 | S-d | Where do secrets live? | **Container Apps secrets** (encrypted by Azure), passed in once when running the Bicep file. Not in the repository, not in GitHub. Azure Key Vault (in the old switch list) left out for the beta: one more service and login for no real gain at this size; it can be added later | PROPOSED |
@@ -63,13 +63,13 @@ or company, postal address, contact email, country for the terms, supervisory au
 
 ## KAN-60: phone builds
 
-Code written 13 Nov 2026 on the **free route** recommended on the phone card (card still open). Nothing is uploaded
+Code written 13 Nov 2026 on the **free route**, AGREED by the owner on the phone card the same day. Nothing is uploaded
 to a store. **Store upload rule:** the final app name and bundle id (placeholder `app.travelapp.mobile`) are decided
 before any TestFlight, Google Play or `production` build.
 
 | # | Question | Choice | Status |
 | --- | --- | --- | --- |
-| P-a | How do testers get the app? | Android: an APK link from **EAS Build's free plan** (profile `beta`, internal distribution). iPhone: the owner's own phone through **Xcode with a free Apple ID** (`npx expo run:ios --device --configuration Release`), renewed every 7 days. Paid options (Apple $99 a year for TestFlight, Google $25 once) offered on the card | Waiting for the owner's card (recommended option built) |
+| P-a | How do testers get the app? | Android: an APK link from **EAS Build's free plan** (profile `beta`, internal distribution). iPhone: the owner's own phone through **Xcode with a free Apple ID** (`npx expo run:ios --device --configuration Release`), renewed every 7 days. Paid options (Apple $99 a year for TestFlight, Google $25 once) offered on the card | **AGREED** (owner, decision card, 13 Nov 2026) |
 | P-b | Where do the beta addresses come from? | EAS environment `preview` holds `EXPO_PUBLIC_API_URL` and `EXPO_PUBLIC_POWERSYNC_URL` (public addresses, not secrets), set once with `eas env:create`. The `beta` profile fixes `AUTH_MODE=api` and `DATA_MODE=local` | PROPOSED (built) |
 | P-c | Mock mode out of release builds | Release builds (`__DEV__` false) **always** use the real login and never sample trips, whatever the settings say (`pickAuthMode`, `pickDataMode`, tested). Development keeps mock mode | PROPOSED (built) |
 | P-d | Safety at build time | `app.config.js` stops a `beta` or `production` build when the API or PowerSync address is missing or not `https://`, or a mock mode is set | PROPOSED (built) |
