@@ -38,7 +38,7 @@ Suggested order. The owner works on the frontend with **mock data** while the ba
 | [ ] | 16 | FE - Globe test (mid-range phone) | KAN-49 | KAN-48 (G1–G5) | 557090 |
 | [ ] | 17 | FE - Globe and lifetime stats | KAN-50 | KAN-48 | 557090 |
 | [ ] | 18 | Template - Passport stamp | KAN-51 | KAN-48 | 557090 |
-| [ ] | 19 | FE - Profile, settings and account deletion (**Settings screen built 12 Nov 2026, PR from `claude/project-thread-vvn8j6`**: reminder switches, reminder time, quiet hours, this phone, log out. Settings kept on the phone per account until the server table exists (KAN-22). Still to do: edit profile, delete account (needs KAN-22), units; re-confirm P1–P5) | KAN-21 | KAN-20 (P1–P5) | 426017 |
+| [ ] | 19 | FE - Profile, settings and account deletion (**Settings screen built 12 Nov 2026; the rest built 13 Nov 2026**: settings saved to the account and synced (PowerSync), Edit profile, Download my data (expo-sharing, needs `-Rebuild`), Delete account (type DELETE, 30 days to restore), Restore screen, temperature unit. Choices: `../decisions/features/10-profile-account.md`) | KAN-21 | KAN-20 (P1–P5) | 426017 |
 | [ ] | 20 | FE - Ship Part 1 builds (EAS, TestFlight, Google Play internal, test checklist). ⚠️ **First decide the final app name and bundle id** (placeholder `app.travelapp.mobile`, cannot change after the first upload) | KAN-60 | KAN-59 (SH1–SH4) | 98575 |
 
 Part 1 is done when a real trip is prepared, travelled offline and finished on both iOS and Android without losing data.

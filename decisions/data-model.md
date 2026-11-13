@@ -97,9 +97,13 @@ erDiagram
 | `marketingConsent`, `marketingConsentAt` | boolean, timestamp | no | Off by default |
 | `onboardingCompletedAt` | timestamp | no | |
 | `status` | enum: active, deletion_requested | yes | server |
+| `deletionRequestedAt`, `deleteAfter` | timestamp | no | server. Set by "Delete my account"; everything is erased at `deleteAfter` (30 days later) unless restored (KAN-22, agreed 13 Nov 2026) |
 | sync fields | | yes | |
 
 ## 4. UserSettings (AGREED, synced, one per account)
+
+*Built 13 Nov 2026 (KAN-22):* table `user_settings`, the row id is the user id. Times are local "HH:MM" text. Synced
+through `POST /sync/upload` (type `user_settings`) and the PowerSync stream `my_settings`. See `features/10-profile-account.md`.
 
 | Field | Default |
 | --- | --- |

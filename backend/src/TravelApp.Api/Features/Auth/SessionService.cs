@@ -54,8 +54,10 @@ public sealed partial class SessionService(
             return new(null);
         }
 
-        // Every session ended when deletion was asked; tell the phone why, so it removes this account's data.
-        if (await db.Set<User>().AnyAsync(u => u.Id == current.UserId && u.Status == UserStatus.DeletionRequested, ct))
+        // Every session ended when deletion was asked; tell those phones why, so they remove this account's data.
+        // A session started after that (logging in to restore) keeps working.
+        if (await db.Set<User>().AnyAsync(u => u.Id == current.UserId && u.Status == UserStatus.DeletionRequested
+                && u.DeletionRequestedAt != null && current.CreatedAt <= u.DeletionRequestedAt, ct))
         {
             return new(null, AccountDeleted: true);
         }

@@ -138,7 +138,7 @@ One API project organised by feature (`src/TravelApp.Api/Features/<Feature>/`) p
 | Area | Endpoints |
 | --- | --- |
 | Auth (KAN-12) | `POST /auth/signup`, `/auth/signup/verify`, `/auth/login`, `/auth/login/verify`, `/auth/google`, `/auth/apple`, `/auth/code/resend`, `/auth/password/forgot`, `/auth/password/reset`, `/auth/refresh`, `/auth/logout`; `GET /.well-known/jwks.json` |
-| Me | `GET /me`, `POST /me/profile` (KAN-12); later `PATCH /me`, `POST /me/delete`, `POST /me/restore`, `POST /me/data-request` |
+| Me | `GET /me`, `POST /me/profile` (KAN-12, also edits the profile); `POST /me/delete`, `POST /me/restore`, `GET /me/export` (KAN-22). Settings sync as table `user_settings` |
 | Sync (KAN-16) | `POST /sync/upload`: the phone's waiting changes `{ op: PUT/PATCH/DELETE, type: table, id, data: { snake_case columns } }`, one result per change (`ok` or `rejected` + reasons); PowerSync Sync Streams for reads |
 | Trips | `GET /trips?limit=50&after=<cursor>`: your trips with stops and flights, one page at a time (default 50, max 100; follow `nextCursor` until it is empty). The app reads here until PowerSync is on the phone |
 | Rules and data | `GET /checklist-rules?version=`, `GET /weather/days?lat=&lng=&from=&to=` (KAN-29: max 31 days, forecast up to 15 days ahead then "typical" weather, cached in `weather_cache`), FX rates for trip dates |

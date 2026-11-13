@@ -271,6 +271,9 @@ public sealed class AccountTests(ApiFactory factory)
         Assert.Equal("session", login.Kind);
         Assert.NotNull(login.Session!.User.Deletion);
         phone.Session = login.Session;
+        // This new session can be refreshed (the app may stay on the Restore screen a while), and still says "waiting".
+        phone.Session = await AuthTestClient.Read<SessionResponse>(await phone.Client.Post("/auth/refresh", new RefreshRequest(phone.Session.RefreshToken)));
+        Assert.NotNull(phone.Session.User.Deletion);
 
         var restored = await AuthTestClient.Read<AuthUserResponse>(await phone.Send(HttpMethod.Post, "/me/restore"));
         Assert.Null(restored.Deletion);

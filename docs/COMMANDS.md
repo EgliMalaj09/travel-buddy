@@ -4,12 +4,12 @@
 its own section at the top of "Per feature". Copy one block at a time; each says what success looks like.
 A copy is kept at `/mnt/project-files/COMMANDS.md` in the project files.
 
-Last updated: 13 Nov 2026 (map and exact places).
+Last updated: 13 Nov 2026 (profile, my data and account deletion).
 
 ## Catch up now (do this once, today)
 
 This brings your PC up to date with everything merged so far (offline trips, reminders, places, checklist,
-settings, trip tabs, packing list, expenses, photos and notes, the map).
+settings, trip tabs, packing list, expenses, photos and notes, the map, profile and account deletion).
 
 **1. Get the newest code**
 ```powershell
@@ -46,15 +46,15 @@ scripts\windows\stop.cmd
 ```
 Success: ends without a red line (fine if nothing was running).
 
-**5. Start everything and rebuild the app once** (offline trips, reminders, photos and the map added phone libraries)
+**5. Start everything and rebuild the app once** (offline trips, reminders, photos, the map and Download my data added phone libraries)
 ```powershell
 cd C:\dev\tb
 scripts\windows\start.cmd -Rebuild
 ```
-Success: no red `STOPPED` line. It updates the database (all new tables: places, checklist, weather, expenses, media),
+Success: no red `STOPPED` line. It updates the database (all new tables: places, checklist, weather, expenses, media, user settings),
 starts the photo storage (Azurite), the API, the emulator, and builds and opens the app. The rebuild takes several minutes the first time.
 
-**6. Restart the sync service once** (so places, checklist, expenses and photos come back from the server)
+**6. Restart the sync service once** (so places, checklist, expenses, photos and settings come back from the server)
 
 In a **second** PowerShell window:
 ```powershell
@@ -100,17 +100,68 @@ Docker Desktop must be running.
 cd C:\dev\tb\backend
 dotnet test
 ```
-Success: `Passed!` with 0 failed (150 tests on 13 Nov 2026).
+Success: `Passed!` with 0 failed (158 tests on 13 Nov 2026).
 
 ```powershell
 cd C:\dev\tb\frontend
 npm run check
 ```
-Success: `Tests: … passed`, 0 failed (258 on 13 Nov 2026).
+Success: `Tests: … passed`, 0 failed (268 on 13 Nov 2026).
 
 ## Per feature (newest first)
 
 After each feature: **Get the newest code**, **Stop**, **Start** (above), plus what the feature says here.
+
+### Profile, my data and account deletion (KAN-21, KAN-22), 13 Nov 2026
+A new phone library (expo-sharing, for "Download my data"), so the app must be **rebuilt once**. A new database
+table (user settings) is added by the start script. The sync service must be restarted once to send settings.
+No new Docker container, key or account.
+
+**1. Get the code and the new library**
+```powershell
+cd C:\dev\tb
+git checkout main
+git pull
+cd C:\dev\tb\frontend
+npm install
+```
+Success: `added … packages` or `up to date`, no red `ERR!`.
+
+**2. Stop, then start with a rebuild**
+```powershell
+cd C:\dev\tb
+scripts\windows\stop.cmd
+scripts\windows\start.cmd -Rebuild
+```
+Success: no red `STOPPED` line; the app opens on the emulator. The rebuild takes several minutes.
+
+**3. Restart the sync service once** (so settings sync between phones), in a **second** PowerShell window while it runs:
+```powershell
+cd C:\dev\tb\backend
+docker compose restart powersync
+```
+Success: `Container … powersync … Started`.
+
+**4. Only for the "erase after 30 days" tests (ACC-20, ACC-21): shorten the wait to 0 days**
+
+Stop first, then start from a PowerShell window where you set two values. They last only for that window.
+```powershell
+cd C:\dev\tb
+scripts\windows\stop.cmd
+$env:Auth__DeletionGraceDays = '0'
+$env:Account__PurgeIntervalMinutes = '1'
+scripts\windows\start.cmd
+```
+Success: the API window opens as usual. A deleted account is now erased about 1–2 minutes later, and the API window
+shows `Account … erased in … ms`. For ACC-21, log in **within the first minute** after deleting.
+
+When you are done, go back to the normal 30 days: close that PowerShell window, open a new one and run
+```powershell
+cd C:\dev\tb
+scripts\windows\stop.cmd
+scripts\windows\start.cmd
+```
+Success: as usual. (A new window does not have the two values, so the wait is 30 days again.)
 
 ### Map and exact places (KAN-37), 13 Nov 2026
 A new phone library with native code (the map), so the app must be **rebuilt once**. No new Docker container,
