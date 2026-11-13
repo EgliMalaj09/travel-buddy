@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #32 (finish trip, KAN-47, with its review fixes) and the Atlas (KAN-49/50/51).
+Last updated: 13 Nov 2026, after PRs #1 to #34 (the Atlas, KAN-49/50/51, with its review fixes).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -573,6 +573,9 @@ ATL-14 if you have one: that is the globe test (KAN-49).
 | ATL-14 | | **Globe test (KAN-49):** on a mid-range Android phone, drag the globe around for 20 seconds and let it turn | Smooth enough to feel fine (no long stutters). If it feels slow, say "ATL-14 fail" and how; the fix is a lighter dot grid or the 3D version | |
 | ATL-15 | | Screen reader on (TalkBack / VoiceOver), touch the globe, a stamp, a country row | Globe: "Globe. Visited: Italy, …"; stamp: "<Country>, <MON YEAR>. Show on the globe"; row: "<Country>, 1 trip. Show on the globe" | |
 | ATL-16 | | Design kit screen (if you open it) | A small globe (Italy, Austria, Greece and Portugal coloured, Portugal yellow) and three compact stat tiles | |
+| ATL-17 | | Finish one trip with stops in **two** countries (e.g. Italy and France) | Both countries light up; "2 OF 195", tiles 2 countries, 1 trip; two stamps and two rows in Countries | |
+| ATL-18 | | Finished trip whose country is on no other finished trip: ••• → **Open trip again**, then open Atlas | That country is grey again, its stamp and row are gone, and the tiles count one country and one trip less | |
+| ATL-19 | | Compare Home's **Your travels** tiles with the Atlas tiles | Same numbers for countries, trips and days away | |
 
 ## 23. API base and backend checks (KAN-58)
 
