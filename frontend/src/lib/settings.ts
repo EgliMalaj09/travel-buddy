@@ -74,3 +74,49 @@ export const timeChoices: string[] = Array.from({ length: 48 }, (_, i) => {
 export function quietHoursOff(s: Pick<UserSettings, 'quietHoursStart' | 'quietHoursEnd'>): boolean {
   return s.quietHoursStart === s.quietHoursEnd;
 }
+
+/** The settings row as the phone's database keeps it (snake_case, booleans 0/1). */
+export type SettingsRow = Record<string, unknown>;
+
+const rowColumns: [keyof UserSettings, string][] = [
+  ['remindersEnabled', 'reminders_enabled'],
+  ['remindChecklist', 'remind_checklist'],
+  ['remindPackTonight', 'remind_pack_tonight'],
+  ['remindFlight', 'remind_flight'],
+  ['remindAnniversary', 'remind_anniversary'],
+  ['reminderTime', 'reminder_time'],
+  ['quietHoursStart', 'quiet_hours_start'],
+  ['quietHoursEnd', 'quiet_hours_end'],
+  ['distanceUnit', 'distance_unit'],
+  ['temperatureUnit', 'temperature_unit'],
+  ['defaultPlaceScope', 'default_place_scope'],
+];
+
+const booleanFields = new Set<keyof UserSettings>([
+  'remindersEnabled',
+  'remindChecklist',
+  'remindPackTonight',
+  'remindFlight',
+  'remindAnniversary',
+]);
+
+/** Settings → database columns. */
+export function settingsToRow(s: UserSettings): SettingsRow {
+  return Object.fromEntries(
+    rowColumns.map(([field, column]) => [
+      column,
+      booleanFields.has(field) ? (s[field] ? 1 : 0) : s[field],
+    ]),
+  );
+}
+
+/** Database row → settings. Broken or missing values fall back to the defaults (parseUserSettings). */
+export function settingsFromRow(row: SettingsRow): UserSettings {
+  const data: Record<string, unknown> = {};
+  for (const [field, column] of rowColumns) {
+    const v = row[column];
+    data[field] = booleanFields.has(field) ? v === 1 || v === '1' || v === true : v;
+    if (booleanFields.has(field) && (v === null || v === undefined)) delete data[field];
+  }
+  return parseUserSettings(JSON.stringify(data));
+}

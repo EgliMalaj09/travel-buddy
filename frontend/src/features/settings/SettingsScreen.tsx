@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Alert, AppState, Platform, Switch, View } from 'react-native';
 
@@ -7,6 +8,7 @@ import { useAuth } from '@/features/auth/AuthProvider';
 import { biometricAvailable, biometricLabel } from '@/features/auth/biometric';
 import { eveningTime } from '@/lib/reminders';
 import { defaultUserSettings, quietHoursOff, timeChoices } from '@/lib/settings';
+import { exportMyData, type ExportOutcome } from '@/services/accountExport';
 import { getDeviceSettings, setDeviceSettings } from '@/services/deviceStorage';
 import {
   openNotificationSettings,
@@ -30,6 +32,15 @@ export function SettingsScreen() {
   const [wifiOnly, setWifiOnly] = useState(() => getDeviceSettings().uploadOnWifiOnly);
   const [bioLabel, setBioLabel] = useState<string | null>(null);
   const [permission, setPermission] = useState<ReminderPermission | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportNote, setExportNote] = useState<string | null>(null);
+
+  const onExport = async () => {
+    setExporting(true);
+    setExportNote(null);
+    setExportNote(exportMessages[await exportMyData()]);
+    setExporting(false);
+  };
 
   useEffect(() => {
     void (async () => {
@@ -170,9 +181,38 @@ export function SettingsScreen() {
       </Card>
 
       <Card>
+        <AppText variant="label">Units</AppText>
+        <OptionPicker
+          label="Temperature"
+          value={settings.temperatureUnit}
+          options={[
+            { value: 'C', label: 'Celsius (°C)' },
+            { value: 'F', label: 'Fahrenheit (°F)' },
+          ]}
+          onChange={(v) => update({ temperatureUnit: v as 'C' | 'F' })}
+        />
+        <AppText variant="caption" color={colors.inkSoft}>
+          Used for the weather on your trips. Settings are saved to your account, so your other
+          phones use them too.
+        </AppText>
+      </Card>
+
+      <Card>
         <AppText variant="label">Account</AppText>
         <AppText variant="body">{user?.email}</AppText>
         <AppText variant="caption">Logged in with {user?.authProviders.join(', ')}</AppText>
+        <Button title="Edit profile" kind="ghost" onPress={() => router.push('/profile-edit')} />
+        <Button
+          title={exporting ? 'Preparing your data…' : 'Download my data'}
+          kind="ghost"
+          disabled={exporting}
+          onPress={() => void onExport()}
+        />
+        {exportNote ? (
+          <AppText variant="caption" color={colors.inkSoft}>
+            {exportNote}
+          </AppText>
+        ) : null}
       </Card>
 
       <Button
@@ -182,6 +222,7 @@ export function SettingsScreen() {
           confirm('Log out', 'You can log in again with your email, Google or Apple.', logout)
         }
       />
+      <Button title="Delete account" kind="ghost" onPress={() => router.push('/account-delete')} />
       {__DEV__ || dataMode === 'mock' ? (
         <Button
           title="Reset login (testing)"
@@ -198,6 +239,14 @@ export function SettingsScreen() {
     </Screen>
   );
 }
+
+const exportMessages: Record<ExportOutcome, string | null> = {
+  shared: null,
+  downloaded: 'Saved to your downloads.',
+  offline: 'You are offline. Connect to the internet and try again.',
+  tooMany: 'You asked a few times already. Try again in an hour.',
+  failed: 'Your data could not be prepared. Try again later.',
+};
 
 function SettingSwitch({
   label,

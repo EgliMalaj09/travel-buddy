@@ -13,6 +13,11 @@ export function notifyDataChanged(): void {
   for (const l of listeners) l();
 }
 
+/** Calls `listener` after every data change (for stores outside React). Returns the unsubscribe. */
+export function subscribeDataChanged(listener: () => void): () => void {
+  return subscribe(listener);
+}
+
 function subscribe(listener: () => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);

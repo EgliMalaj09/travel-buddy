@@ -18,6 +18,10 @@ import type { ExpenseRepository } from '../repositories/expenseRepository';
 import type { MediaRepository } from '../repositories/mediaRepository';
 import type { PlaceRepository } from '../repositories/placeRepository';
 import type { TripRepository } from '../repositories/tripRepository';
+import {
+  createLocalSettingsRepository,
+  type SettingsRepository,
+} from '../repositories/settingsRepository';
 import { syncStatusFrom } from './syncStatus';
 import { syncedTableNames, syncedTables } from './tables';
 import { uploadBatch } from './uploadChanges';
@@ -135,4 +139,25 @@ export function createLocalExpenses(): ExpenseRepository | null {
 /** Photo records in the same local database, synced the same way (KAN-39). Files: services/photoFiles. */
 export function createLocalMedia(): MediaRepository | null {
   return createLocalMediaRepository(readyDb());
+}
+
+/** The account's settings row in the same local database (KAN-21/22). */
+export function createLocalSettings(): SettingsRepository | null {
+  return createLocalSettingsRepository(readyDb());
+}
+
+/**
+ * Removes everything of the account from this phone's database, including changes still waiting
+ * to upload (account deleted, KAN-22). Sync stops; the next login starts from an empty database.
+ */
+export function clearLocalDatabase(): Promise<void> {
+  const database = open();
+  switching = switching
+    .catch(() => undefined)
+    .then(async () => {
+      await database.disconnectAndClear();
+      setDeviceValue(OWNER_KEY, '');
+      useUiStore.getState().setSyncStatus('offline');
+    });
+  return switching;
 }

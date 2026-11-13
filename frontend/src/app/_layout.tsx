@@ -74,12 +74,17 @@ function AppStack() {
           <Stack.Screen name="profile-name" options={{ headerShown: false }} />
           <Stack.Screen name="profile-travel" options={{ title: '' }} />
         </Stack.Protected>
+        <Stack.Protected guard={phase === 'deletionPending'}>
+          <Stack.Screen name="account-restore" options={{ headerShown: false }} />
+        </Stack.Protected>
         <Stack.Protected guard={signedIn}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="trip/[id]" options={{ title: '' }} />
           <Stack.Screen name="trip/new" options={{ title: '' }} />
           <Stack.Screen name="trip/edit/[id]" options={{ title: '' }} />
           <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+          <Stack.Screen name="profile-edit" options={{ title: 'Edit profile' }} />
+          <Stack.Screen name="account-delete" options={{ title: '' }} />
           <Stack.Screen name="place/edit" options={{ title: '' }} />
           <Stack.Screen name="photo/[id]" options={{ title: '' }} />
           <Stack.Screen name="expense/edit" options={{ title: '' }} />

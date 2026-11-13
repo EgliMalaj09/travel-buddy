@@ -21,6 +21,8 @@ const knownCodes: readonly AuthErrorCode[] = [
   'password_leaked',
   'invalid_token',
   'consent_required',
+  'account_deleted',
+  'not_deleted',
 ];
 
 const fallbackMessages: Record<number, string> = {
@@ -81,6 +83,7 @@ export function toAuthUser(u: Schemas['AuthUserResponse']): AuthUser {
     profile: u.profile ?? null,
     suggestedFirstName: u.suggestedFirstName ?? undefined,
     consents: u.consents ?? null,
+    deletion: u.deletion ?? null,
   };
 }
 
@@ -178,6 +181,25 @@ export function createApiAuthService(sheets: SocialSheets = defaultSheets): Auth
     async logout(refreshToken) {
       await sheets.signOut();
       await call(() => authApi.POST('/auth/logout', { body: { refreshToken } }));
+    },
+
+    async deleteAccount(accessToken) {
+      const user = await call(() =>
+        authApi.POST('/me/delete', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          body: { confirm: 'DELETE' },
+        }),
+      );
+      await sheets.signOut().catch(() => undefined);
+      return toAuthUser(user);
+    },
+
+    async restoreAccount(accessToken) {
+      return toAuthUser(
+        await call(() =>
+          authApi.POST('/me/restore', { headers: { Authorization: `Bearer ${accessToken}` } }),
+        ),
+      );
     },
   };
 }

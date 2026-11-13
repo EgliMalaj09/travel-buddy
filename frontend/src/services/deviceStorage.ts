@@ -58,3 +58,14 @@ export function getDeviceValue(name: string): string | null {
 export function setDeviceValue(name: string, value: string): void {
   storage.set(`value.${name}`, value);
 }
+
+export function removeDeviceValue(name: string): void {
+  storage.remove(`value.${name}`);
+}
+
+/** Removes every value whose name starts with `prefix` (for example all photo upload states). */
+export function removeDeviceValuesStartingWith(prefix: string): void {
+  for (const key of storage.getAllKeys()) {
+    if (key.startsWith(`value.${prefix}`)) storage.remove(key);
+  }
+}

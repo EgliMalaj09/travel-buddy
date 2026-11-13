@@ -19,4 +19,8 @@ export interface AuthService {
   refresh(refreshToken: string): Promise<Session>;
   saveProfile(accessToken: string, profile: Profile, consents?: Consents): Promise<AuthUser>;
   logout(refreshToken: string): Promise<void>;
+  /** "Delete my account" (KAN-22): ends every session; the server erases everything after 30 days. */
+  deleteAccount(accessToken: string): Promise<AuthUser>;
+  /** Undo it during the 30 days (the user logged in again first). */
+  restoreAccount(accessToken: string): Promise<AuthUser>;
 }

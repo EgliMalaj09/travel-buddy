@@ -121,9 +121,14 @@ export function summarize(days: WeatherDay[]): WeatherSummary | null {
   };
 }
 
-/** "9–18°C · rain likely on 2 days" */
-export function summaryLine(s: WeatherSummary): string {
-  const parts = [`${Math.round(s.minC)}–${Math.round(s.maxC)}°C`];
+/** Celsius to the user's unit (Settings, KAN-21), rounded. */
+export function temperature(celsius: number, unit: 'C' | 'F' = 'C'): number {
+  return Math.round(unit === 'F' ? (celsius * 9) / 5 + 32 : celsius);
+}
+
+/** "9–18°C · rain likely on 2 days" (or °F when the user chose Fahrenheit). */
+export function summaryLine(s: WeatherSummary, unit: 'C' | 'F' = 'C'): string {
+  const parts = [`${temperature(s.minC, unit)}–${temperature(s.maxC, unit)}°${unit}`];
   if (s.snowyDays) parts.push(s.snowyDays === 1 ? 'snow on 1 day' : `snow on ${s.snowyDays} days`);
   if (s.rainyDays)
     parts.push(s.rainyDays === 1 ? 'rain likely on 1 day' : `rain likely on ${s.rainyDays} days`);

@@ -1,15 +1,22 @@
+import { removeExportFiles } from '@/services/accountExport';
+import { forgetAllUploads } from '@/services/photoUpload';
+import { deletePhotoFiles, photoFolderIds } from '@/services/photoFiles';
 import { clearFxCache } from '@/services/fxRates';
+import { clearReminders } from '@/services/reminders';
 import { clearWeatherCache } from '@/services/weather';
 
 import { notifyOwnerChanged } from './changes';
 import {
+  clearLocalDatabase,
   createLocalChecklist,
   createLocalExpenses,
   createLocalMedia,
   createLocalPlaces,
+  createLocalSettings,
   createLocalTrips,
   setLocalOwner,
 } from './local/localStore';
+import type { SettingsRepository } from './repositories/settingsRepository';
 import { createApiExpenseRepository } from './repositories/apiExpenseRepository';
 import { createApiMediaRepository } from './repositories/apiMediaRepository';
 import { createMockMediaRepository, type MediaRepository } from './repositories/mediaRepository';
@@ -122,6 +129,13 @@ export const repositories: Repositories & { checklist: ChecklistRepository } = {
   checklist,
 };
 
+/**
+ * The account's settings row on the phone, synced by PowerSync ("local" mode only). Null in the web
+ * preview and mock mode: there settings stay on this phone only (services/userSettings).
+ */
+export const settingsRepository: SettingsRepository | null =
+  dataMode === 'local' ? createLocalSettings() : null;
+
 let owner: string | null = null;
 
 /**
@@ -143,6 +157,22 @@ export function setDataOwner(userId: string | null): void {
   notifyOwnerChanged();
 }
 
+/**
+ * Removes the account's data from this phone (account deleted, KAN-22): the local database with
+ * changes still waiting, photo files and their upload state, "Download my data" files, planned
+ * reminders and the cached weather and rates (they hold trip places). The caller also forgets the session and settings.
+ */
+export async function forgetAccountOnPhone(): Promise<void> {
+  setDataOwner(null);
+  if (dataMode === 'local') await clearLocalDatabase();
+  for (const id of photoFolderIds()) deletePhotoFiles(id);
+  forgetAllUploads();
+  removeExportFiles();
+  await clearReminders().catch(() => undefined);
+  clearWeatherCache();
+  clearFxCache();
+}
+
 export * from './types';
 export * from './useAsync';
-export { useDataVersion } from './changes';
+export { subscribeDataChanged, useDataVersion } from './changes';

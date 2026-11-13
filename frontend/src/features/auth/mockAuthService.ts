@@ -207,6 +207,8 @@ export function createMockAuthService(): AuthService {
       const userId = db.sessions[refreshToken];
       const user = db.users.find((u) => u.id === userId);
       if (!user) throw new AuthError('session_expired', 'Please log in again.');
+      if (user.deletion)
+        throw new AuthError('account_deleted', 'This account is waiting to be deleted.');
       delete db.sessions[refreshToken];
       const session = newSession(db, user);
       save(db);
@@ -228,6 +230,37 @@ export function createMockAuthService(): AuthService {
       const db = load();
       delete db.sessions[refreshToken];
       save(db);
+    },
+
+    // Mock: the account is marked, never erased (there is no server).
+    async deleteAccount(accessToken) {
+      await delay();
+      const db = load();
+      const user = db.users.find((u) => u.id === db.accessTokens?.[accessToken]);
+      if (!user) throw new AuthError('session_expired', 'Please log in again.');
+      if (!user.deletion) {
+        const now = new Date();
+        user.deletion = {
+          requestedAt: now.toISOString(),
+          deleteAfter: new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString(),
+        };
+      }
+      for (const [refresh, id] of Object.entries(db.sessions))
+        if (id === user.id) delete db.sessions[refresh];
+      save(db);
+      return publicUser(user);
+    },
+
+    async restoreAccount(accessToken) {
+      await delay();
+      const db = load();
+      const user = db.users.find((u) => u.id === db.accessTokens?.[accessToken]);
+      if (!user) throw new AuthError('session_expired', 'Please log in again.');
+      if (!user.deletion)
+        throw new AuthError('not_deleted', 'This account is not waiting to be deleted.');
+      user.deletion = null;
+      save(db);
+      return publicUser(user);
     },
   };
 }

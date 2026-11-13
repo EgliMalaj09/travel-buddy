@@ -11,7 +11,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 
 /**
  * You tab: who is logged in and a way into Settings (KAN-21). Reminders, this phone's settings and
- * log out are on the Settings screen. Editing the profile comes later.
+ * log out are on the Settings screen, with Edit profile, Download my data and Delete account (KAN-22).
  */
 export default function YouScreen() {
   const { space } = useTheme();

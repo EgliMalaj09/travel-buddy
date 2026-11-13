@@ -17,7 +17,15 @@ type Schemas = components['schemas'];
 /** One waiting change, in the shape PowerSync gives its upload queue (snake_case columns). */
 export type SyncChange = {
   op: 'PUT' | 'PATCH' | 'DELETE';
-  type: 'trips' | 'trip_stops' | 'flights' | 'places' | 'checklist_items' | 'expenses' | 'media';
+  type:
+    | 'trips'
+    | 'trip_stops'
+    | 'flights'
+    | 'places'
+    | 'checklist_items'
+    | 'expenses'
+    | 'media'
+    | 'user_settings';
   id: string;
   data?: Record<string, unknown>;
 };
