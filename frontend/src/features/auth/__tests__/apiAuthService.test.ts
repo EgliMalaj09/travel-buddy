@@ -65,7 +65,7 @@ describe('api auth service', () => {
       session: {
         accessToken: 'access',
         refreshToken: 'refresh',
-        user: { ...user, suggestedFirstName: undefined },
+        user: { ...user, suggestedFirstName: undefined, deletion: null },
       },
     });
   });

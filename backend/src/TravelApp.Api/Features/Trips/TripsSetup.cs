@@ -1,3 +1,4 @@
+using TravelApp.Api.Features.Account;
 using TravelApp.Api.Features.Sync;
 
 namespace TravelApp.Api.Features.Trips;
@@ -13,6 +14,7 @@ public static class TripsSetup
         services.AddScoped<TripsService>();
         services.AddScoped<ITripWriteRules>(sp => sp.GetRequiredService<TripsService>());
         services.AddScoped<ISyncTable, TripsSyncTable>();
+        services.AddScoped<IUserData, TripsUserData>();
         return services;
     }
 }

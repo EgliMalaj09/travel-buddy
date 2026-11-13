@@ -48,6 +48,7 @@ function fakeServer(reject?: (c: SyncChange) => string | null) {
     trip_stops: new Map(),
     flights: new Map(),
     places: new Map(),
+    user_settings: new Map(),
     expenses: new Map(),
     checklist_items: new Map(),
     media: new Map(),

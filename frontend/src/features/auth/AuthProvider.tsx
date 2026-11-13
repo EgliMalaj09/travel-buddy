@@ -9,8 +9,10 @@ import {
   type ReactNode,
 } from 'react';
 
-import { setTokenProvider } from '@/api/client';
+import { currentAccessToken, setTokenProvider } from '@/api/client';
+import { forgetAccountOnPhone } from '@/data';
 import { getDeviceSettings, getFlag, setDeviceSettings, setFlag } from '@/services/deviceStorage';
+import { forgetUserSettings } from '@/services/userSettings';
 
 import type { AuthService } from './authService';
 import { unlockWithBiometric } from './biometric';
@@ -42,6 +44,7 @@ export type AuthPhase =
   | 'signedOut' // login / sign-up screens
   | 'locked' // signed in, waiting for Face ID / fingerprint
   | 'needsProfile' // signed in, profile setup not done
+  | 'deletionPending' // logged in to an account waiting to be deleted: only Restore or Log out
   | 'signedIn';
 
 interface AuthContextValue {
@@ -58,6 +61,13 @@ interface AuthContextValue {
   forgotPassword(email: string): Promise<void>;
   resetPassword(email: string, code: string, newPassword: string): Promise<void>;
   saveProfile(profile: Profile, consents?: Consents): Promise<void>;
+  /**
+   * "Delete my account" (KAN-22). The server ends every session and erases everything after 30
+   * days; this phone forgets the account's data now and goes to the login.
+   */
+  deleteAccount(): Promise<void>;
+  /** Undo the deletion during the 30 days. */
+  restoreAccount(): Promise<void>;
   /** Testing helper: log out, forget mock users on this phone and show the intro again. */
   resetForTesting(): Promise<void>;
   logout(): Promise<void>;
@@ -77,8 +87,27 @@ const INTRO_FLAG = 'introSeen';
 export function endsSession(error: unknown): boolean {
   return (
     error instanceof AuthError &&
-    (error.code === 'session_expired' || error.code === 'invalid_token')
+    (error.code === 'session_expired' ||
+      error.code === 'invalid_token' ||
+      error.code === 'account_deleted')
   );
+}
+
+/** The account was deleted (here or on another phone): its data must leave this phone too. */
+const accountDeleted = (error: unknown) =>
+  error instanceof AuthError && error.code === 'account_deleted';
+
+/** Removes the deleted account's data from this phone. Never throws: the logout must go on. */
+async function forgetAccount(userId: string | null | undefined): Promise<void> {
+  await forgetAccountOnPhone().catch(() => undefined);
+  if (userId) forgetUserSettings(userId);
+}
+
+/** A working access token for /me calls (refreshed when it is missing or about to expire). */
+async function freshToken(): Promise<string> {
+  const token = await currentAccessToken();
+  if (!token) throw new AuthError('session_expired', 'Please log in again.');
+  return token;
 }
 export const BIOMETRIC_OFFERED_FLAG = 'biometricOffered';
 
@@ -101,6 +130,7 @@ export function AuthProvider({
   const phaseFor = useCallback((s: Session | null, locked = false): AuthPhase => {
     if (!s) return getFlag(INTRO_FLAG) ? 'signedOut' : 'intro';
     if (locked) return 'locked';
+    if (s.user.deletion) return 'deletionPending';
     return s.user.profile ? 'signedIn' : 'needsProfile';
   }, []);
 
@@ -129,6 +159,7 @@ export function AuthProvider({
         if (active) await applySession(restored, locked);
       } catch (error) {
         if (!active) return;
+        if (accountDeleted(error)) await forgetAccount((await getSavedUser())?.id);
         if (endsSession(error)) return applySession(null);
         // Offline or the API is busy: open with the saved user. The access token is fetched
         // again on the next API call (the API client refreshes after a 401).
@@ -158,6 +189,7 @@ export function AuthProvider({
           setSession(next);
           return next.accessToken;
         } catch (error) {
+          if (accountDeleted(error)) await forgetAccount(current.user.id);
           if (endsSession(error)) await applySession(null);
           return null;
         }
@@ -198,8 +230,24 @@ export function AuthProvider({
       async saveProfile(profile, consents) {
         const current = sessionRef.current;
         if (!current) return;
-        const user = await auth.saveProfile(current.accessToken, profile, consents);
-        const next = { ...current, user };
+        const user = await auth.saveProfile(await freshToken(), profile, consents);
+        const next = { ...(sessionRef.current ?? current), user };
+        await setSavedUser(user);
+        setSession(next);
+        setPhase(phaseFor(next));
+      },
+      async deleteAccount() {
+        const current = sessionRef.current;
+        if (!current) return;
+        await auth.deleteAccount(await freshToken());
+        await forgetAccount(current.user.id);
+        await applySession(null);
+      },
+      async restoreAccount() {
+        const current = sessionRef.current;
+        if (!current) return;
+        const user = await auth.restoreAccount(await freshToken());
+        const next = { ...(sessionRef.current ?? current), user };
         await setSavedUser(user);
         setSession(next);
         setPhase(phaseFor(next));

@@ -10,6 +10,9 @@ internal static class AuthUserMapper
         var consents = user.TermsAcceptedAt is null
             ? null
             : new ConsentsDto(user.AgeConfirmedAt is not null, true, user.MarketingConsent);
-        return new AuthUserResponse(user.Id, user.Email!, user.AuthProviders, profile, user.SuggestedFirstName, consents);
+        var deletion = user is { Status: UserStatus.DeletionRequested, DeletionRequestedAt: { } at, DeleteAfter: { } after }
+            ? new AccountDeletionDto(at, after)
+            : null;
+        return new AuthUserResponse(user.Id, user.Email!, user.AuthProviders, profile, user.SuggestedFirstName, consents, deletion);
     }
 }

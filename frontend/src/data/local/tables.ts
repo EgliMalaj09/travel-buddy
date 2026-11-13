@@ -1,5 +1,5 @@
 /**
- * The synced tables on the phone (trips, stops, flights, places, checklist, expenses, photos) (local SQLite via PowerSync, KAN-15).
+ * The synced tables on the phone (trips, stops, flights, places, checklist, expenses, photos, settings) (local SQLite via PowerSync, KAN-15).
  * Names and columns are the server's (snake_case), because PowerSync copies whole rows from
  * PostgreSQL (backend/docker/powersync/sync-rules.yaml). `id` is added by PowerSync itself.
  *
@@ -166,8 +166,35 @@ export const mediaTables = {
   },
 } as const satisfies Record<string, Record<string, ColumnType>>;
 
+/**
+ * Settings (KAN-21/22): one row per account, its id is the user id. Booleans are 0/1, times "19:00".
+ * Synced so every phone of the user has the same reminder switches and units.
+ */
+export const settingsTables = {
+  user_settings: {
+    reminders_enabled: 'integer',
+    remind_checklist: 'integer',
+    remind_pack_tonight: 'integer',
+    remind_flight: 'integer',
+    remind_anniversary: 'integer',
+    reminder_time: 'text',
+    quiet_hours_start: 'text',
+    quiet_hours_end: 'text',
+    distance_unit: 'text',
+    temperature_unit: 'text',
+    default_place_scope: 'text',
+    ...sync,
+  },
+} as const satisfies Record<string, Record<string, ColumnType>>;
+
 /** Every table PowerSync keeps on the phone and the app writes. */
-export const syncedTables = { ...tripTables, ...checklistTables, ...expenseTables, ...mediaTables };
+export const syncedTables = {
+  ...tripTables,
+  ...checklistTables,
+  ...expenseTables,
+  ...mediaTables,
+  ...settingsTables,
+};
 
 export type SyncedTableName = keyof typeof syncedTables;
 export const syncedTableNames = Object.keys(syncedTables) as SyncedTableName[];

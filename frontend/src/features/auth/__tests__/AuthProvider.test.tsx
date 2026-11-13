@@ -198,4 +198,31 @@ describe('AuthProvider', () => {
     expect(screen.getByText('intro')).toBeTruthy();
     expect(secure['travelapp.refreshToken']).toBeUndefined();
   });
+
+  it('delete account: logged out at once, login offers restore, restore signs in again', async () => {
+    await signedInAna();
+    await renderApp();
+    await waitFor(() => expect(screen.getByText('signedIn')).toBeTruthy());
+
+    await act(() => auth.deleteAccount());
+    expect(screen.getByText('signedOut')).toBeTruthy();
+    expect(secure['travelapp.refreshToken']).toBeUndefined();
+
+    await act(async () => {
+      await auth.login('ana@example.com', 'long enough pw');
+    });
+    expect(screen.getByText('deletionPending')).toBeTruthy();
+    expect(auth.user?.deletion?.deleteAfter).toBeTruthy();
+
+    await act(() => auth.restoreAccount());
+    expect(screen.getByText('signedIn')).toBeTruthy();
+    expect(auth.user?.deletion).toBeNull();
+  });
+
+  it('another phone deleted the account: this phone logs out on open', async () => {
+    await signedInAna();
+    await renderApp(failingRefresh(new AuthError('account_deleted', 'Waiting to be deleted.')));
+    await waitFor(() => expect(screen.getByText('signedOut')).toBeTruthy());
+    expect(secure['travelapp.user']).toBeUndefined();
+  });
 });

@@ -43,6 +43,7 @@ public sealed class AuthService(
     internal static readonly AuthFailure ConsentRequired = new(400, AuthErrorCodes.ConsentRequired, "Confirm you are 16 or older and accept the terms and privacy.");
     internal static readonly AuthFailure InvalidToken = new(401, AuthErrorCodes.InvalidToken, "The sign-in could not be checked. Try again.");
     internal static readonly AuthFailure SessionExpired = new(401, AuthErrorCodes.SessionExpired, "Please log in again.");
+    internal static readonly AuthFailure AccountDeleted = new(401, AuthErrorCodes.AccountDeleted, "This account is waiting to be deleted. Log in to restore it.");
 
     public async Task<AuthResult<bool>> SignUpAsync(SignUpRequest request, CancellationToken ct)
     {
@@ -140,6 +141,7 @@ public sealed class AuthService(
 
         await users.ResetAccessFailedCountAsync(user);
         var now = clock.GetUtcNow();
+        if (BeingErased(user, now)) return AccountDeletionService.AlreadyErased;
         var device = await db.Set<TrustedDevice>()
             .SingleOrDefaultAsync(d => d.UserId == user.Id && d.DeviceId == request.DeviceId, ct);
         if (device is not null && device.ExpiresAt > now)
@@ -176,6 +178,7 @@ public sealed class AuthService(
             return InvalidCode;
         }
 
+        if (BeingErased(user, clock.GetUtcNow())) return AccountDeletionService.AlreadyErased;
         await TrustDeviceAsync(user.Id, request.DeviceId, request.DeviceName, clock.GetUtcNow(), ct);
         return await sessions.StartAsync(user, request.DeviceId, ct);
     }
@@ -213,6 +216,7 @@ public sealed class AuthService(
             await users.AddLoginAsync(user, new UserLoginInfo(provider, identity.Subject, provider));
         }
 
+        if (BeingErased(user, now)) return AccountDeletionService.AlreadyErased;
         return await sessions.StartAsync(user, request.DeviceId, ct);
     }
 
@@ -356,6 +360,13 @@ public sealed class AuthService(
         await db.SaveChangesAsync(ct);
         return AuthUserMapper.ToResponse(user);
     }
+
+    /// <summary>
+    /// The 30 days after "Delete my account" are over: no new session, so none is alive when the purge job erases it
+    /// (KAN-22). During the 30 days a login works and the app offers Restore.
+    /// </summary>
+    internal static bool BeingErased(User user, DateTimeOffset now) =>
+        user.Status == UserStatus.DeletionRequested && user.DeleteAfter <= now;
 
     private static User NewUser(string email, DateTimeOffset now) => new()
     {

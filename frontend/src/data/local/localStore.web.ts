@@ -2,6 +2,7 @@ import type { ChecklistRepository } from '../repositories/checklistRepository';
 import type { ExpenseRepository } from '../repositories/expenseRepository';
 import type { TripRepository } from '../repositories/tripRepository';
 import type { PlaceRepository } from '../repositories/placeRepository';
+import type { SettingsRepository } from '../repositories/settingsRepository';
 
 /**
  * The web preview has no local database (PowerSync's phone library is native only).
@@ -24,3 +25,9 @@ export function createLocalChecklist(): ChecklistRepository | null {
 export function createLocalExpenses(): ExpenseRepository | null {
   return null;
 }
+
+export function createLocalSettings(): SettingsRepository | null {
+  return null;
+}
+
+export async function clearLocalDatabase(): Promise<void> {}

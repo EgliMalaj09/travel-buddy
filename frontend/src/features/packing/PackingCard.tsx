@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, View } from 'react-native';
 
 import { AppText, Card } from '@/components';
+import { useUserSettings } from '@/services/userSettings';
 import { summarize, summaryLine } from '@/lib/weather';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -13,6 +14,7 @@ import { usePacking } from './usePacking';
  */
 export function PackingCard({ tripId, onPress }: { tripId: string; onPress: () => void }) {
   const { colors, space } = useTheme();
+  const temperatureUnit = useUserSettings((s) => s.settings.temperatureUnit);
   const { data } = usePacking(tripId);
   if (!data) return null;
   const { view, weather } = data;
@@ -38,7 +40,7 @@ export function PackingCard({ tripId, onPress }: { tripId: string; onPress: () =
               </AppText>
             ) : summary && city ? (
               <AppText variant="caption" numberOfLines={1}>
-                {city}: {summaryLine(summary)}
+                {city}: {summaryLine(summary, temperatureUnit)}
               </AppText>
             ) : null}
           </View>

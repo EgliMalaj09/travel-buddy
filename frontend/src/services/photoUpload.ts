@@ -5,7 +5,12 @@ import { currentAccessToken } from '@/api/client';
 import type { Media } from '@/data/types';
 import type { UploadState } from '@/lib/photos';
 
-import { getDeviceSettings, getDeviceValue, setDeviceValue } from './deviceStorage';
+import {
+  getDeviceSettings,
+  getDeviceValue,
+  removeDeviceValuesStartingWith,
+  setDeviceValue,
+} from './deviceStorage';
 import { localPhoto, photoFilesSupported, photoUrl, type PhotoPart } from './photoFiles';
 
 /**
@@ -41,6 +46,11 @@ function readAttempt(id: string): Attempt {
 }
 
 const writeAttempt = (id: string, a: Attempt) => setDeviceValue(key(id), JSON.stringify(a));
+
+/** Forgets the queue state of every photo (account deleted). */
+export function forgetAllUploads() {
+  removeDeviceValuesStartingWith('photoUpload.');
+}
 
 /** Forgets the queue state of a photo (deleted). */
 export function forgetUpload(id: string) {

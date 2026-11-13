@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TravelApp.Api.Features.Account;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Expenses;
 using TravelApp.Api.Features.Media;
@@ -59,4 +60,11 @@ internal sealed class MediaLinks : IEntityTypeConfiguration<MediaItem>
         builder.HasOne<Trip>().WithMany().HasForeignKey(m => m.TripId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne<User>().WithMany().HasForeignKey(m => m.OwnerUserId).OnDelete(DeleteBehavior.Cascade);
     }
+}
+
+internal sealed class UserSettingsLink : IEntityTypeConfiguration<UserSettings>
+{
+    // The settings row's id is the user id; it goes when the account is erased (KAN-22).
+    public void Configure(EntityTypeBuilder<UserSettings> builder) =>
+        builder.HasOne<User>().WithOne().HasForeignKey<UserSettings>(s => s.Id).OnDelete(DeleteBehavior.Cascade);
 }

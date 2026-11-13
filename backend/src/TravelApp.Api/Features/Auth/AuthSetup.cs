@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TravelApp.Api.Data;
+using TravelApp.Api.Features.Account;
 
 namespace TravelApp.Api.Features.Auth;
 
@@ -40,6 +41,9 @@ public static class AuthSetup
         services.AddScoped<AuthService>();
         services.AddScoped<SessionService>();
         services.AddScoped<CodeService>();
+        services.AddScoped<AccountDeletionService>();
+        services.AddScoped<IAccountsToPurge>(sp => sp.GetRequiredService<AccountDeletionService>());
+        services.AddScoped<IUserData, AuthUserData>();
         services.AddSingleton<IAuthEmailSender, LogAuthEmailSender>();
         services.AddSingleton<IExternalTokenValidator, OpenIdTokenValidator>();
         services.AddHttpClient<ILeakedPasswordCheck, PwnedPasswordsCheck>(http =>

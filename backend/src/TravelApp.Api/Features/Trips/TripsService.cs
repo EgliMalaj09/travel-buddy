@@ -111,6 +111,9 @@ internal sealed partial class TripsService(AppDbContext db) : ITripWriteRules
     public Task<bool> OwnsTripAsync(Guid userId, Guid tripId, CancellationToken cancellationToken) =>
         db.Set<Trip>().AnyAsync(t => t.Id == tripId && t.OwnerId == userId && t.DeletedAt == null, cancellationToken);
 
+    public async Task<IReadOnlyList<Guid>> TripIdsOfOwnerAsync(Guid userId, CancellationToken cancellationToken) =>
+        await db.Set<Trip>().Where(t => t.OwnerId == userId).Select(t => t.Id).ToListAsync(cancellationToken);
+
     public Task<int> CountStopsAsync(Guid tripId, CancellationToken cancellationToken) =>
         db.Set<TripStop>().CountAsync(s => s.TripId == tripId && s.DeletedAt == null, cancellationToken);
 

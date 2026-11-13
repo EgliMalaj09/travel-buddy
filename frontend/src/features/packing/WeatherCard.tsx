@@ -4,6 +4,7 @@ import { Linking, Pressable, View } from 'react-native';
 import { AppText, Card } from '@/components';
 import type { TripStop } from '@/data/types';
 import { flagEmoji } from '@/lib/trips';
+import { useUserSettings } from '@/services/userSettings';
 import { summarize, summaryLine, weatherKindLabel, type TripWeather } from '@/lib/weather';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -19,6 +20,7 @@ export function WeatherCard({
   stops: TripStop[];
 }) {
   const { colors, space } = useTheme();
+  const temperatureUnit = useUserSettings((s) => s.settings.temperatureUnit);
   const rows = (weather?.stops ?? [])
     .map((sw) => ({ stop: stops.find((s) => s.id === sw.stopId), summary: summarize(sw.days) }))
     .filter((r) => r.stop && r.summary);
@@ -46,7 +48,8 @@ export function WeatherCard({
       {rows.map(({ stop, summary }) => (
         <View key={stop!.id} style={{ gap: space.xxs }}>
           <AppText variant="body">
-            {flagEmoji(stop!.countryCode)} {stop!.cityName}: {summaryLine(summary!)}
+            {flagEmoji(stop!.countryCode)} {stop!.cityName}:{' '}
+            {summaryLine(summary!, temperatureUnit)}
           </AppText>
           <AppText variant="caption">{weatherKindLabel[summary!.kind]}</AppText>
         </View>

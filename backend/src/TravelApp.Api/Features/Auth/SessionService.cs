@@ -37,15 +37,30 @@ public sealed partial class SessionService(
         return Build(user, token, now);
     }
 
-    /// <summary>Exchanges a refresh token for a new session, or null when it is not valid any more.</summary>
-    public async Task<SessionResponse?> RefreshAsync(string refreshToken, CancellationToken ct)
+    /// <summary>What a refresh gave: a new session, or why not.</summary>
+    public sealed record RefreshOutcome(SessionResponse? Session, bool AccountDeleted = false);
+
+    /// <summary>
+    /// Exchanges a refresh token for a new session. No session when the token is not valid any more;
+    /// <see cref="RefreshOutcome.AccountDeleted"/> when its account is waiting to be erased (the phone then wipes its data).
+    /// </summary>
+    public async Task<RefreshOutcome> RefreshAsync(string refreshToken, CancellationToken ct)
     {
         var now = clock.GetUtcNow();
         var hash = Hash(refreshToken);
         var current = await db.Set<RefreshToken>().SingleOrDefaultAsync(t => t.TokenHash == hash, ct);
         if (current is null)
         {
-            return null;
+            return new(null);
+        }
+
+        // Every session ended when deletion was asked; tell those phones why, so they remove this account's data.
+        // A session started after that (logging in to restore) keeps working.
+        // Once the 30 days are over no session is refreshed at all, so none is alive when the purge job runs.
+        if (await db.Set<User>().AnyAsync(u => u.Id == current.UserId && u.Status == UserStatus.DeletionRequested
+                && ((u.DeletionRequestedAt != null && current.CreatedAt <= u.DeletionRequestedAt) || u.DeleteAfter <= now), ct))
+        {
+            return new(null, AccountDeleted: true);
         }
 
         if (current.ReplacedByTokenId is not null)
@@ -53,13 +68,13 @@ public sealed partial class SessionService(
             // An old token was used again: it may have been stolen. End every session of this user (A4).
             LogReuse(current.UserId);
             await RevokeAllAsync(current.UserId, ct);
-            return null;
+            return new(null);
         }
 
         var user = await db.Set<User>().SingleOrDefaultAsync(u => u.Id == current.UserId, ct);
         if (!current.IsActive(now) || user is null || user.DeletedAt is not null)
         {
-            return null;
+            return new(null);
         }
 
         var (token, next) = NewRefreshToken(current.UserId, current.DeviceId, now);
@@ -72,10 +87,10 @@ public sealed partial class SessionService(
         }
         catch (DbUpdateConcurrencyException)
         {
-            return null; // The same token was used twice at the same moment.
+            return new(null); // The same token was used twice at the same moment.
         }
 
-        return Build(user, token, now);
+        return new(Build(user, token, now));
     }
 
     /// <summary>Ends the session of this refresh token (log out on this phone).</summary>

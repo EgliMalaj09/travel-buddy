@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #28 (trip map with exact places, KAN-37, with its review fixes).
+Last updated: 13 Nov 2026, after PRs #1 to #29 and profile, data export and account deletion (KAN-21, KAN-22).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -31,9 +31,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 17. [Expenses](#17-expenses-kan-42-kan-43)
 18. [Photos and notes](#18-photos-and-notes-kan-39-kan-40)
 19. [Map and exact places](#19-map-and-exact-places-kan-37)
-20. [API base and backend checks](#20-api-base-and-backend-checks-kan-58)
-21. [Privacy: no personal data in logs (GDPR)](#21-privacy-no-personal-data-in-logs-gdpr)
-22. [Known gaps](#22-known-gaps)
+20. [Profile, my data and deleting the account](#20-profile-my-data-and-deleting-the-account-kan-21-kan-22)
+21. [API base and backend checks](#21-api-base-and-backend-checks-kan-58)
+22. [Privacy: no personal data in logs (GDPR)](#22-privacy-no-personal-data-in-logs-gdpr)
+23. [Known gaps](#23-known-gaps)
 
 ---
 
@@ -278,7 +279,7 @@ You tab → **Settings**.
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
-| SET-01 | | Open Settings | Cards: Reminders, When, This phone, Account | |
+| SET-01 | | Open Settings | Cards: Reminders, When, This phone, Units, Account, then **Log out** and **Delete account** *(updated 13 Nov, KAN-22)* | |
 | SET-02 | | Turn **Trip reminders** off | The other switches hide; "No trip reminders on this account."; Home's Reminders card empties | |
 | SET-03 | | Turn reminders on, then **Flights** off | Home's Reminders card loses the flight lines | |
 | SET-04 | | Turn off **Get ready** and **Pack tonight** one at a time | Those reminders leave Home's list | |
@@ -289,7 +290,7 @@ You tab → **Settings**.
 | SET-09 | | Notifications turned off in phone settings | **Open phone settings** button opens them; coming back updates the note | |
 | SET-10 | | Change settings, log out, log in as another account | The other account has its own (default) settings. Back on the first: your settings are kept | |
 | SET-11 | | Close and reopen the app | Settings are kept | |
-| SET-12 | | Account card | Shows email and login method, **Log out**, and (in test builds) **Reset login (testing)** | |
+| SET-12 | | Account card | Shows email and login method, **Edit profile** and **Download my data**; under it **Log out**, **Delete account** and (in test builds) **Reset login (testing)** *(updated 13 Nov, KAN-22)* | |
 
 ## 13. Places (KAN-34, KAN-35)
 
@@ -482,7 +483,35 @@ Needs the rebuilt app (see COMMANDS.md, "Map and exact places") and internet for
 | MAP-25 | | Map tab of a trip with places on 2 days: tap **Day 1**, then **Day 2**, then **Day 1** again, then **All days** | The map moves every time, also when going back to a day it showed before | |
 | MAP-26 | | Very weak signal (or a slow network on the emulator): **Set it on the map**, move, **Use this spot** | While it saves, **Cancel** is greyed out. After at most about 10 seconds you are back in the form, with numbers like "41.890210, 12.492231" if no address came back. Nothing hangs | |
 
-## 20. API base and backend checks (KAN-58)
+## 20. Profile, my data and deleting the account (KAN-21, KAN-22)
+
+Needs the rebuilt app (new library expo-sharing, see COMMANDS.md, "Profile, my data and account deletion"). For the 30-day cases you shorten the wait in the API (COMMANDS.md shows how). You tab → **Settings**.
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| ACC-01 | | **Edit profile**: change the first name, passport country, home country and currency → **Save** | Back on Settings; the You tab shows the new name and countries. Close and reopen the app: still there | |
+| ACC-02 | | Edit profile with the first name empty | **Save** is greyed out | |
+| ACC-03 | | Edit profile in flight mode → **Save** | A message that the server can't be reached; nothing changes | |
+| ACC-04 | | Change reminder switches, time and **Temperature** to Fahrenheit. Log in with the same account on a second phone (or the emulator) | The second phone shows the same settings after a few seconds. Trip **Packing** weather shows °F | |
+| ACC-05 | | Flight mode: change a setting. Turn flight mode off, wait a little, check the second phone | The change arrives on the second phone | |
+| ACC-06 | | Phone that had settings from before this update: open the app | Your old choices are still there (and now on the server too: ACC-04) | |
+| ACC-07 | | **Download my data** | The phone's share sheet opens with `travel-app-my-data-<today>.json`. Save it to Files / Drive and open it: your profile, settings, phones, trips, stops, flights, places, checklist, expenses and photo notes. No password or token text | |
+| ACC-08 | | Download my data 6 times within an hour | The 6th time: "You asked a few times already. Try again in an hour." | |
+| ACC-09 | | Download my data in flight mode | "You are offline…"; no file | |
+| ACC-10 | | **Delete account** | A screen lists what goes and explains the 30 days. **Delete my account** is greyed out | |
+| ACC-11 | | Type `delet`, then `DELETE` | Greyed out until the word is complete; then it works | |
+| ACC-12 | | Delete my account in flight mode | A message that the server can't be reached; you stay logged in; nothing is removed | |
+| ACC-13 | | Delete my account (online) | Logged out to the login screen. Trips, photos and reminders are gone from this phone (reminders: none arrive) | |
+| ACC-14 | | Second phone logged in to the same account, then delete on the first. Open the app on the second phone | It logs out by itself and its trips and photos are gone too | |
+| ACC-15 | | Log in again with the deleted account (email or Google/Apple) | "Your account is set to be deleted", the erase date and days left, **Restore my account** and **Log out**. No trips appear behind it | |
+| ACC-16 | | **Restore my account** | Home opens; trips, places, photos, settings come back (downloaded again) | |
+| ACC-17 | | Delete again, log in, **Log out** on the restore screen | Back to the login; the account stays scheduled | |
+| ACC-18 | | Sign up again with the email of a deleted (not yet erased) account | "This email already has an account. Log in instead." Logging in shows the restore screen | |
+| ACC-19 | | Scalar: **POST /me/delete** with body `{"confirm": "yes"}` | 400; the account is not touched | |
+| ACC-20 | | *(Shortened wait, see COMMANDS.md)* Delete an account with trips and photos, wait for the erase (about 17–18 minutes: the API waits until the last 15-minute login token has run out) | API window: "Account … erased in … ms" with only an id. Logging in now says the email or password is not right; the email can sign up as a brand-new account with no old trips. (That the photo files are gone too is checked by the automatic tests.) | |
+| ACC-21 | | *(Shortened wait)* Right after deleting, try to log in (email, or Google/Apple) | "This account has been deleted." No restore screen | |
+
+## 21. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
@@ -492,7 +521,7 @@ Needs the rebuilt app (see COMMANDS.md, "Map and exact places") and internet for
 | API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (150 on 13 Nov 2026, with the map) | ✅ |
 | API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (258 on 13 Nov 2026, with the map) | |
 
-## 21. Privacy: no personal data in logs (GDPR)
+## 22. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
@@ -503,14 +532,15 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 | GDPR-03 | | Read the Expo / Metro window while using the app (mock login too) | No email, name, token or trip details printed | |
 | GDPR-04 | | *(When Sentry is turned on)* Cause an error, open the report in Sentry | No user, email, request body, console lines or `?query` values in the report | |
 | GDPR-05 | | Scalar: **GET /geo/reverse** with `lat=41,8902` (comma) and `lng=12.4922`. Read the API window | 400 "The request could not be read."; the answer and the API window do not show `41,8902` (no "unhandled exception" lines for a bad request) | |
+| GDPR-06 | | Change settings, Download my data, delete and restore an account. Read the API window | Only ids, status codes and timings: no email, name, settings values or export content | |
 
-## 22. Known gaps
+## 23. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.
 3. City search (create a trip) still uses the built-in list. Exact place spots came with the Map (KAN-37), using the free Photon search, not Mapbox. The public Photon server is "fair use": before the public launch, check it is still fine or run our own (on the switch list).
 4. Apple login can only be tested once the paid Apple Developer account exists.
-5. Settings are kept on the phone per account until the server table exists (KAN-22).
+5. ~~Settings are kept on the phone per account until the server table exists (KAN-22).~~ Done 13 Nov 2026: settings are saved to the account. The distance unit (km / miles) is stored but not shown in Settings yet, because no screen shows distances.
 6. The checklist rule wording (entry rules) still needs your review (KAN-26).
 7. Packing lists are not yet personal in shared trips (each traveller their own list): that comes with shared trips in Part 2.
 8. Open-Meteo is free only while the app is not commercial: before the public launch, buy their plan or switch to MET Norway (on the switch list).
