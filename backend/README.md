@@ -27,7 +27,7 @@ Needs: .NET 10 SDK, Docker Desktop.
 
 ```bash
 cd backend
-docker compose up -d          # PostgreSQL 17 + PowerSync (port 8080)
+docker compose up -d          # PostgreSQL 17 + PowerSync (port 8080) + Azurite photo storage (port 10000)
 dotnet run --project src/TravelApp.Api   # API on http://localhost:5001
 ```
 
@@ -47,6 +47,11 @@ dotnet run --project src/TravelApp.Api   # API on http://localhost:5001
 **Trying trip saving locally (KAN-16):** with the same token, `POST /sync/upload` with a body like
 `{"changes":[{"op":"PUT","type":"trips","id":"<new uuid>","data":{"name":"Rome","type":"solo","status":"planned","passport_country_snapshot":"AL","home_currency_snapshot":"EUR"}},{"op":"PUT","type":"trip_stops","id":"<new uuid>","data":{"trip_id":"<the trip id>","order":0,"country_code":"IT","city_name":"Rome","nights":3}}]}`,
 then `GET /trips` shows it. PowerSync (in Docker) checks the same tokens with the API's public key, so start the API before using PowerSync.
+
+**Trying photos locally (KAN-40):** `docker compose up -d` also starts Azurite (free Azure Blob Storage emulator);
+the API uses it with `Media:BlobConnectionString = UseDevelopmentStorage=true` (appsettings.Development.json). Create a
+photo record with `POST /sync/upload` (type `media`), then `PUT /media/{id}/file` with a JPEG body and
+`Content-Type: image/jpeg`; `GET /media/{id}/file` gives it back without its EXIF data.
 
 **Before every commit:**
 
@@ -137,7 +142,7 @@ One API project organised by feature (`src/TravelApp.Api/Features/<Feature>/`) p
 | Sync (KAN-16) | `POST /sync/upload`: the phone's waiting changes `{ op: PUT/PATCH/DELETE, type: table, id, data: { snake_case columns } }`, one result per change (`ok` or `rejected` + reasons); PowerSync Sync Streams for reads |
 | Trips | `GET /trips?limit=50&after=<cursor>`: your trips with stops and flights, one page at a time (default 50, max 100; follow `nextCursor` until it is empty). The app reads here until PowerSync is on the phone |
 | Rules and data | `GET /checklist-rules?version=`, `GET /weather/days?lat=&lng=&from=&to=` (KAN-29: max 31 days, forecast up to 15 days ahead then "typical" weather, cached in `weather_cache`), FX rates for trip dates |
-| Media | `POST /media/{id}/upload-url`, `POST /media/{id}/uploaded`, `GET /media/{id}/url?size=thumb|full` |
+| Media (KAN-40) | `GET /media?tripId=` (the trip's photo records), `PUT /media/{id}/thumbnail` and `PUT /media/{id}/file` (raw `image/jpeg`, 1 MB / 15 MB, the record must be synced first; EXIF removed before storing), `GET /media/{id}/thumbnail` and `/file` (owner only). Records are written through `POST /sync/upload` type `media` |
 | Part 2 | `POST /trips/{id}/invite-link`, `POST /invites/{token}/accept`, member remove and leave, `POST /trips/{id}/video`, RevenueCat webhook |
 | Part 3 | `POST /trips/{id}/diary`, `POST /trips/{id}/postcards/{countryCode}`, album orders, `POST /recap/{year}/reward` |
 
@@ -148,7 +153,7 @@ Each feature's Confluence page has the details.
 | Service | Used for | When |
 | --- | --- | --- |
 | PowerSync (Open Edition locally, Cloud free plan for beta) | Sync | Part 1 |
-| Azure (App Service, PostgreSQL, Blob Storage, Communication Services) | Hosting | Part 1 beta |
+| Azure (App Service, PostgreSQL, Blob Storage, Communication Services) | Hosting. Photo files use Blob Storage (Azurite locally, KAN-40) | Part 1 beta |
 | Weather API: Open-Meteo (agreed 13 Nov 2026; free tier is non-commercial, paid plan or MET Norway before public launch). URLs in configuration `Weather:ForecastUrl` / `Weather:ArchiveUrl` | Packing list | Part 1 |
 | FX rates API (free daily rates covering all currencies, check terms) | Expenses | Part 1 |
 | Push (APNs / FCM, e.g. Expo push service) | Video ready, recap | Part 2 |

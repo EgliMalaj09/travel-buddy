@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #24 (trip tabs, packing and weather, expenses, and their review fixes).
+Last updated: 13 Nov 2026, after PRs #1 to #25 and photos and notes (KAN-39/40).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -336,10 +336,10 @@ You tab → **Settings**.
 | TAB-03 | | Tap the Places card on Plan | The **Places** tab opens with the places day by day | |
 | TAB-04 | | Tap the Checklist card on Plan | The **Checklist** tab opens with the full list, progress bar and "Add your own item" | |
 | TAB-05 | | Tap each tab in turn | Only that tab's content shows; the underline moves. On a small phone the tab row scrolls sideways | |
-| TAB-06 | | **Photos** tab | A friendly "come soon" message (built next). **Expenses** now has its own cases (EXP) *(updated 13 Nov, expenses)* | |
+| TAB-06 | | **Photos** tab | The photos tab (its own cases: PHO). **Expenses** has its own cases (EXP) *(updated 13 Nov, photos)* | |
 | TAB-07 | | On the Places tab, open a place, then go Back | You are still on the Places tab | |
 | TAB-08 | | Go Back to the trips list, open the same trip again | It opens on the tab you used last (until the app is closed) | |
-| TAB-09 | | Tap the round **+** button (bottom right) | "Add to this trip" with **Expense**, **Place**, **Checklist item** and **Something to pack**, in that order *(updated 13 Nov, expenses)*. During the trip it says **Place for today** | |
+| TAB-09 | | Tap the round **+** button (bottom right) | "Add to this trip" with **Take a photo**, **Photos from library**, **Expense**, **Place**, **Checklist item** and **Something to pack**, in that order *(updated 13 Nov, photos)*. During the trip it says **Place for today** | |
 | TAB-10 | | + → **Place** | The place form opens for this trip (on today's date while the trip is on) | |
 | TAB-11 | | + → **Checklist item** → name → Save | The item is added and the **Checklist** tab opens showing it | |
 | TAB-12 | | Scroll to the bottom of a long tab | The last row is not hidden behind the + button | |
@@ -412,28 +412,60 @@ Amounts are kept in the money you paid in. The app shows them in **your home cur
 | EXP-24 | | Airplane mode: add expenses in a foreign currency on 10 different past days (edit the day). Go online and wait | Some rows convert at once, the rest show "converting…" and are converted about a minute later, without reopening the app | |
 | EXP-25 | | Scalar: **GET /fx/rates** with 10 dates not asked before | The first 7 days come back with rates; the other days come back without rates. Calling again a minute later fills them | |
 
-## 18. API base and backend checks (KAN-58)
+## 18. Photos and notes (KAN-39, KAN-40)
+
+Photos are saved on the phone first and upload later (**Wi-Fi only** by default). The photo's position is never read or kept; the server removes the photo's hidden data (EXIF) before storing it. Needs the app **rebuilt** (`-Rebuild`, new phone libraries), migration `Media` (start.cmd runs it), photo storage Azurite (start.cmd starts it) and the PowerSync restart (see docs/COMMANDS.md).
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| PHO-01 | | Open a trip, tab **Photos** with nothing added | "No photos yet" and two buttons **Take a photo** and **From library** | |
+| PHO-02 | | **Take a photo** the first time | The phone asks for the camera ("Allow Travel App to take photos for your trips"). Allow, take a photo, **Use photo** → back on the tab: the photo under **Today** (or its date), "1 photo" | |
+| PHO-03 | | Say **Don't allow** to the camera (or turn it off in the phone settings), tap **Take a photo** | Red line "Allow the camera in your phone settings…", nothing added, no crash | |
+| PHO-04 | | **From library**, pick 3 photos from different days | 3 photos appear, grouped by the day they were **taken** (not today), newest day first, each day with "N photos" | |
+| PHO-05 | | **From library**, pick one of the same photos again | "1 photo was already in this trip.", not added twice | |
+| PHO-06 | | Try to pick more than 20 photos | The library stops at 20 | |
+| PHO-07 | | Tap a photo | The photo big, its date and time, an upload line, "Your note" field. Back returns to the Photos tab | |
+| PHO-08 | | Write a note, **Save note** | The button says **Note saved**; the note is in handwriting. Back: the photo has a small pen mark | |
+| PHO-09 | | Clear the note, **Save note** | The pen mark is gone | |
+| PHO-10 | | Phone on **mobile data** (Wi-Fi off), Settings "Upload photos only on Wi-Fi" **on**. Add a photo | Tile has a cloud mark; the tab says "1 photo only on this phone so far. They upload when you are on Wi-Fi."; photo screen says "On this phone. Uploads when you are on Wi-Fi" | |
+| PHO-11 | | Turn Wi-Fi on, wait a few seconds, reopen the tab | Cloud mark gone; photo screen says "Saved to your account". Scalar: **GET /media?tripId=…** shows `uploadedAt` and `fileKey` set | |
+| PHO-12 | | Settings: turn "Upload photos only on Wi-Fi" **off**, on mobile data add a photo | It uploads without Wi-Fi | |
+| PHO-13 | | **Airplane mode** on. Add 2 photos, write a note on one, delete the other | All works at once with no signal | |
+| PHO-14 | | Airplane mode off, wait, reopen the tab | The kept photo uploads with its note; the deleted one never shows again (Scalar GET /media lists only the kept one) | |
+| PHO-15 | | Stop the API (or Azurite) for a moment, add a photo, start it again, wait a few minutes | The photo still uploads in the end (it tries again 30 s, 2 min, 10 min, then hourly); the app never crashes | |
+| PHO-16 | | Photo screen → bin icon → **Delete** | Back on the tab, the photo is gone. Scalar GET /media no longer lists it | |
+| PHO-17 | | Delete the trip that has photos | Its photos are gone too | |
+| PHO-18 | | Trip page **+** | **Take a photo** and **Photos from library** come first; they open the Photos tab and add there | |
+| PHO-19 | | Log in with the same account on a second phone (or after deleting and reinstalling the app) | The photos show as grey boxes for a moment, then the pictures appear (downloaded). Opening one shows the full photo. The upload line says "Saved to your account" | |
+| PHO-20 | | Log out and log in as **another user** on the same phone | None of the first user's photos show. (Their files on this phone are removed at login) | |
+| PHO-21 | | Scalar: **GET /media/{id}/file** with your token for an uploaded photo | Downloads the JPEG. With another user's token: 404 | |
+| PHO-22 | | Download that JPEG and look at its details (Windows: right-click → Properties → Details) | **No GPS / location** and no camera details | |
+| PHO-23 | | Scalar: **PUT /media/{id}/file** with a PNG or a text file | 415 (not image/jpeg) or 400 ("not a valid JPEG"), nothing stored | |
+| PHO-24 | | Web preview (`npm run web`), Photos tab | Says "Adding photos works in the phone app."; no buttons | |
+| PHO-25 | | Wait 30 days after deleting a photo *(or ask Claude for a quick test with `Media:CleanupAfterDays` = 0)* | The API window says "Media cleanup removed N deleted photos"; the file is gone from Azurite | |
+
+## 19. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
 | API-01 | A-01 | Open http://localhost:5001/health | 200, healthy | ✅ |
 | API-02 | A-02 | Open http://localhost:5001/app-info | name, version, environment "Development" | ✅ |
 | API-03 | A-03 | Open http://localhost:5001/scalar | Lists all endpoints | ✅ |
-| API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (112 on 13 Nov 2026) | ✅ |
-| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (229 on 13 Nov 2026) | |
+| API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (121 on 13 Nov 2026, with photos) | ✅ |
+| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (241 on 13 Nov 2026, with photos) | |
 
-## 19. Privacy: no personal data in logs (GDPR)
+## 20. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
 | GDPR-01 | | Sign up, log in from a new phone, reset a password. Read the API window | `[dev email]` lines show the purpose and the code, **never the email**. No password, token or request body anywhere | |
-| GDPR-02 | | Create a trip, a place, checklist items and an expense, open the Packing and Expenses tabs. Read the API window *(updated 13 Nov)* | No trip names, cities, place or expense names, amounts, notes, positions, weather or exchange-rate web addresses | |
+| GDPR-02 | | Create a trip, a place, checklist items, an expense and a photo with a note, open the Packing, Expenses and Photos tabs. Read the API window *(updated 13 Nov, photos)* | No trip names, cities, place or expense names, amounts, notes, photo notes, positions, file sizes, weather, exchange-rate or storage web addresses | |
 | GDPR-03 | | Read the Expo / Metro window while using the app (mock login too) | No email, name, token or trip details printed | |
 | GDPR-04 | | *(When Sentry is turned on)* Cause an error, open the report in Sentry | No user, email, request body, console lines or `?query` values in the report | |
 
-## 20. Known gaps
+## 21. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.

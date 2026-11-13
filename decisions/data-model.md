@@ -316,6 +316,8 @@ Notes:
 - Deleting a **shared** photo (D3): it is hidden only for the person who deletes it, whoever they are (the person who added it or another member). The record and file stay for the others. Stored as a `MediaHidden` row.
 - The file is removed from storage only when no member can see it any more.
 
+*Built 13 Nov 2026 (KAN-39/40):* table `media` (only `trip_photo` photos, JPEG, source camera or library). Files go through the API (`PUT/GET /media/{id}/file` and `/thumbnail`), not upload URLs; the server removes EXIF/XMP before storing. The phone does not read the photo's position (`lat`, `lng`, `countryCode` stay empty for now). Instead of a `MediaLocal` table the phone keeps files at `photos/<id>/` and a small upload state per photo. A job deletes files and rows 30 days after delete. See `features/08-photos-notes.md`.
+
 **MediaHidden** (synced): `id`, `mediaId`, `userId`, `hiddenAt`, sync fields. Unique per `mediaId` and `userId`. Each person only syncs their own rows.
 
 ## 13. Expense (AGREED: D5, D7, D8. Splitting OPEN: D6)
