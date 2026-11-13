@@ -13,6 +13,12 @@ public static class FxValues
     /// <summary>Furthest day ahead that can be asked for (planned expenses use the latest rate until that day).</summary>
     public const int AheadDays = 400;
 
+    /// <summary>
+    /// Most new days fetched from the provider in one request. Keeps one account from making hundreds of provider
+    /// calls a minute; the other days come back without rates and the app asks again a minute later.
+    /// </summary>
+    public const int MaxProviderDaysPerRequest = 7;
+
     /// <summary>When the provider has no rate for a day, the closest earlier day up to this many days back is used.</summary>
     public const int FallbackDays = 7;
 }

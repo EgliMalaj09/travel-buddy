@@ -128,6 +128,23 @@ public sealed class FxRatesTests(ApiFactory factory) : IAsyncLifetime
         Assert.All(days, d => Assert.True(d.Final));
     }
 
+    [Fact]
+    public async Task One_request_fetches_only_a_few_new_days_from_the_provider()
+    {
+        var first = new DateOnly(2025, 6, 1);
+        var many = Enumerable.Range(0, FxValues.MaxProviderDaysPerRequest + 3).Select(first.AddDays).ToList();
+
+        var days = await Days(string.Join(',', many.Select(Day)), "MAD");
+        Assert.Equal(FxValues.MaxProviderDaysPerRequest, days.Count(d => d.Final));
+        // The others come back empty (not with a nearby day's rates), so the app asks again.
+        Assert.All(days.Where(d => !d.Final), d => Assert.Null(d.RateDate));
+        Assert.Equal(many.Count, days.Count);
+
+        // The next call fetches the rest.
+        days = await Days(string.Join(',', many.Select(Day)), "MAD");
+        Assert.All(days, d => Assert.True(d.Final));
+    }
+
     [Theory]
     [InlineData("2025-13-01", "MAD", "dates")]
     [InlineData("", "MAD", "dates")]

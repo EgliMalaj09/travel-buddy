@@ -58,7 +58,9 @@ export function checkExpense(input: ExpenseInput): void {
 /** Sort used by every implementation: newest first. */
 export function sortExpenses(expenses: Expense[]): Expense[] {
   return [...expenses].sort((a, b) => {
-    if (a.spentAt !== b.spentAt) return a.spentAt < b.spentAt ? 1 : -1;
+    // Times compared as times: the phone writes "…:00.000Z", the server sends "…:00Z".
+    const at = Date.parse(b.spentAt) - Date.parse(a.spentAt);
+    if (at) return at;
     if (a.createdAt !== b.createdAt) return a.createdAt < b.createdAt ? 1 : -1;
     return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
   });

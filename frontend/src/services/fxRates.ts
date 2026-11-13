@@ -129,7 +129,11 @@ export async function getFxRates(
         continue;
       }
       for (const day of answer) {
-        if (!day.rateDate) continue;
+        // No rates for this day yet (the server fetches a few days per call): ask again in a minute.
+        if (!day.rateDate) {
+          failed = true;
+          continue;
+        }
         const before = cache[day.date];
         // A final day never goes back to a provisional answer.
         if (before?.final && !day.final) continue;

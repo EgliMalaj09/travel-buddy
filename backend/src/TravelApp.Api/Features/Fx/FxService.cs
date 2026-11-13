@@ -35,7 +35,13 @@ internal sealed partial class FxService(
 
         // A future day uses today's rates (or the latest) until that day comes.
         var lookups = dates.Select(d => d > today ? today : d).Distinct().ToList();
-        foreach (var day in lookups) await EnsureDayAsync(day, today, now, ct);
+        var stored = await db.Set<FxRate>().AsNoTracking()
+            .Where(r => lookups.Contains(r.Date)).Select(r => r.Date).Distinct().ToListAsync(ct);
+        var toFetch = lookups.Except(stored).Where(d => !failures.RecentlyFailed(d, now))
+            .Take(FxValues.MaxProviderDaysPerRequest).ToList();
+        foreach (var day in toFetch) await FetchDayAsync(day, today, now, ct);
+        // Days left for a later request get no rates now (not the closest day's), so the app asks again soon.
+        var later = lookups.Except(stored).Where(d => !failures.RecentlyFailed(d, now)).Except(toFetch).ToHashSet();
 
         var earliest = lookups.Min().AddDays(-FxValues.FallbackDays);
         var latest = lookups.Max();
@@ -48,6 +54,7 @@ internal sealed partial class FxService(
         var answer = dates.Select(date =>
         {
             var lookup = date > today ? today : date;
+            if (later.Contains(lookup)) return new FxDayDto(date, null, false, new Dictionary<string, decimal>());
             var from = lookup.AddDays(-FxValues.FallbackDays);
             var found = days.LastOrDefault(d => d <= lookup && d >= from);
             if (found == default || !byDay.TryGetValue(found, out var rates))
@@ -58,12 +65,9 @@ internal sealed partial class FxService(
         return new FxRatesResponse(answer);
     }
 
-    /// <summary>Makes sure the rates of <paramref name="day"/> are stored, when the provider has them.</summary>
-    private async Task EnsureDayAsync(DateOnly day, DateOnly today, DateTimeOffset now, CancellationToken ct)
+    /// <summary>Fetches and stores the rates of <paramref name="day"/>, when the provider has them.</summary>
+    private async Task FetchDayAsync(DateOnly day, DateOnly today, DateTimeOffset now, CancellationToken ct)
     {
-        if (await db.Set<FxRate>().AnyAsync(r => r.Date == day, ct)) return;
-        if (failures.RecentlyFailed(day, now)) return;
-
         var started = Stopwatch.GetTimestamp();
         try
         {
