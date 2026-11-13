@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #41 (up to the legal drafts and their gap cases) and the phone builds (KAN-60).
+Last updated: 13 Nov 2026, after PRs #1 to #42 (up to the phone builds, KAN-60).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -682,6 +682,8 @@ After the beta server is running (section 24) and the steps in docs/COMMANDS.md,
 | PHONE-10 | | iPhone: the Mac steps with `FREE_APPLE_SIGNING=1` | The build installs on your iPhone and opens; "Continue with Apple" fails with an error (expected in the free build), email login works | |
 | PHONE-11 | | iPhone build, 8 days later | It no longer opens (free Apple ID limit); running step 3 on the Mac again fixes it | |
 | PHONE-12 | | Back office **App settings**: set the minimum app version to `9.0.0`, open the beta app; then set it back | "Update the app" screen appears; after setting it back and **Check again**, the app opens | |
+| PHONE-13 | | Beta app: sign up a brand-new account and open Home and the You tab | No sample trips and no "Sample data (mock mode)" line; **About** shows "Data: local" (the beta never uses sample data) | |
+| PHONE-14 | | iPhone free build (PHONE-10): turn reminders on, make a trip that starts tomorrow, allow notifications | The "tomorrow" reminder still arrives at your reminder time (reminders are on the phone and need no push) | |
 
 ## 27. API base and backend checks (KAN-58)
 
