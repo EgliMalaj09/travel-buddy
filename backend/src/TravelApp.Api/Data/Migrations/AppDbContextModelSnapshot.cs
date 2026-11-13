@@ -728,6 +728,189 @@ namespace TravelApp.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TravelApp.Api.Features.Media.MediaItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Caption")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("caption");
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("content_hash");
+
+                    b.Property<string>("CountryCode")
+                        .HasMaxLength(2)
+                        .HasColumnType("character(2)")
+                        .HasColumnName("country_code")
+                        .IsFixedLength();
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int?>("DurationSec")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_sec");
+
+                    b.Property<string>("FileKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("file_key");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("integer")
+                        .HasColumnName("height");
+
+                    b.Property<bool>("IncludeInVideo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("include_in_video");
+
+                    b.Property<bool>("IsSuggested")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_suggested");
+
+                    b.Property<double?>("Lat")
+                        .HasColumnType("double precision")
+                        .HasColumnName("lat");
+
+                    b.Property<double?>("Lng")
+                        .HasColumnType("double precision")
+                        .HasColumnName("lng");
+
+                    b.Property<string>("MediaType")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("media_type");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("mime_type");
+
+                    b.Property<Guid>("OwnerUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<Guid?>("PlaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("place_id");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)")
+                        .HasColumnName("purpose");
+
+                    b.Property<string>("QualityTier")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("quality_tier");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("scope");
+
+                    b.Property<long?>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<int?>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)")
+                        .HasColumnName("source");
+
+                    b.Property<DateTimeOffset?>("TakenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("taken_at");
+
+                    b.Property<string>("ThumbnailKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("thumbnail_key");
+
+                    b.Property<Guid?>("TripId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("trip_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<DateTimeOffset?>("UploadedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("uploaded_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("integer")
+                        .HasColumnName("width");
+
+                    b.HasKey("Id")
+                        .HasName("pk_media");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("ix_media_deleted_at")
+                        .HasFilter("deleted_at IS NOT NULL");
+
+                    b.HasIndex("OwnerUserId")
+                        .HasDatabaseName("ix_media_owner_user_id");
+
+                    b.HasIndex("TripId", "OwnerUserId", "ContentHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_media_trip_id_owner_user_id_content_hash")
+                        .HasFilter("deleted_at IS NULL");
+
+                    b.ToTable("media", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_media_content_hash", "content_hash ~ '^[0-9a-f]{64}$'");
+
+                            t.HasCheckConstraint("ck_media_country_code", "country_code IS NULL OR country_code ~ '^[A-Z]{2}$'");
+
+                            t.HasCheckConstraint("ck_media_media_type", "media_type IN ('photo', 'video')");
+
+                            t.HasCheckConstraint("ck_media_position", "(lat IS NULL) = (lng IS NULL) AND (lat IS NULL OR (lat BETWEEN -90 AND 90 AND lng BETWEEN -180 AND 180))");
+
+                            t.HasCheckConstraint("ck_media_purpose", "purpose IN ('trip_photo', 'avatar')");
+
+                            t.HasCheckConstraint("ck_media_quality_tier", "quality_tier IN ('compressed', 'full')");
+
+                            t.HasCheckConstraint("ck_media_scope", "scope IN ('shared', 'personal')");
+
+                            t.HasCheckConstraint("ck_media_size", "width BETWEEN 1 AND 20000 AND height BETWEEN 1 AND 20000");
+
+                            t.HasCheckConstraint("ck_media_source", "source IN ('camera', 'library', 'autocapture')");
+
+                            t.HasCheckConstraint("ck_media_trip", "purpose <> 'trip_photo' OR trip_id IS NOT NULL");
+                        });
+                });
+
             modelBuilder.Entity("TravelApp.Api.Features.Places.Place", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1309,6 +1492,22 @@ namespace TravelApp.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_expenses_trip_trip_id");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Features.Media.MediaItem", b =>
+                {
+                    b.HasOne("TravelApp.Api.Features.Auth.User", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_media_users_owner_user_id");
+
+                    b.HasOne("TravelApp.Api.Features.Trips.Trip", null)
+                        .WithMany()
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_media_trip_trip_id");
                 });
 
             modelBuilder.Entity("TravelApp.Api.Features.Places.Place", b =>

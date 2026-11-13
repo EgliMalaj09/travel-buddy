@@ -41,5 +41,17 @@ services:
     volumes:
       - ./docker/powersync:/config:ro
 
+  # Photo files (KAN-40): Azurite, Microsoft's free Azure Blob Storage emulator. Only the API talks to it
+  # (connection string "UseDevelopmentStorage=true"); the phone never does. Beta/production use real Azure Blob
+  # Storage in an EU region.
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.34.0
+    command: ['azurite-blob', '--blobHost', '0.0.0.0', '--blobPort', '10000', '--location', '/data', '--skipApiVersionCheck']
+    ports:
+      - '10000:10000'
+    volumes:
+      - azurite-data:/data
+
 volumes:
   postgres-data:
+  azurite-data:
