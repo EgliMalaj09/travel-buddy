@@ -16,6 +16,7 @@ public static class AuthEndpoints
         var auth = app.MapGroup("/auth").WithTags("Auth").AllowAnonymous().RequireRateLimiting(AuthSetup.RateLimitPolicy)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .ProducesProblem(StatusCodes.Status410Gone)
             .ProducesProblem(StatusCodes.Status429TooManyRequests);

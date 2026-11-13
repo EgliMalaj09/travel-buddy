@@ -29,6 +29,7 @@ internal sealed class UserConfiguration :
         builder.Property(u => u.Language).HasMaxLength(10);
         builder.Property(u => u.TimeZone).HasMaxLength(64);
         builder.Property(u => u.TermsVersion).HasMaxLength(20);
+        builder.Property(u => u.SuspensionReason).HasMaxLength(20);
         builder.Property(u => u.PrivacyVersion).HasMaxLength(20);
         builder.Property(u => u.Status).HasMaxLength(20);
         builder.Property(u => u.Version).IsConcurrencyToken();

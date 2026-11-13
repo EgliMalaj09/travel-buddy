@@ -43,6 +43,7 @@ public sealed class AuthService(
     internal static readonly AuthFailure ConsentRequired = new(400, AuthErrorCodes.ConsentRequired, "Confirm you are 16 or older and accept the terms and privacy.");
     internal static readonly AuthFailure InvalidToken = new(401, AuthErrorCodes.InvalidToken, "The sign-in could not be checked. Try again.");
     internal static readonly AuthFailure SessionExpired = new(401, AuthErrorCodes.SessionExpired, "Please log in again.");
+    internal static readonly AuthFailure Suspended = new(403, AuthErrorCodes.AccountSuspended, "This account is suspended. Contact support.");
     internal static readonly AuthFailure AccountDeleted = new(401, AuthErrorCodes.AccountDeleted, "This account is waiting to be deleted. Log in to restore it.");
 
     public async Task<AuthResult<bool>> SignUpAsync(SignUpRequest request, CancellationToken ct)
@@ -142,6 +143,7 @@ public sealed class AuthService(
         await users.ResetAccessFailedCountAsync(user);
         var now = clock.GetUtcNow();
         if (BeingErased(user, now)) return AccountDeletionService.AlreadyErased;
+        if (user.SuspendedAt is not null) return Suspended;
         var device = await db.Set<TrustedDevice>()
             .SingleOrDefaultAsync(d => d.UserId == user.Id && d.DeviceId == request.DeviceId, ct);
         if (device is not null && device.ExpiresAt > now)
@@ -179,6 +181,7 @@ public sealed class AuthService(
         }
 
         if (BeingErased(user, clock.GetUtcNow())) return AccountDeletionService.AlreadyErased;
+        if (user.SuspendedAt is not null) return Suspended;
         await TrustDeviceAsync(user.Id, request.DeviceId, request.DeviceName, clock.GetUtcNow(), ct);
         return await sessions.StartAsync(user, request.DeviceId, ct);
     }
@@ -217,6 +220,7 @@ public sealed class AuthService(
         }
 
         if (BeingErased(user, now)) return AccountDeletionService.AlreadyErased;
+        if (user.SuspendedAt is not null) return Suspended;
         return await sessions.StartAsync(user, request.DeviceId, ct);
     }
 

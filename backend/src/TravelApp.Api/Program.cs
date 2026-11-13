@@ -1,6 +1,8 @@
 using Scalar.AspNetCore;
 using TravelApp.Api.Data;
 using TravelApp.Api.Features.Account;
+using TravelApp.Api.Features.Admin;
+using TravelApp.Api.Features.AppConfig;
 using TravelApp.Api.Features.AppInfo;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Checklist;
@@ -41,6 +43,8 @@ builder.Services.AddSyncFeature();
 builder.Services.AddWeatherFeature(builder.Configuration);
 builder.Services.AddFxFeature(builder.Configuration);
 builder.Services.AddGeoFeature(builder.Configuration);
+builder.Services.AddAppConfigFeature();
+builder.Services.AddAdminFeature(builder.Configuration, builder.Environment);
 
 // The web build of the app (npm run web, http://localhost:8081) calls the API from another port,
 // so the browser needs CORS. Development only: phones do not use CORS.
@@ -56,7 +60,8 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
-if (app.Environment.IsDevelopment()) app.UseCors();
+// The default policy (web build of the app) exists in development only; the "admin" policy (back office) everywhere.
+app.UseCors();
 app.UseAuthFeature();
 
 if (app.Environment.IsDevelopment())
@@ -78,6 +83,8 @@ app.MapSyncEndpoints();
 app.MapWeatherEndpoints();
 app.MapFxEndpoints();
 app.MapGeoEndpoints();
+app.MapAppConfigEndpoints();
+app.MapAdminEndpoints();
 
 app.Run();
 

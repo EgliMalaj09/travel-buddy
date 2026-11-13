@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TravelApp.Api.Features.Account;
+using TravelApp.Api.Features.Admin;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Expenses;
 using TravelApp.Api.Features.Media;
@@ -67,4 +68,11 @@ internal sealed class UserSettingsLink : IEntityTypeConfiguration<UserSettings>
     // The settings row's id is the user id; it goes when the account is erased (KAN-22).
     public void Configure(EntityTypeBuilder<UserSettings> builder) =>
         builder.HasOne<User>().WithOne().HasForeignKey<UserSettings>(s => s.Id).OnDelete(DeleteBehavior.Cascade);
+}
+
+internal sealed class AdminMemberLink : IEntityTypeConfiguration<AdminMember>
+{
+    // A team member goes when their account is erased. Audit entries keep the (now meaningless) id on purpose.
+    public void Configure(EntityTypeBuilder<AdminMember> builder) =>
+        builder.HasOne<User>().WithOne().HasForeignKey<AdminMember>(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
 }

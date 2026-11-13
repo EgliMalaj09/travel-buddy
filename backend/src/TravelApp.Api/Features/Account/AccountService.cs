@@ -8,6 +8,7 @@ namespace TravelApp.Api.Features.Account;
 /// feature with user data only has to register one more <see cref="IUserData"/> to be exported and erased.
 /// </summary>
 internal sealed partial class AccountService(IEnumerable<IUserData> parts, IAccountsToPurge accounts, TimeProvider clock, ILogger<AccountService> logger)
+    : IAccountAdmin
 {
     public const int ExportFormatVersion = 1;
 
@@ -31,6 +32,13 @@ internal sealed partial class AccountService(IEnumerable<IUserData> parts, IAcco
         {
             await part.PurgeAsync(userId, ct);
         }
+    }
+
+    public async Task EraseNowAsync(Guid userId, CancellationToken ct)
+    {
+        var watch = Stopwatch.StartNew();
+        await PurgeAsync(userId, ct);
+        LogPurged(userId, watch.ElapsedMilliseconds);
     }
 
     /// <summary>Erases every account whose waiting time is over. Returns how many were erased.</summary>

@@ -13,6 +13,9 @@ public static class AuthSetup
 {
     public const string RateLimitPolicy = "auth";
 
+    /// <summary>Token scheme of the back office (KAN-55): same key, its own audience.</summary>
+    public const string AdminScheme = "AdminBearer";
+
     /// <summary>
     /// Identity (A3), access token checks (ES256, A1), the /auth rate limit, and the rule that every
     /// endpoint needs a token unless it is marked public.
@@ -44,6 +47,9 @@ public static class AuthSetup
         services.AddScoped<AccountDeletionService>();
         services.AddScoped<IAccountsToPurge>(sp => sp.GetRequiredService<AccountDeletionService>());
         services.AddScoped<IUserData, AuthUserData>();
+        services.AddSingleton<IAdminAccess, AdminAccess>();
+        services.AddScoped<IUserDirectory, UserDirectory>();
+        services.AddScoped<TravelApp.Api.Features.Admin.IServiceStatusCheck, EmailStatusCheck>();
         services.AddSingleton<IAuthEmailSender, LogAuthEmailSender>();
         services.AddSingleton<IExternalTokenValidator, OpenIdTokenValidator>();
         services.AddHttpClient<ILeakedPasswordCheck, PwnedPasswordsCheck>(http =>
@@ -54,21 +60,11 @@ public static class AuthSetup
             http.DefaultRequestHeaders.UserAgent.ParseAdd("travel-app-api");
         });
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer().AddJwtBearer(AdminScheme);
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-            .Configure<SigningKeys, IOptions<AuthOptions>>((jwt, keys, auth) =>
-            {
-                jwt.MapInboundClaims = false;
-                jwt.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidIssuer = auth.Value.Issuer,
-                    ValidAudience = auth.Value.ApiAudience,
-                    IssuerSigningKey = keys.Key,
-                    ValidAlgorithms = [SecurityAlgorithms.EcdsaSha256],
-                    NameClaimType = "sub",
-                    ClockSkew = TimeSpan.FromSeconds(30),
-                };
-            });
+            .Configure<SigningKeys, IOptions<AuthOptions>>((jwt, keys, auth) => Bearer(jwt, keys, auth.Value, auth.Value.ApiAudience));
+        services.AddOptions<JwtBearerOptions>(AdminScheme)
+            .Configure<SigningKeys, IOptions<AuthOptions>>((jwt, keys, auth) => Bearer(jwt, keys, auth.Value, auth.Value.AdminAudience));
 
         // Every endpoint needs a valid access token unless it says AllowAnonymous (structure rule 5).
         // Unknown routes (no endpoint) still answer 404.
@@ -88,6 +84,20 @@ public static class AuthSetup
         });
 
         return services;
+    }
+
+    private static void Bearer(JwtBearerOptions jwt, SigningKeys keys, AuthOptions auth, string audience)
+    {
+        jwt.MapInboundClaims = false;
+        jwt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = auth.Issuer,
+            ValidAudience = audience,
+            IssuerSigningKey = keys.Key,
+            ValidAlgorithms = [SecurityAlgorithms.EcdsaSha256],
+            NameClaimType = "sub",
+            ClockSkew = TimeSpan.FromSeconds(30),
+        };
     }
 
     public static WebApplication UseAuthFeature(this WebApplication app)

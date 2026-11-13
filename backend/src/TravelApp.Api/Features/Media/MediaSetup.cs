@@ -1,3 +1,4 @@
+using TravelApp.Api.Features.Admin;
 using TravelApp.Api.Features.Account;
 using System.Threading.RateLimiting;
 using TravelApp.Api.Features.Sync;
@@ -21,6 +22,8 @@ public static class MediaSetup
         services.AddScoped<ITripDeleteHook>(sp => sp.GetRequiredService<MediaService>());
         services.AddScoped<ISyncTable, MediaSyncTable>();
         services.AddScoped<IUserData, MediaUserData>();
+        services.AddScoped<IAdminMetrics, MediaAdminMetrics>();
+        services.AddScoped<IServiceStatusCheck, MediaStatusCheck>();
         services.AddSingleton<IMediaStorage, AzureBlobMediaStorage>();
         services.AddHostedService<MediaCleanup>();
 

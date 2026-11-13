@@ -1,3 +1,4 @@
+using TravelApp.Api.Features.Admin;
 using System.Threading.RateLimiting;
 using TravelApp.Api.Shared;
 
@@ -12,6 +13,7 @@ public static class FxSetup
     {
         services.AddOptions<FxOptions>().Bind(configuration.GetSection(FxOptions.Section));
         services.AddScoped<FxService>();
+        services.AddScoped<IServiceStatusCheck, FxStatusCheck>();
         services.AddSingleton<FxFailures>();
         var perMinute = configuration.GetValue<int?>($"{FxOptions.Section}:{nameof(FxOptions.RequestsPerMinutePerUser)}") ?? 60;
         services.AddRateLimiter(o => o.AddPolicy(RateLimitPolicy, http => RateLimitPartition.GetFixedWindowLimiter(

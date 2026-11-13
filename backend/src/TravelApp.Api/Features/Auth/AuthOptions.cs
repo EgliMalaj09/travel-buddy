@@ -12,6 +12,9 @@ public sealed class AuthOptions
 
     public string PowerSyncAudience { get; set; } = "travel-app-powersync";
 
+    /// <summary>"aud" of back office tokens (KAN-55). They never work on the app's endpoints, and app tokens never work on /admin.</summary>
+    public string AdminAudience { get; set; } = "travel-app-admin";
+
     /// <summary>
     /// ES256 private key (PEM, P-256). Required outside Development (Azure Key Vault in beta).
     /// In Development, when empty, a local key is created once in <see cref="DevKeyFile"/>.
