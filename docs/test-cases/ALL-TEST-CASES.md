@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #37 (up to the back office and its gap cases) and the beta server (KAN-61).
+Last updated: 13 Nov 2026, after PRs #1 to #38 (up to the beta server, KAN-61).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -635,13 +635,15 @@ addresses step 5 printed. BETA-01 is the only one for your PC. Cases that need t
 | BETA-07 | | Postman: import `backend/openapi/openapi.json`, set the base URL to `apiUrl`, send **POST /auth/signup** with a real email of yours, a password and the consents (Postman fills an example body) | A code email arrives within a minute from your Brevo sender; the subject has **no** code, the body has the 6 digits and "10 minutes" | |
 | BETA-08 | | Right after BETA-07: `az containerapp logs show --resource-group travel-beta --name travelbeta-api --tail 100` | JSON lines only; **no email address and no code** anywhere | |
 | BETA-09 | | Open `backofficeUrl`, log in with your app account, set up the authenticator, open **Services** | Dashboard opens; Services shows Email "Email service (SMTP)" OK and the database as Azure | |
-| BETA-10 | | In the back office open **Users**, then press F5 (reload) | The Users page loads again (no "404 Not Found" from Azure) | |
-| BETA-11 | | Back office in the browser: F12 → Network, reload, click the page document → Response headers | `content-security-policy`, `x-content-type-options: nosniff`, `referrer-policy: no-referrer`, `x-robots-tag: noindex, nofollow` | |
+| BETA-10 | | In the back office open **Accounts**, then press F5 (reload) *(updated 13 Nov: the menu says Accounts)* | The Accounts page loads again (no "404 Not Found" from Azure) | |
+| BETA-11 | | Back office in the browser: F12 → Network, reload, click the page document → Response headers | `content-security-policy`, `x-content-type-options: nosniff`, `referrer-policy: no-referrer`, `x-robots-tag: noindex, nofollow`, `permissions-policy: camera=(), microphone=(), geolocation=()` | |
 | BETA-12 | | Safety check: `az containerapp update --resource-group travel-beta --name travelbeta-api --remove-env-vars Email__Host --output none`, wait 1 minute, read the logs (BETA-08 command). Then put it back: `az containerapp update --resource-group travel-beta --name travelbeta-api --set-env-vars Email__Host=smtp-relay.brevo.com --output none` | The logs show "Beta settings missing or unsafe: Email:Host and Email:From are needed…" (names only, no values); after putting it back `apiUrl/health` is `Healthy` again | |
 | BETA-13 | | Change something small on `main`, then **Deploy beta** → **both** | Three green ticks; the "Health check" step says "API is up"; the back office still works | |
 | BETA-14 | | Leave the beta alone for 30 minutes, then open `apiUrl/health` | Answers within about 20 seconds (it was asleep: that is how it stays free) | |
 | BETA-15 | | COMMANDS step 9 (PowerSync Cloud) | PowerSync's dashboard shows the database connection and the sync rules as healthy | |
 | BETA-16 | | Azure portal → **Cost Management** → **Cost analysis** for `travel-beta`, a week after setup | €0.00 (or only free-account credit used) | |
+| BETA-17 | | Postman against `apiUrl`: send **POST /auth/login** with a wrong password 31 times within one minute from your PC. Then, within that minute, send it once more from another network (e.g. a laptop on your phone's hotspot) | The PC gets **429** after 30 tries; the other network is **not** blocked (the limit counts each caller, not the whole server) | |
+| BETA-18 | | After the first deploy (and after any deploy with a database change), open the back office **Dashboard** | It loads with numbers (the API set up the database tables itself when it started; nobody ran a migration by hand) | |
 
 ## 25. API base and backend checks (KAN-58)
 
