@@ -111,7 +111,8 @@ if ($LASTEXITCODE -ne 0 -or -not $efVersion) {
   if ($LASTEXITCODE -ne 0) { Fail 'Could not install dotnet-ef.' }
 } elseif (-not ($efVersion.Trim()).StartsWith('10.')) {
   Info "Switching dotnet-ef from $($efVersion.Trim()) to $efWanted (matches the backend)..."
-  dotnet tool update --global dotnet-ef --version $efWanted
+  dotnet tool uninstall --global dotnet-ef
+  dotnet tool install --global dotnet-ef --version $efWanted
   if ($LASTEXITCODE -ne 0) { Fail 'Could not switch dotnet-ef to version 10.' }
 }
 Push-Location $Backend
