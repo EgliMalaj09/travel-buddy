@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #44 and the legal texts in the app (L-g).
+Last updated: 13 Nov 2026, after PRs #1 to #45 (up to the legal texts in the app, L-g).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -649,8 +649,9 @@ addresses step 5 printed. BETA-01 is the only one for your PC. Cases that need t
 
 ## 25. Legal texts (drafts) (KAN-62)
 
-Reading checks, no app needed. Open the files in `legal/` on GitHub. They are drafts for a lawyer; these checks make
-sure they match what the app really does before the lawyer sees them.
+LEGAL-01 to LEGAL-08 are reading checks: open the files in `legal/` on GitHub. They are drafts for a lawyer; these
+checks make sure they match what the app really does before the lawyer sees them. LEGAL-09 onwards need the app: the
+texts are shown inside it since 13 Nov 2026 (L-g) *(updated 13 Nov)*.
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
@@ -668,6 +669,8 @@ sure they match what the app really does before the lawyer sees them.
 | LEGAL-12 | | Open a trip's checklist and look at the note at the bottom | It reads "Made from your passport, stops, dates and activities." plus the short entry-rules note from `legal/entry-rules-disclaimer.md`. Tap **About visa and entry rules**: the full note opens with the title "About visa and entry rules" | |
 | LEGAL-13 | | Change one word in `legal/terms.md` on a test branch without running `npm run legal:texts`, and push | The Frontend check on GitHub fails at "Legal texts in the app match legal/*.md". After `cd frontend && npm run legal:texts` and a new commit it passes | |
 | LEGAL-14 | | Turn on airplane mode, then open the privacy policy from the You tab | It opens: the texts are inside the app, not loaded from the internet | |
+| LEGAL-15 | | Phone in dark mode and text size at the largest setting; open the privacy policy and scroll to a table | Readable everywhere: the DRAFT box, headings and table cards fit the screen, nothing cut off or hidden behind the edges | |
+| LEGAL-16 | | Screen reader on (TalkBack / VoiceOver), open the terms and swipe through | The title and each heading are read as headings, so you can jump from heading to heading | |
 
 ## 26. Phone builds for the beta (KAN-60)
 
