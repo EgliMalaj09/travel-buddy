@@ -17,6 +17,7 @@ public static class AuthEndpoints
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status410Gone)
             .ProducesProblem(StatusCodes.Status429TooManyRequests);
 
         auth.MapPost("/signup", SignUp).WithName("SignUp")

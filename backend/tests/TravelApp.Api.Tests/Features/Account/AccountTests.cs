@@ -299,17 +299,23 @@ public sealed class AccountTests(ApiFactory factory)
             Assert.True(await scope.ServiceProvider.GetRequiredService<AppDbContext>().Set<User>().AnyAsync(u => u.Id == phone.UserId, Ct));
         }
 
-        await using (var scope = factory.Services.CreateAsyncScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            await db.Set<User>().Where(u => u.Id == phone.UserId)
-                .ExecuteUpdateAsync(s => s.SetProperty(u => u.DeleteAfter, DateTimeOffset.UtcNow.AddMinutes(-1)), Ct);
-        }
-
-        // Too late to restore once the days are over.
+        // Logged in during the 30 days (restore screen), then the days run out while that session is still open.
         var login = await AuthTestClient.Read<LoginResponse>(await phone.Client.Post("/auth/login", new LoginRequest(phone.Email, AuthTestClient.Password, phone.Device)));
         phone.Session = login.Session!;
+        await SetDeleteAfterAsync(phone.UserId, DateTimeOffset.UtcNow.AddMinutes(-1));
+
+        // Too late: no restore, no new login, no refresh.
         await AuthTestClient.AssertError(await phone.Send(HttpMethod.Post, "/me/restore"), HttpStatusCode.Gone, AuthErrorCodes.AccountDeleted);
+        await AuthTestClient.AssertError(await phone.Client.Post("/auth/login", new LoginRequest(phone.Email, AuthTestClient.Password, phone.Device)), HttpStatusCode.Gone, AuthErrorCodes.AccountDeleted);
+        await AuthTestClient.AssertError(await phone.Client.Post("/auth/refresh", new RefreshRequest(phone.Session.RefreshToken)), HttpStatusCode.Unauthorized, AuthErrorCodes.AccountDeleted);
+
+        // The job still waits until the last access token has run out (15 minutes), so nothing writes while it erases.
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<AccountService>().PurgeDueAsync(Ct);
+            Assert.True(await scope.ServiceProvider.GetRequiredService<AppDbContext>().Set<User>().AnyAsync(u => u.Id == phone.UserId, Ct));
+        }
+        await SetDeleteAfterAsync(phone.UserId, DateTimeOffset.UtcNow.AddMinutes(-20));
 
         await using (var scope = factory.Services.CreateAsyncScope())
         {
@@ -344,9 +350,18 @@ public sealed class AccountTests(ApiFactory factory)
             Assert.Equal(1, await Count("SELECT count(*) AS \"Value\" FROM user_settings WHERE id = {0}", other.UserId));
         }
 
-        // The phone hears the account is gone and must log in again; the email can sign up afresh.
+        // Gone for good: the old session and the password do nothing; the email can sign up afresh.
         await AuthTestClient.AssertError(await phone.Client.Post("/auth/refresh", new RefreshRequest(phone.Session.RefreshToken)), HttpStatusCode.Unauthorized, AuthErrorCodes.SessionExpired);
         await AuthTestClient.AssertError(await phone.Client.Post("/auth/login", new LoginRequest(phone.Email, AuthTestClient.Password, phone.Device)), HttpStatusCode.Unauthorized, AuthErrorCodes.InvalidCredentials);
+        var again = await phone.Client.SignUp(phone.Email, AuthTestClient.NewDevice());
+        Assert.NotEqual(phone.UserId, again.User.Id);
+    }
+
+    private async Task SetDeleteAfterAsync(Guid userId, DateTimeOffset at)
+    {
+        await using var scope = factory.Services.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<AppDbContext>().Set<User>().Where(u => u.Id == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.DeleteAfter, at), Ct);
     }
 
     [Fact]

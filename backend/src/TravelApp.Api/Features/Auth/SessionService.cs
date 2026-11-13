@@ -56,8 +56,9 @@ public sealed partial class SessionService(
 
         // Every session ended when deletion was asked; tell those phones why, so they remove this account's data.
         // A session started after that (logging in to restore) keeps working.
+        // Once the 30 days are over no session is refreshed at all, so none is alive when the purge job runs.
         if (await db.Set<User>().AnyAsync(u => u.Id == current.UserId && u.Status == UserStatus.DeletionRequested
-                && u.DeletionRequestedAt != null && current.CreatedAt <= u.DeletionRequestedAt, ct))
+                && ((u.DeletionRequestedAt != null && current.CreatedAt <= u.DeletionRequestedAt) || u.DeleteAfter <= now), ct))
         {
             return new(null, AccountDeleted: true);
         }

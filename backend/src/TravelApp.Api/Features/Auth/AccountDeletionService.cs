@@ -62,10 +62,17 @@ internal sealed partial class AccountDeletionService(
         return AuthUserMapper.ToResponse(user);
     }
 
-    public async Task<IReadOnlyList<Guid>> DueAsync(DateTimeOffset now, int max, CancellationToken ct) =>
-        await db.Set<User>().AsNoTracking()
-            .Where(u => u.Status == UserStatus.DeletionRequested && u.DeleteAfter != null && u.DeleteAfter <= now)
+    /// <summary>
+    /// Accounts to erase. After the 30 days no login or refresh gives a new token, but an access token made just before
+    /// still works for up to its lifetime, so the job waits that long too: nothing can write while it erases.
+    /// </summary>
+    public async Task<IReadOnlyList<Guid>> DueAsync(DateTimeOffset now, int max, CancellationToken ct)
+    {
+        var before = now - options.Value.AccessTokenLifetime - TimeSpan.FromMinutes(1);
+        return await db.Set<User>().AsNoTracking()
+            .Where(u => u.Status == UserStatus.DeletionRequested && u.DeleteAfter != null && u.DeleteAfter <= before)
             .OrderBy(u => u.DeleteAfter).Select(u => u.Id).Take(max).ToListAsync(ct);
+    }
 
     // Only the opaque user id (GDPR core rule).
     [LoggerMessage(Level = LogLevel.Information, Message = "Account {UserId} asked to be deleted")]

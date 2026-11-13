@@ -508,8 +508,8 @@ Needs the rebuilt app (new library expo-sharing, see COMMANDS.md, "Profile, my d
 | ACC-17 | | Delete again, log in, **Log out** on the restore screen | Back to the login; the account stays scheduled | |
 | ACC-18 | | Sign up again with the email of a deleted (not yet erased) account | "This email already has an account. Log in instead." Logging in shows the restore screen | |
 | ACC-19 | | Scalar: **POST /me/delete** with body `{"confirm": "yes"}` | 400; the account is not touched | |
-| ACC-20 | | *(Shortened wait, see COMMANDS.md)* Delete an account with trips and photos, wait for the erase (about 1–2 minutes) | API window: "Account … erased in … ms" with only an id. Logging in now says the email or password is not right; the email can sign up as a brand-new account with no old trips. (That the photo files are gone too is checked by the automatic tests.) | |
-| ACC-21 | | *(Shortened wait)* Log in to an account whose wait is over but not erased yet → Restore | "This account has been deleted." | |
+| ACC-20 | | *(Shortened wait, see COMMANDS.md)* Delete an account with trips and photos, wait for the erase (about 17–18 minutes: the API waits until the last 15-minute login token has run out) | API window: "Account … erased in … ms" with only an id. Logging in now says the email or password is not right; the email can sign up as a brand-new account with no old trips. (That the photo files are gone too is checked by the automatic tests.) | |
+| ACC-21 | | *(Shortened wait)* Right after deleting, try to log in (email, or Google/Apple) | "This account has been deleted." No restore screen | |
 
 ## 21. API base and backend checks (KAN-58)
 

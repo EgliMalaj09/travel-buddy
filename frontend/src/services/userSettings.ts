@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import { settingsRepository, subscribeDataChanged } from '@/data';
 import { defaultUserSettings, parseUserSettings, type UserSettings } from '@/lib/settings';
+import { useUiStore } from '@/store/uiStore';
 
 import { getDeviceValue, removeDeviceValue, setDeviceValue } from './deviceStorage';
 
@@ -29,6 +30,8 @@ interface UserSettingsState {
 }
 
 let unsubscribe: (() => void) | null = null;
+/** True once PowerSync finished a download for the current owner (not just the start value). */
+let downloaded = false;
 
 export const useUserSettings = create<UserSettingsState>((set, get) => {
   /** Takes the row from the database when it is there (downloaded or saved). */
@@ -47,9 +50,10 @@ export const useUserSettings = create<UserSettingsState>((set, get) => {
       if (JSON.stringify(row) !== JSON.stringify(get().settings)) set({ settings: row });
       return;
     }
-    // No row yet: save the phone-only copy from before KAN-22, once.
+    // No row yet: save the phone-only copy from before KAN-22, once. Only after the first download
+    // has finished, so a row made on another phone is never overwritten by this old copy.
     const legacy = getDeviceValue(key(owner));
-    if (legacy && !getDeviceValue(syncedKey(owner))) {
+    if (legacy && !getDeviceValue(syncedKey(owner)) && downloaded) {
       setDeviceValue(syncedKey(owner), '1');
       await settingsRepository.save(owner, parseUserSettings(legacy)).catch(() => undefined);
     }
@@ -62,13 +66,24 @@ export const useUserSettings = create<UserSettingsState>((set, get) => {
       if (owner === get().owner) return;
       unsubscribe?.();
       unsubscribe = null;
+      downloaded = false;
       set({
         owner,
         settings: owner ? parseUserSettings(getDeviceValue(key(owner))) : defaultUserSettings,
       });
       if (owner && settingsRepository) {
         // Another phone changed a setting: PowerSync writes the row and this picks it up.
-        unsubscribe = subscribeDataChanged(() => void refresh(owner));
+        const offData = subscribeDataChanged(() => void refresh(owner));
+        const offSync = useUiStore.subscribe((state, before) => {
+          if (state.syncStatus === 'synced' && before.syncStatus !== 'synced') {
+            downloaded = true;
+            void refresh(owner);
+          }
+        });
+        unsubscribe = () => {
+          offData();
+          offSync();
+        };
         void refresh(owner);
       }
     },

@@ -207,8 +207,6 @@ export function createMockAuthService(): AuthService {
       const userId = db.sessions[refreshToken];
       const user = db.users.find((u) => u.id === userId);
       if (!user) throw new AuthError('session_expired', 'Please log in again.');
-      if (user.deletion)
-        throw new AuthError('account_deleted', 'This account is waiting to be deleted.');
       delete db.sessions[refreshToken];
       const session = newSession(db, user);
       save(db);

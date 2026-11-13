@@ -152,8 +152,8 @@ $env:Auth__DeletionGraceDays = '0'
 $env:Account__PurgeIntervalMinutes = '1'
 scripts\windows\start.cmd
 ```
-Success: the API window opens as usual. A deleted account is now erased about 1–2 minutes later, and the API window
-shows `Account … erased in … ms`. For ACC-21, log in **within the first minute** after deleting.
+Success: the API window opens as usual. A deleted account can no longer log in, and it is erased about 17–18 minutes
+later (the API waits until the last 15-minute login token has run out). Then the API window shows `Account … erased in … ms`.
 
 When you are done, go back to the normal 30 days: close that PowerShell window, open a new one and run
 ```powershell
