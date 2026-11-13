@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #36 (up to the back office, KAN-55) and the beta server (KAN-61).
+Last updated: 13 Nov 2026, after PRs #1 to #37 (up to the back office and its gap cases) and the beta server (KAN-61).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -614,6 +614,10 @@ Tip: a second browser (or a private window) lets you be two admins at once.
 | BO-25 | | Wait 30 minutes on any page, then click something | Back to the login with "You were logged out… Back office sessions last 30 minutes" | |
 | BO-26 | | Make the browser narrow (phone size) and switch the computer to dark mode | Menu moves to the top; everything readable in dark mode | |
 | BO-27 | | Scalar: **GET /me** with a back office token, and **GET /admin/me** with an app token | Both 401 (the two kinds of token cannot be swapped) | |
+| BO-28 | | As owner set the test member to **Support**. In the second browser, as that member, look at the menu and open an account | Menu: Dashboard, Accounts, Deletion queue, App settings, Services (no Team, no Audit log). It can **Suspend**, **Lift suspension** and **Sign out everywhere**, but **Download data** and **Erase now** are not offered or are refused. App settings are read only | |
+| BO-29 | | Scalar: with a **Viewer** back office token, **GET /admin/users**; with a **Support** token, **PUT /admin/config** | Both 403 "Your role cannot do this. Ask an owner." | |
+| BO-30 | | **Team** → **Reset 2FA** on the test member → confirm. Log in as it in the second browser | Its open session stops working, and the login shows "Set up your authenticator app" with a new QR code again | |
+| BO-31 | | After BO-19 (minimum version `9.0.0` saved and the phone showing "Update the app"), turn on flight mode and close and reopen the app | Still "Update the app" (the phone keeps the last settings). Back online with the version set back to `1.0.0`, **Check again** lets you in | |
 
 ## 24. Beta server (KAN-61)
 
