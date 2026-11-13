@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #26 (photos and notes, KAN-39/40, with its review fixes).
+Last updated: 13 Nov 2026, after PRs #1 to #27 and the trip map with exact places (KAN-37).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -30,9 +30,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 16. [Packing list and weather](#16-packing-list-and-weather-kan-28-kan-29-kan-30)
 17. [Expenses](#17-expenses-kan-42-kan-43)
 18. [Photos and notes](#18-photos-and-notes-kan-39-kan-40)
-19. [API base and backend checks](#19-api-base-and-backend-checks-kan-58)
-20. [Privacy: no personal data in logs (GDPR)](#20-privacy-no-personal-data-in-logs-gdpr)
-21. [Known gaps](#21-known-gaps)
+19. [Map and exact places](#19-map-and-exact-places-kan-37)
+20. [API base and backend checks](#20-api-base-and-backend-checks-kan-58)
+21. [Privacy: no personal data in logs (GDPR)](#21-privacy-no-personal-data-in-logs-gdpr)
+22. [Known gaps](#22-known-gaps)
 
 ---
 
@@ -332,7 +333,7 @@ You tab → **Settings**.
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
-| TAB-01 | | Open any trip | Header with name, dates, flags, "in N days" / "Day N of M"; under it 6 tabs: **Plan, Places, Checklist, Packing, Photos, Expenses**. Plan is underlined *(updated 13 Nov, packing)* | |
+| TAB-01 | | Open any trip | Header with name, dates, flags, "in N days" / "Day N of M"; under it 7 tabs: **Plan, Places, Map, Checklist, Packing, Photos, Expenses**. Plan is underlined *(updated 13 Nov, map)* | |
 | TAB-02 | | Plan tab | Checklist card, **Packing · X of Y packed** card, **Places · N planned** card, Stops, and Flights (if any) *(updated 13 Nov, packing)* | |
 | TAB-03 | | Tap the Places card on Plan | The **Places** tab opens with the places day by day | |
 | TAB-04 | | Tap the Checklist card on Plan | The **Checklist** tab opens with the full list, progress bar and "Add your own item" | |
@@ -448,32 +449,63 @@ Photos are saved on the phone first and upload later (**Wi-Fi only** by default)
 | PHO-27 | | Add a photo **From library** that has a location (taken with location on). Then open the original in the phone's own gallery | The original is still there, unchanged (it still has its location in the gallery). Only the app's copy is without it (PHO-22) | |
 | PHO-28 | | After a photo shows "Saved to your account" (PHO-11), close the app fully and reopen it, on mobile data with Wi-Fi only on | Still "Saved to your account", no cloud mark, and it does not upload again | |
 
-## 19. API base and backend checks (KAN-58)
+## 19. Map and exact places (KAN-37)
+
+Needs the rebuilt app (see COMMANDS.md, "Map and exact places") and internet for the map tiles and the search. The map works on a phone or the emulator only, not in the web preview.
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| MAP-01 | | Open a trip with 2 cities and places that only have their city (made before today) → **Map** tab | A map around the trip's cities, a dark flag on each city, **Planned** / **Been there** legend and the "OpenFreeMap · © OpenStreetMap" line. A **Not on the map yet** card lists those places | |
+| MAP-02 | | In the place form (add or edit), type `Colosseum` in **Search for the exact spot** (trip in Rome) | After a short pause, "Searching…", then up to 8 results with a flag and the address, Rome ones first, and "Search by Photon (komoot) · © OpenStreetMap contributors" under them | |
+| MAP-03 | | New place: leave the name empty, search `Colosseum`, tap the result | Name becomes "Colosseum", **What is it?** becomes **Sight**, the Exact spot shows "Piazza del Colosseo…, Rome" with "From the search" | |
+| MAP-04 | | Name already typed and a category picked, then pick a search result | Your name and category are kept; only the spot changes | |
+| MAP-05 | | **Add place**, open the **Map** tab | A pin for it (outlined, blue), the map fits around all pins; it is no longer under "Not on the map yet" | |
+| MAP-06 | | Tap the pin | A card with its name, "Sight · Day N · address", **Been there** and **Edit**. Tap **Been there**: the pin turns filled red. Tap **Not yet**: back to outlined | |
+| MAP-07 | | Tap the map away from the pin | The card closes | |
+| MAP-08 | | Day chips at the top: tap a day | Only that day's pins (the map moves to them) and that day's places without a spot. **All days** shows all again. Only days that have places are chips; **Any day** shows if some place has no day | |
+| MAP-09 | | Trip happening today with places today, open **Map** | It opens on **Today · Day N** | |
+| MAP-10 | | Place form → **Set it on the map** | A full screen map on the city of that day, a red pin in the middle, **Use this spot** greyed out until you move the map | |
+| MAP-11 | | Move the map so the pin is on a building → **Use this spot** | Back in the form: the street address of that point and "Set on the map". Save: the pin on the Map tab is exactly there | |
+| MAP-12 | | Edit a place with a spot → **Move the pin on the map** | The map opens zoomed in on the current spot | |
+| MAP-13 | | Edit a place with a spot → **Remove** → Save | The form says it shows the city of that day; the place goes back under "Not on the map yet" with its day's city | |
+| MAP-14 | | Change the day of a place that has an exact spot → Save | The spot stays (it does not jump to the new day's city) | |
+| MAP-15 | | Airplane mode: type in the search | "Search needs internet. You can still set the spot on the map." No crash | |
+| MAP-16 | | Airplane mode: **Set it on the map** in a city you looked at before, move, **Use this spot** | Works with the map you saw before (grey where it never loaded). The spot shows numbers like "41.890210, 12.492231" instead of an address. Saves and syncs later | |
+| MAP-17 | | Map tab → **Full screen map** | The map fills the screen with the trip name on top; the day chips and the pin card work there too. Back returns to the Map tab | |
+| MAP-18 | | First time on the map | **No** "allow location" question: the app does not use your location | |
+| MAP-19 | | Log in with the same account on a second phone | Same pins in the same spots, addresses kept | |
+| MAP-20 | | Type 31 searches quickly (or ask Claude for a quick test) | After 30 in one minute: "Too many searches. Wait a moment." | |
+| MAP-21 | | Web preview (`npm run web`) → trip → **Map** tab | A box "The map works in the phone app."; the list of places still shows. In the place form the search works, the **Set it on the map** button is hidden | |
+| MAP-22 | | Scalar: **GET /geo/search** with `q=colosseum` (and optionally `lat=41.9`, `lng=12.5`) | 200 with `places` (name, address, cityName, countryCode, lat, lng, geoProviderId "osm:…", category) and the attribution | |
+| MAP-23 | | Scalar: **GET /geo/reverse** with `lat=41.8902`, `lng=12.4922` | 200 with `place` (the Colosseum or the street there). With `lat=-70`, `lng=0`: `place` is null | |
+| MAP-24 | | Scalar: `/geo/search` with `q=a`, or with only `lat`, or without a token | 400 for the first two, 401 without a token | |
+
+## 20. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
 | API-01 | A-01 | Open http://localhost:5001/health | 200, healthy | ✅ |
 | API-02 | A-02 | Open http://localhost:5001/app-info | name, version, environment "Development" | ✅ |
 | API-03 | A-03 | Open http://localhost:5001/scalar | Lists all endpoints | ✅ |
-| API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (121 on 13 Nov 2026, with photos) | ✅ |
-| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (241 on 13 Nov 2026, with photos) | |
+| API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (148 on 13 Nov 2026, with the map) | ✅ |
+| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (258 on 13 Nov 2026, with the map) | |
 
-## 20. Privacy: no personal data in logs (GDPR)
+## 21. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
 | GDPR-01 | | Sign up, log in from a new phone, reset a password. Read the API window | `[dev email]` lines show the purpose and the code, **never the email**. No password, token or request body anywhere | |
-| GDPR-02 | | Create a trip, a place, checklist items, an expense and a photo with a note, open the Packing, Expenses and Photos tabs. Read the API window *(updated 13 Nov, photos)* | No trip names, cities, place or expense names, amounts, notes, photo notes, positions, file sizes, weather, exchange-rate or storage web addresses | |
+| GDPR-02 | | Create a trip, a place, checklist items, an expense and a photo with a note, open the Packing, Expenses and Photos tabs. Read the API window *(updated 13 Nov, photos)* | No trip names, cities, place or expense names, amounts, notes, photo notes, positions, file sizes, weather, exchange-rate or storage web addresses. Also search for a place and set one on the map: no search text, addresses or positions, and no `photon.komoot.io` addresses *(updated 13 Nov, map)* | |
 | GDPR-03 | | Read the Expo / Metro window while using the app (mock login too) | No email, name, token or trip details printed | |
 | GDPR-04 | | *(When Sentry is turned on)* Cause an error, open the report in Sentry | No user, email, request body, console lines or `?query` values in the report | |
 
-## 21. Known gaps
+## 22. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.
-3. City search uses a built-in list; Mapbox comes later. Exact place positions come with the Map (KAN-37).
+3. City search (create a trip) still uses the built-in list. Exact place spots came with the Map (KAN-37), using the free Photon search, not Mapbox. The public Photon server is "fair use": before the public launch, check it is still fine or run our own (on the switch list).
 4. Apple login can only be tested once the paid Apple Developer account exists.
 5. Settings are kept on the phone per account until the server table exists (KAN-22).
 6. The checklist rule wording (entry rules) still needs your review (KAN-26).
@@ -481,3 +513,4 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 8. Open-Meteo is free only while the app is not commercial: before the public launch, buy their plan or switch to MET Norway (on the switch list).
 9. Expenses are personal to one traveller for now; shared expenses and splitting (D6) come with shared trips in Part 2. Linking an expense to a place comes later.
 10. The free Currency API has no service promise: before the public launch, check it is still fine or move to a paid source (on the switch list).
+11. The map needs internet the first time an area is shown; areas seen before stay in the phone's map cache. Downloading whole regions for offline use is a later paid feature (data model).

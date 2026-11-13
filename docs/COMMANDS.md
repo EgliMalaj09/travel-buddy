@@ -4,12 +4,12 @@
 its own section at the top of "Per feature". Copy one block at a time; each says what success looks like.
 A copy is kept at `/mnt/project-files/COMMANDS.md` in the project files.
 
-Last updated: 13 Nov 2026 (photos and notes).
+Last updated: 13 Nov 2026 (map and exact places).
 
 ## Catch up now (do this once, today)
 
 This brings your PC up to date with everything merged so far (offline trips, reminders, places, checklist,
-settings, trip tabs, packing list, expenses, photos and notes).
+settings, trip tabs, packing list, expenses, photos and notes, the map).
 
 **1. Get the newest code**
 ```powershell
@@ -46,7 +46,7 @@ scripts\windows\stop.cmd
 ```
 Success: ends without a red line (fine if nothing was running).
 
-**5. Start everything and rebuild the app once** (offline trips, reminders and photos added phone libraries)
+**5. Start everything and rebuild the app once** (offline trips, reminders, photos and the map added phone libraries)
 ```powershell
 cd C:\dev\tb
 scripts\windows\start.cmd -Rebuild
@@ -100,17 +100,47 @@ Docker Desktop must be running.
 cd C:\dev\tb\backend
 dotnet test
 ```
-Success: `Passed!` with 0 failed (121 tests on 13 Nov 2026).
+Success: `Passed!` with 0 failed (148 tests on 13 Nov 2026).
 
 ```powershell
 cd C:\dev\tb\frontend
 npm run check
 ```
-Success: `Tests: … passed`, 0 failed (241 on 13 Nov 2026).
+Success: `Tests: … passed`, 0 failed (258 on 13 Nov 2026).
 
 ## Per feature (newest first)
 
 After each feature: **Get the newest code**, **Stop**, **Start** (above), plus what the feature says here.
+
+### Map and exact places (KAN-37), 13 Nov 2026
+A new phone library with native code (the map), so the app must be **rebuilt once**. No new Docker container,
+no new database table, no key or account.
+
+**1. Get the code and the new library**
+```powershell
+cd C:\dev\tb
+git checkout main
+git pull
+cd C:\dev\tb\frontend
+npm install
+```
+Success: `added … packages` or `up to date`, no red `ERR!`.
+
+**2. Stop, then start with a rebuild**
+```powershell
+cd C:\dev\tb
+scripts\windows\stop.cmd
+scripts\windows\start.cmd -Rebuild
+```
+Success: no red `STOPPED` line; the app opens on the emulator. The rebuild takes several minutes. If the **Map** tab
+shows a red error screen, the app was not rebuilt: run the second line again.
+
+**3. Check the place search works** (optional, needs internet), while the app is running:
+open http://localhost:5001/scalar → **Geo** → `GET /geo/search` → set `q` to `colosseum` → send (log in first and use
+your token, as for the other Scalar tests).
+Success: `200` with a list of places. `503` means the search service could not be reached (check the internet).
+
+Then test with the **MAP** cases in `docs\test-cases\ALL-TEST-CASES.md` (section 19).
 
 ### Photos and notes (KAN-39, KAN-40), 13 Nov 2026
 New phone libraries (camera, photo library, files, network) and a new Docker container, so do all four steps once:

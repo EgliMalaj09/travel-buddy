@@ -253,9 +253,9 @@ Pins, planned places and bucket-list items in one entity.
 | `status` | enum: bucket, planned, visited | yes | Pin shape: bucket dotted, planned outlined, visited filled |
 | `title` | string | yes | Max 120 |
 | `note` | string | no | The user's own text |
-| `lat`, `lng` | number | no | Changed 12 Nov 2026 (Places, owner agreed): may be empty. A new place takes the position of the city of that trip day; empty when that stop has none (typed offline). The exact spot comes with the Map |
+| `lat`, `lng` | number | no | Changed 12 Nov 2026 (Places, owner agreed): may be empty. A new place takes the position of the city of that trip day; empty when that stop has none (typed offline). Since the Map (KAN-37, 13 Nov 2026) it can be the exact spot instead, from the search or the map pin (6 decimals) |
 | `countryCode` | ISO country | yes | Used for the globe and passport stamps. From the stop of that day |
-| `cityName`, `address`, `geoProviderId` | string | no | |
+| `cityName`, `address`, `geoProviderId` | string | no | Map (KAN-37): `geoProviderId` is `osm:<type>:<id>` for a spot from the search, `pin` for a spot set on the map, and empty when only the city of that day is known (then the place has no pin). `address` is the street line of the exact spot |
 | `category` | enum: food, sight, stay, transport, other | yes | Default other |
 | `plannedDate` | date | no | |
 | `visitedAt` | datetime | no | Set when marked visited |
