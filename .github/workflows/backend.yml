@@ -24,3 +24,12 @@ jobs:
         run: git diff --exit-code -- openapi/
       # Tests use a real PostgreSQL through Testcontainers (Docker is available on GitHub runners).
       - run: dotnet test --no-build
+
+  # The beta server runs the API as a container image (KAN-61). Build it on every change so a broken
+  # Dockerfile shows up here, not on deploy day. Nothing is pushed.
+  container-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the API image (not pushed)
+        run: docker build -t travel-app-api:check backend

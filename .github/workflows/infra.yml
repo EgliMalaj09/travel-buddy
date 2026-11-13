@@ -1,0 +1,19 @@
+name: Infra
+
+# Checks the Azure setup file (KAN-61) compiles. Creates nothing in Azure.
+on:
+  push:
+    paths: ['infra/**', '.github/workflows/infra.yml']
+  pull_request:
+    paths: ['infra/**', '.github/workflows/infra.yml']
+
+jobs:
+  bicep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and lint main.bicep
+        run: |
+          az bicep install
+          az bicep build --file infra/azure/main.bicep --stdout > /dev/null
+          az bicep lint --file infra/azure/main.bicep

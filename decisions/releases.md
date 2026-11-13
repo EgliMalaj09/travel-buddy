@@ -171,15 +171,37 @@ How each feature is prepared:
 ## Switch list before beta and release (things that are local-only during development)
 
 Go through this list when setting up the beta environment (KAN-61) and again before the public launch (KAN-116).
+The step-by-step setup is in `docs/COMMANDS.md`, "Beta server (KAN-61)"; the choices in
+[`features/18-ship-part-1.md`](features/18-ship-part-1.md). Outside Development the API checks the beta rows marked
+"checked at start-up" itself and refuses to start when one is wrong.
+
+### Beta checklist (tick when the beta is set up)
+
+- [ ] Real code emails (SMTP settings) — checked at start-up
+- [ ] New signing key for the beta — checked at start-up
+- [ ] Azure database, `wal_level=logical`, tables made — database checked at start-up
+- [ ] Real photo storage (not Azurite) — checked at start-up
+- [ ] Account deletion wait is 30 days — checked at start-up
+- [ ] Leaked-password check on — checked at start-up
+- [ ] Scalar page off (only in Development) — automatic outside Development
+- [ ] PowerSync Cloud: EU region, `powersync_role`, publication, JWKS address of the beta API
+- [ ] Back office on Static Web Apps; first owner email set; 2FA set up on first login
+- [ ] Phone app beta build points at the beta API and PowerSync, mock mode off (KAN-60)
+- [ ] Google / Apple client ids (when those logins are tested in beta)
+- [ ] Open-Meteo: free tier is for non-commercial use. OK for a private beta with no money involved; **paid plan or MET Norway before the public launch**
+- [ ] OpenFreeMap tiles: still free, no key; keep the attribution; listed in the privacy policy (KAN-62)
+- [ ] Photon (komoot public server): fair use only; fine for two testers; **own Photon or paid host if traffic grows**; keep the OpenStreetMap attribution; listed in the privacy policy
+- [ ] Currency API (fawazahmed0): free, no service promise; check it still answers before beta starts; listed in the privacy policy
+- [ ] Privacy policy and terms (drafts, KAN-62) shown in the app and checked by a lawyer before the public launch
 
 | Area | During development | Switch to | When |
 | --- | --- | --- | --- |
-| Login emails (codes) | Code printed in the API log, no email sent (A6) | Azure Communication Services sends real emails; sender domain set up | Beta |
-| JWT signing key | Local development key | Key stored in Azure Key Vault, rotated; public key at `/.well-known/jwks.json` | Beta |
+| Login emails (codes) | Code printed in the API log, no email sent (A6) | Real emails by SMTP (`Email:*` settings, KAN-61 S-c): Brevo free or Azure Communication Services; sender address verified at the provider. The API will not start in beta without it | Beta |
+| JWT signing key | Local development key | A new key made once for the beta, kept as a Container Apps secret (`Auth__SigningKeyPem`, KAN-61 S-d; Key Vault later if needed); public key at `/.well-known/jwks.json` | Beta |
 | PowerSync token check | Local dev key in `docker/powersync/powersync.yaml` | PowerSync Cloud reads our public keys (`jwks_uri`) | Beta |
 | Google / Apple sign-in | No client ids set, endpoints refuse every token | Real Google OAuth client ids (iOS, Android) and Apple bundle id in `Auth:GoogleClientIds` / `Auth:AppleClientIds` | Beta |
 | Mock login in the app | Real API by default since 12 Nov 2026; mock (any email, code `123456`, A14) only with `EXPO_PUBLIC_AUTH_MODE=mock` | Mock mode removed from release builds | Beta |
-| Database | Docker PostgreSQL | Azure Database for PostgreSQL (EU) | Beta |
+| Database | Docker PostgreSQL | Azure Database for PostgreSQL (EU), B1ms, `wal_level=logical`; tables made by the API at start-up (KAN-61 S-e) | Beta |
 | Scalar API page | On in development | Off (already off outside Development) — check | Beta |
 | Bundle id / app name | Placeholder `app.travelapp.mobile`, "Travel App" | Final name and bundle id (Store upload rule) | Before first store upload |
 | Weather provider (Open-Meteo) | Open-Meteo free tier (non-commercial use only), no key | Open-Meteo paid plan (key in configuration `Weather:*`, not in code) **or** switch to MET Norway (new `IWeatherProvider` class). Keep the CC BY 4.0 attribution in the app | Before public launch |

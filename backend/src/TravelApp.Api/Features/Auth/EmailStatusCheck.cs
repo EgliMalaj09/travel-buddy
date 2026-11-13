@@ -8,9 +8,9 @@ internal sealed class EmailStatusCheck(IAuthEmailSender sender) : IServiceStatus
     public Task<ServiceStatusDto> CheckAsync(HttpClient http, CancellationToken ct)
     {
         var logOnly = sender is LogAuthEmailSender;
-        return Task.FromResult(new ServiceStatusDto("email", logOnly ? "Codes in the API log" : "Email service", "Login and reset codes",
+        return Task.FromResult(new ServiceStatusDto("email", logOnly ? "Codes in the API log" : "Email service (SMTP)", "Login and reset codes",
             logOnly ? ServiceStates.DevOnly : ServiceStates.Ok, null,
-            logOnly ? "No email is sent; the code is written to the API log (development only)" : "Sends real emails",
-            "Beta: Azure Communication Services sends the codes (switch list)"));
+            logOnly ? "No email is sent; the code is written to the API log (development only)" : "Sends real emails through the SMTP service in Email:Host",
+            "Beta: set Email:Host, Email:UserName, Email:Password and Email:From (docs/COMMANDS.md, Beta server)"));
     }
 }

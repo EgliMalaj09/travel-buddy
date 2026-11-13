@@ -4,7 +4,7 @@
 its own section at the top of "Per feature". Copy one block at a time; each says what success looks like.
 A copy is kept at `/mnt/project-files/COMMANDS.md` in the project files.
 
-Last updated: 13 Nov 2026 (Back office).
+Last updated: 13 Nov 2026 (Beta server).
 
 ## Catch up now (do this once, today)
 
@@ -101,7 +101,7 @@ Docker Desktop must be running.
 cd C:\dev\tb\backend
 dotnet test
 ```
-Success: `Passed!` with 0 failed (184 tests on 13 Nov 2026).
+Success: `Passed!` with 0 failed (194 tests on 13 Nov 2026).
 
 ```powershell
 cd C:\dev\tb\frontend
@@ -112,6 +112,162 @@ Success: `Tests: … passed`, 0 failed (297 on 13 Nov 2026).
 ## Per feature (newest first)
 
 After each feature: **Get the newest code**, **Stop**, **Start** (above), plus what the feature says here.
+
+### Beta server (KAN-61), 13 Nov 2026
+**Nothing to run for local development.** The steps below are only for the day you set up the beta server, after
+you have answered the hosting card with "Azure free account". They create things in Azure; the free account
+covers them for 12 months (then about €15-25 a month, mostly the database). Choices:
+`decisions/features/18-ship-part-1.md`. Do them in order, one block at a time. Keep every password the steps make
+in your password manager; **never paste them into a file inside the repo or into a chat**.
+
+**Before you start (in the browser, once)**
+1. Create the Azure free account: https://azure.microsoft.com/free (needs a card; you are not charged on the free account).
+2. Create a free Brevo account for the code emails: https://www.brevo.com. In Brevo: **Senders, domains** → add
+   and verify the sender address you want (for example your own Gmail is fine for the beta). Then **SMTP & API** →
+   **SMTP** → **Generate a new SMTP key**. Note the **Login** shown there and the key. (With a Gmail sender some
+   code emails may land in spam; a domain of your own fixes that later.)
+3. A GitHub token so Azure can read the API image: https://github.com/settings/tokens → **Generate new token
+   (classic)** → name `travel-beta-pull`, expiry 1 year, tick only **read:packages** → Generate. Copy it.
+
+**1. Install the Azure command line and log in** (one time)
+```powershell
+winget install -e --id Microsoft.AzureCLI
+```
+Close PowerShell, open a new one, then:
+```powershell
+az login
+az account show --query "{name:name, id:id}" -o table
+az extension add --name containerapp --upgrade
+```
+Success: a browser opens, you log in, and the table shows your subscription.
+
+**2. Make the first API image** (in the browser)
+GitHub → the repo → **Actions** → **Deploy beta** → **Run workflow** → choose **image** → Run.
+Success: green tick after a few minutes. Open the run; the summary shows a line like
+`Image: ghcr.io/eglimalaj09/travel-app-api:1a2b3c4d5e6f`. Copy that image name.
+
+**3. Make the signing key** (Git for Windows has openssl)
+```powershell
+& "C:\Program Files\Git\usr\bin\openssl.exe" genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out "$HOME\travel-beta-signing-key.pem"
+Get-Content "$HOME\travel-beta-signing-key.pem" -TotalCount 1
+```
+Success: it shows `-----BEGIN PRIVATE KEY-----`. The file stays in your user folder, outside the repo. Back it up in your password manager.
+
+**4. Write the settings file** (outside the repo; it asks for each value)
+```powershell
+$dbPassword = -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 32 | ForEach-Object { [char]$_ })
+Write-Host "Database password (save it in your password manager): $dbPassword"
+$p = [ordered]@{
+  apiImage        = @{ value = (Read-Host "Image name from step 2") }
+  registryUser    = @{ value = "EgliMalaj09" }
+  registryToken   = @{ value = (Read-Host "GitHub token (read:packages)") }
+  dbAdminPassword = @{ value = $dbPassword }
+  signingKeyPem   = @{ value = (Get-Content -Raw "$HOME\travel-beta-signing-key.pem") }
+  emailHost       = @{ value = "smtp-relay.brevo.com" }
+  emailUserName   = @{ value = (Read-Host "Brevo SMTP login") }
+  emailPassword   = @{ value = (Read-Host "Brevo SMTP key") }
+  emailFrom       = @{ value = (Read-Host "Verified sender address") }
+  adminOwnerEmail = @{ value = (Read-Host "Your app account email (first back office owner)") }
+}
+@{ '$schema' = 'https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#'; contentVersion = '1.0.0.0'; parameters = $p } |
+  ConvertTo-Json -Depth 5 | Set-Content "$HOME\travel-beta.parameters.json"
+```
+Success: no red text, and the file `travel-beta.parameters.json` is in your user folder (not in `C:\dev\tb`).
+
+**5. Create everything in Azure** (about 10-15 minutes)
+```powershell
+cd C:\dev\tb
+git checkout main
+git pull
+az group create --name travel-beta --location westeurope
+az deployment group create --resource-group travel-beta --name main --template-file infra\azure\main.bicep --parameters "@$HOME\travel-beta.parameters.json"
+az deployment group show --resource-group travel-beta --name main --query properties.outputs -o json
+```
+Success: the last command shows `apiUrl`, `jwksUrl`, `backofficeUrl`, `backofficeName`, `apiName` and
+`databaseHost`. Copy them into your notes; the next steps use them.
+
+**6. Restart the database once** (turns on what PowerSync needs)
+```powershell
+$db = (az deployment group show -g travel-beta -n main --query properties.outputs.databaseHost.value -o tsv).Split('.')[0]
+az postgres flexible-server restart --resource-group travel-beta --name $db
+az postgres flexible-server parameter show --resource-group travel-beta --server-name $db --name wal_level --query value -o tsv
+```
+Success: the last line says `logical`.
+
+**7. Check the API is up** (the first call can take a few seconds: it starts on demand)
+```powershell
+$api = az deployment group show -g travel-beta -n main --query properties.outputs.apiUrl.value -o tsv
+Invoke-RestMethod "$api/health"
+```
+Success: `Healthy`. If it fails, look at the logs:
+`az containerapp logs show --resource-group travel-beta --name travelbeta-api --tail 50`. A line
+"Beta settings missing or unsafe: …" names the setting that is wrong (step 4).
+
+**8. Prepare the database for PowerSync** (uses Docker on your PC for the `psql` tool; Docker Desktop must be running)
+```powershell
+$myIp = Invoke-RestMethod https://api.ipify.org
+az postgres flexible-server firewall-rule create --resource-group travel-beta --name $db --rule-name my-pc --start-ip-address $myIp --end-ip-address $myIp
+$psPassword = -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 32 | ForEach-Object { [char]$_ })
+Write-Host "PowerSync database password (save it): $psPassword"
+$dbHost = az deployment group show -g travel-beta -n main --query properties.outputs.databaseHost.value -o tsv
+docker run --rm -e PGPASSWORD=$dbPassword -v "C:\dev\tb\infra\azure:/sql:ro" postgres:17-alpine psql "host=$dbHost dbname=travelapp user=travelapp_admin sslmode=require" -v ps_password=$psPassword -f /sql/powersync-setup.sql
+az postgres flexible-server firewall-rule delete --resource-group travel-beta --name $db --rule-name my-pc --yes
+```
+(`$dbPassword` is from step 4; if you closed PowerShell, set it again: `$dbPassword = "<from your password manager>"`.)
+Success: `CREATE ROLE`, `GRANT`, `ALTER DEFAULT PRIVILEGES`, `CREATE PUBLICATION`, and the rule is removed at the end.
+
+**9. PowerSync Cloud** (in the browser, free plan)
+1. Sign up at https://www.powersync.com → create a project and an instance, region **EU**.
+2. **Database connection**: host = `databaseHost` from step 5, port `5432`, database `travelapp`, user
+   `powersync_role`, password = the PowerSync password from step 8, SSL mode `verify-full`.
+3. PowerSync shows the **IP addresses** it connects from. Add each one (repeat the line per address):
+```powershell
+az postgres flexible-server firewall-rule create --resource-group travel-beta --name $db --rule-name powersync-1 --start-ip-address <address> --end-ip-address <address>
+```
+4. **Client auth**: JWKS URI = `jwksUrl` from step 5, audience `travel-app-powersync`.
+5. **Sync rules**: paste the whole file `C:\dev\tb\backend\docker\powersync\sync-rules.yaml` and deploy.
+6. Copy the instance address (`https://….powersync.journeyapps.com`) and tell the API about it (for the back office status page):
+```powershell
+az containerapp update --resource-group travel-beta --name travelbeta-api --set-env-vars "Admin__PowerSyncUrl=<instance address>" --output none
+```
+Success: PowerSync's dashboard shows the connection as healthy.
+If you ever run step 5 again, first add `powerSyncUrl = @{ value = "<instance address>" }` to the settings file
+(step 4), and run **Deploy beta** → **api** afterwards (step 5 puts back the image from step 2).
+
+**10. Let GitHub deploy without a password** (one time; uses Azure's login-by-trust for GitHub)
+```powershell
+$sub = az account show --query id -o tsv
+$tenant = az account show --query tenantId -o tsv
+$appId = az ad app create --display-name travel-beta-deploy --query appId -o tsv
+az ad sp create --id $appId --output none
+@{ name = "github-beta"; issuer = "https://token.actions.githubusercontent.com"; subject = "repo:EgliMalaj09/travel-buddy:environment:beta"; audiences = @("api://AzureADTokenExchange") } |
+  ConvertTo-Json | Set-Content "$HOME\travel-beta-fic.json"
+az ad app federated-credential create --id $appId --parameters "@$HOME\travel-beta-fic.json" --output none
+az role assignment create --assignee $appId --role Contributor --scope "/subscriptions/$sub/resourceGroups/travel-beta" --output none
+$swa = az deployment group show -g travel-beta -n main --query properties.outputs.backofficeName.value -o tsv
+Write-Host "AZURE_CLIENT_ID=$appId"; Write-Host "AZURE_TENANT_ID=$tenant"; Write-Host "AZURE_SUBSCRIPTION_ID=$sub"
+Write-Host "BETA_API_URL=$api"
+Write-Host "Static Web Apps token (secret):"; az staticwebapp secrets list --name $swa --resource-group travel-beta --query properties.apiKey -o tsv
+```
+Then in GitHub → the repo → **Settings** → **Environments** → **New environment** → name `beta`. In it add:
+- **Variables**: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `BETA_API_URL` (values printed above),
+  `AZURE_RESOURCE_GROUP` = `travel-beta`, `AZURE_API_APP` = `travelbeta-api`.
+- **Secret**: `AZURE_STATIC_WEB_APPS_API_TOKEN` = the token printed last.
+
+**11. Deploy** (every time you want the newest code on the beta)
+GitHub → **Actions** → **Deploy beta** → **Run workflow** → **both** → Run.
+Success: three green ticks. Open `backofficeUrl` in the browser and log in (back office steps above:
+your app account, then the authenticator app). The phone app's beta build comes with KAN-60.
+
+**Look at the API logs**
+```powershell
+az containerapp logs show --resource-group travel-beta --name travelbeta-api --tail 100
+```
+
+**Stop everything and all costs** (deletes the beta server and **all its data**; ask Claude first)
+```powershell
+az group delete --name travel-beta --yes
+```
 
 ### Back office (KAN-55), 13 Nov 2026
 A new web app in `backoffice/` (open it in your browser) and new tables in the database (added by the normal start).
@@ -165,7 +321,7 @@ Stop it with `Ctrl+C`.
 cd C:\dev\tb\backoffice
 npm run check
 ```
-Success: `Tests … passed`, then `built in …`. For the API: `cd C:\dev\tb\backend` then `dotnet test` (184 tests).
+Success: `Tests … passed`, then `built in …`. For the API: `cd C:\dev\tb\backend` then `dotnet test` (194 tests).
 
 Then test with section 23 (BO-01 to BO-27) and GDPR-09 in `docs/test-cases/ALL-TEST-CASES.md`.
 

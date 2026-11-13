@@ -25,7 +25,7 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 15 | Trip page. First build 13 Nov 2026: choices in [05-trip-page.md](05-trip-page.md) | 1 | 491538 | KAN-52 | KAN-53 FE |
 | 16 | Back office (Part 1). First build 13 Nov 2026: separate web app in `backoffice/`, choices in [16-back-office.md](16-back-office.md) | 1 | 131090 | KAN-54 | KAN-55 BE |
 | 17 | App foundation (do first) | 1 | 426065 | KAN-56 | KAN-57 FE, KAN-58 BE |
-| 18 | Ship Part 1 to devices | 1 | 98575 | KAN-59 | KAN-60 FE, KAN-61 BE, KAN-62 AI legal |
+| 18 | Ship Part 1 to devices. Beta server built 13 Nov 2026 (KAN-61), choices in [18-ship-part-1.md](18-ship-part-1.md) | 1 | 98575 | KAN-59 | KAN-60 FE, KAN-61 BE, KAN-62 AI legal |
 | 19 | Shared trips | 2 | 98592 | KAN-63 | KAN-64 FE, KAN-65 BE |
 | 20 | Shared expenses and splitting (D6 open) | 2 | 524331 | KAN-66 | KAN-67 FE, KAN-68 BE |
 | 21 | Trip video | 2 | 655361 | KAN-69 | KAN-70 FE, KAN-71 BE, KAN-72 Template |

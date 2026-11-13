@@ -8,7 +8,7 @@ public interface IAuthEmailSender
 
 /// <summary>
 /// Development (A6): the code is written to the API log, no email is sent.
-/// Replaced by Azure Communication Services from the beta (switch list in decisions/releases.md).
+/// Replaced by <see cref="SmtpAuthEmailSender"/> when "Email:Host" is set (beta, KAN-61).
 /// GDPR core rule: the email address is never logged. The code is shown only in Development,
 /// so you can log in on your own computer; anywhere else only "a code was made" is logged.
 /// </summary>
