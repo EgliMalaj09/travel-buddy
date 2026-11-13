@@ -9,6 +9,7 @@ export { Chip } from './Chip';
 export { CodeInput } from './CodeInput';
 export { Input } from './Input';
 export { Logo } from './Logo';
+export { AppMap, AppMapMarker, mapSupported, type AppMapProps } from './Map';
 export { PhotoPlaceholder } from './PhotoPlaceholder';
 export { Screen } from './Screen';
 export { SyncIndicator } from './SyncIndicator';

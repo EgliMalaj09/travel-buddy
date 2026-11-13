@@ -100,3 +100,20 @@ jest.mock('expo-network', () => ({
   getNetworkStateAsync: jest.fn(async () => ({ type: 'WIFI', isConnected: true })),
   addNetworkStateListener: jest.fn(() => ({ remove: jest.fn() })),
 }));
+
+// MapLibre draws the map natively (KAN-37). In tests the map is an empty view; markers draw
+// their children, so pins can still be found by their labels.
+jest.mock('@maplibre/maplibre-react-native', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const Camera = React.forwardRef(function Camera() {
+    return null;
+  });
+  return {
+    // Keeps the map's events, so a test can "move" it: fireEvent(map, 'regionDidChange', …).
+    Map: ({ children, onPress, onRegionDidChange }: Record<string, unknown>) =>
+      React.createElement(View, { testID: 'map', onPress, onRegionDidChange }, children),
+    Camera,
+    Marker: ({ children }: { children?: unknown }) => children,
+  };
+});
