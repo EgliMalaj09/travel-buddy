@@ -10,11 +10,18 @@ export interface PlaceInput {
   category: PlaceCategory;
   /** A day of the trip, or null for "any day". */
   plannedDate: IsoDate | null;
-  /** Where it is: today the city of that day's stop (no paid place search, €0 rule). */
+  /**
+   * Where it is: the exact spot from the map search or the map pin (KAN-37), else the city of
+   * that day's stop (Places, 12 Nov 2026).
+   */
   countryCode: string;
   cityName: string | null;
   lat: number | null;
   lng: number | null;
+  /** Street and number of the exact spot, when known. */
+  address: string | null;
+  /** "osm:…" from the search, "pin" when set on the map, empty when only the city is known. */
+  geoProviderId: string | null;
 }
 
 /**
@@ -36,6 +43,9 @@ export interface PlaceRepository {
 
 export const PLACE_TITLE_MAX = 120;
 export const PLACE_NOTE_MAX = 2000;
+export const PLACE_CITY_MAX = 120;
+export const PLACE_ADDRESS_MAX = 300;
+export const PLACE_GEO_ID_MAX = 200;
 
 /** The same checks the backend makes (PlacesService.Check). */
 export function placeInputProblem(input: PlaceInput): string | null {
@@ -46,6 +56,16 @@ export function placeInputProblem(input: PlaceInput): string | null {
     return `The note can be up to ${PLACE_NOTE_MAX} characters.`;
   if (!/^[A-Z]{2}$/.test(input.countryCode)) return 'The place needs a country.';
   if ((input.lat == null) !== (input.lng == null)) return 'The map position is incomplete.';
+  if (
+    input.lat != null &&
+    (input.lat < -90 || input.lat > 90 || input.lng! < -180 || input.lng! > 180)
+  )
+    return 'The map position is out of range.';
+  if ((input.address ?? '').length > PLACE_ADDRESS_MAX)
+    return `The address can be up to ${PLACE_ADDRESS_MAX} characters.`;
+  if ((input.cityName ?? '').length > PLACE_CITY_MAX)
+    return `The city can be up to ${PLACE_CITY_MAX} characters.`;
+  if ((input.geoProviderId ?? '').length > PLACE_GEO_ID_MAX) return 'The map id is too long.';
   return null;
 }
 
@@ -78,6 +98,8 @@ export function placeColumns(input: PlaceInput) {
     city_name: input.cityName,
     lat: input.lat,
     lng: input.lng,
+    address: input.address?.trim() || null,
+    geo_provider_id: input.geoProviderId || null,
   };
 }
 
@@ -89,8 +111,6 @@ export function newPlaceColumns(tripId: string) {
     status: 'planned',
     source: 'manual',
     is_suggested: 0,
-    address: null,
-    geo_provider_id: null,
     visited_at: null,
     cover_media_id: null,
     copied_from_place_id: null,
@@ -119,6 +139,8 @@ export function createMockPlaceRepository(
     cityName: input.cityName,
     lat: input.lat,
     lng: input.lng,
+    address: input.address?.trim() || null,
+    geoProviderId: input.geoProviderId || null,
   });
 
   return {
@@ -137,8 +159,6 @@ export function createMockPlaceRepository(
         ownerUserId: null,
         scope: 'shared',
         status: 'planned',
-        address: null,
-        geoProviderId: null,
         visitedAt: null,
         source: 'manual',
         isSuggested: false,

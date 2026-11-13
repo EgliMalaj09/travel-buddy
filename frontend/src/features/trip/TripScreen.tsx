@@ -10,6 +10,7 @@ import { ChecklistItemSheet } from '@/features/checklist/ChecklistItemSheet';
 import { ChecklistList } from '@/features/checklist/ChecklistList';
 import { addExpense, TripExpenses } from '@/features/expenses/TripExpenses';
 import { PackingList } from '@/features/packing/PackingList';
+import { TripMap } from '@/features/map/TripMap';
 import { TripPhotos, useAddPhotos } from '@/features/photos/TripPhotos';
 import { TripPlaces } from '@/features/places/TripPlaces';
 import { todayIso } from '@/lib/dates';
@@ -33,7 +34,7 @@ const tabItems = tripTabs.map((key) => ({ key, label: tripTabLabels[key] }));
 const fabSize = 56;
 
 /**
- * The trip page (KAN-53): one home for a trip. Header, then tabs for Plan, Places, Checklist,
+ * The trip page (KAN-53): one home for a trip. Header, then tabs for Plan, Places, Map, Checklist,
  * Packing, Photos and Expenses, and a quick-add button. The ••• menu edits or deletes the trip.
  * `linkTab` comes from `?tab=` (reminders open the Checklist tab).
  */
@@ -210,6 +211,8 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
             />
           ) : tab === 'places' ? (
             <TripPlaces trip={trip} places={places} today={today} />
+          ) : tab === 'map' ? (
+            <TripMap trip={trip} stops={stops} places={places} today={today} />
           ) : tab === 'checklist' ? (
             <ChecklistList tripId={trip.id} />
           ) : tab === 'packing' ? (

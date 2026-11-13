@@ -49,6 +49,8 @@ const colosseum: PlaceInput = {
   cityName: 'Rome',
   lat: 41.9,
   lng: 12.5,
+  address: null,
+  geoProviderId: null,
 };
 
 describe('place input checks (same as the server)', () => {
@@ -59,6 +61,8 @@ describe('place input checks (same as the server)', () => {
     expect(placeInputProblem({ ...colosseum, countryCode: '' })).toBe('The place needs a country.');
     expect(placeInputProblem({ ...colosseum, lng: null })).toMatch(/position/);
     expect(placeInputProblem({ ...colosseum, lat: null, lng: null })).toBeNull();
+    expect(placeInputProblem({ ...colosseum, lat: 91 })).toMatch(/out of range/);
+    expect(placeInputProblem({ ...colosseum, address: 'a'.repeat(301) })).toMatch(/300/);
   });
 });
 
@@ -106,6 +110,29 @@ function behaves(name: string, make: () => PlaceRepository) {
 
       await repo.deletePlace(a.id);
       expect((await repo.listPlaces('trip-1')).map((p) => p.title)).toEqual(['Vatican', 'Gelato']);
+    });
+
+    it('keeps the exact spot from the map, and drops it again (KAN-37)', async () => {
+      const repo = make();
+      const exact = {
+        ...colosseum,
+        lat: 41.89021,
+        lng: 12.492231,
+        address: ' Piazza del Colosseo 1, Rome ',
+        geoProviderId: 'osm:W:27000000',
+      };
+      const a = await repo.createPlace('trip-1', exact, 'user-1');
+      let saved = (await repo.listPlaces('trip-1')).find((p) => p.id === a.id)!;
+      expect(saved).toMatchObject({
+        lat: 41.89021,
+        lng: 12.492231,
+        address: 'Piazza del Colosseo 1, Rome',
+        geoProviderId: 'osm:W:27000000',
+      });
+
+      await repo.updatePlace(a.id, colosseum);
+      saved = (await repo.listPlaces('trip-1')).find((p) => p.id === a.id)!;
+      expect(saved).toMatchObject({ lat: 41.9, address: null, geoProviderId: null });
     });
 
     it('refuses a place without a name', async () => {

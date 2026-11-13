@@ -59,7 +59,8 @@
           "cameraPermission": "Allow Travel App to take photos for your trips.",
           "microphonePermission": false
         }
-      ]
+      ],
+      "@maplibre/maplibre-react-native"
     ],
     "scheme": "travelapp",
     "experiments": {

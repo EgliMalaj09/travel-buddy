@@ -1,13 +1,22 @@
 /**
  * The trip page's tabs (KAN-53). One home for everything on a trip: the plan, places,
- * checklist, packing list, photos and expenses. Plain data so the screen and the tests share it.
+ * map, checklist, packing list, photos and expenses. Plain data so the screen and the tests share it.
  */
-export const tripTabs = ['plan', 'places', 'checklist', 'packing', 'photos', 'expenses'] as const;
+export const tripTabs = [
+  'plan',
+  'places',
+  'map',
+  'checklist',
+  'packing',
+  'photos',
+  'expenses',
+] as const;
 export type TripTab = (typeof tripTabs)[number];
 
 export const tripTabLabels: Record<TripTab, string> = {
   plan: 'Plan',
   places: 'Places',
+  map: 'Map',
   checklist: 'Checklist',
   packing: 'Packing',
   photos: 'Photos',

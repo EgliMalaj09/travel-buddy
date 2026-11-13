@@ -3,6 +3,8 @@ import { Modal, View } from 'react-native';
 
 import {
   ActionSheet,
+  AppMap,
+  AppMapMarker,
   AppText,
   Button,
   Card,
@@ -120,6 +122,15 @@ export default function DesignKitScreen() {
         <PhotoPlaceholder width={80} height={80} />
         <PhotoPlaceholder width={80} height={80} round />
       </View>
+
+      <AppText variant="heading">Core: map (KAN-37)</AppText>
+      <AppMap view={{ kind: 'center', center: [12.4922, 41.8902], zoom: 13 }} height={200}>
+        <AppMapMarker id="kit-pin" lngLat={[12.4922, 41.8902]}>
+          <View
+            style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: colors.accent }}
+          />
+        </AppMapMarker>
+      </AppMap>
 
       <AppText variant="heading">Feature: groups</AppText>
       <SocialButtons onApple={() => undefined} onGoogle={() => undefined} />

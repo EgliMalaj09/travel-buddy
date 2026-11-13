@@ -57,6 +57,24 @@ jest.mock('@/data', () => {
       cityName: 'Rome',
       lat: null,
       lng: null,
+      address: null,
+      geoProviderId: null,
+      note: null,
+    },
+    'user-1',
+  );
+  void places.createPlace(
+    'trip-rome-florence',
+    {
+      title: 'Trevi Fountain',
+      category: 'sight',
+      plannedDate: null,
+      countryCode: 'IT',
+      cityName: 'Rome',
+      lat: 41.900932,
+      lng: 12.483313,
+      address: 'Piazza di Trevi, Rome',
+      geoProviderId: 'osm:W:1',
       note: null,
     },
     'user-1',
@@ -83,10 +101,10 @@ describe('Trip page with tabs (KAN-53)', () => {
   it('opens on Plan with the header, the summaries, stops and flights', async () => {
     await render(<TripScreen id="trip-rome-florence" />);
     expect(await screen.findByText('Rome & Florence')).toBeTruthy();
-    for (const label of ['Plan', 'Places', 'Checklist', 'Packing', 'Photos', 'Expenses']) {
+    for (const label of ['Plan', 'Places', 'Map', 'Checklist', 'Packing', 'Photos', 'Expenses']) {
       expect(screen.getByRole('tab', { name: label })).toBeTruthy();
     }
-    expect(screen.getByText('Places · 1 planned')).toBeTruthy();
+    expect(screen.getByText('Places · 2 planned')).toBeTruthy();
     expect(screen.getByText('Stops')).toBeTruthy();
     expect(screen.getByText('Flights')).toBeTruthy();
     expect(await screen.findByText('Expenses · €18.50 spent')).toBeTruthy();
@@ -108,6 +126,24 @@ describe('Trip page with tabs (KAN-53)', () => {
     expect(await screen.findByText('Spent on this trip')).toBeTruthy();
     expect(screen.getByText('Pizza')).toBeTruthy();
     expect(screen.getAllByText('€18.50').length).toBeGreaterThan(0);
+  });
+
+  it('the Map tab (KAN-37): stops, the place pin, and places that only have their city', async () => {
+    await render(<TripScreen id="trip-rome-florence" linkTab="map" />);
+    expect(await screen.findByTestId('map')).toBeTruthy();
+    expect(screen.getByLabelText('Stop: Rome')).toBeTruthy();
+    expect(screen.getByLabelText('Stop: Florence')).toBeTruthy();
+    expect(screen.getByText('Not on the map yet')).toBeTruthy();
+    await fireEvent.press(screen.getByLabelText('Set the exact spot of Colosseum'));
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/place/edit',
+      params: { tripId: 'trip-rome-florence', placeId: expect.any(String) },
+    });
+    await fireEvent.press(screen.getByText('Full screen map'));
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/trip/map/[id]',
+      params: { id: 'trip-rome-florence' },
+    });
   });
 
   it('opens on the tab from the link (a checklist reminder)', async () => {
