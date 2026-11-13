@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #39 (up to the beta server and its gap cases), the legal drafts (KAN-62) and the phone builds (KAN-60).
+Last updated: 13 Nov 2026, after PRs #1 to #41 (up to the legal drafts and their gap cases) and the phone builds (KAN-60).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -661,6 +661,8 @@ sure they match what the app really does before the lawyer sees them.
 | LEGAL-05 | | Privacy policy section 6 against the app: delete an account (ACC cases), delete a photo | 30 days to restore, then erased; deleted photo files erased after 30 days: same numbers as the policy | |
 | LEGAL-06 | | Privacy policy section 7: follow the paths it gives (You → Settings → Download my data / Delete my account) | The buttons are where the policy says | |
 | LEGAL-07 | | Compare the entry-rules short note with the note at the bottom of a trip's checklist | Same meaning; the policy's version is the one to use once you agree it (with KAN-26) | |
+| LEGAL-08 | | Sign up a new test account (ticking "I am 16 or older" and "I accept the terms and the privacy policy"). In the back office open that account (BO-08) | The consents show version `draft-1` for terms and privacy, the same version written at the top of `legal/terms.md` and `legal/privacy-policy.md`. When the texts get a new version, both must change together | |
+| LEGAL-09 | | On sign-up, tap "terms" and "privacy policy"; on the You tab look under **About** | The texts open in the app | ⏸ not built yet (decision L-g, proposed for KAN-60) |
 
 ## 26. Phone builds for the beta (KAN-60)
 
@@ -722,3 +724,4 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 10. The free Currency API has no service promise: before the public launch, check it is still fine or move to a paid source (on the switch list).
 11. The map needs internet the first time an area is shown; areas seen before stay in the phone's map cache. Downloading whole regions for offline use is a later paid feature (data model).
 12. Back office: a suspended account's phone keeps working for up to 15 minutes (until its access token ends). There is no moderation yet because nothing is shared in Part 1; it comes with shared trips (Part 2 back office).
+13. The legal texts can't be opened in the app yet (no links on sign-up or under About): decision L-g, proposed for KAN-60.
