@@ -4,7 +4,7 @@
 its own section at the top of "Per feature". Copy one block at a time; each says what success looks like.
 A copy is kept at `/mnt/project-files/COMMANDS.md` in the project files.
 
-Last updated: 13 Nov 2026 (Beta server).
+Last updated: 13 Nov 2026 (Phone builds for the beta).
 
 ## Catch up now (do this once, today)
 
@@ -107,11 +107,79 @@ Success: `Passed!` with 0 failed (194 tests on 13 Nov 2026).
 cd C:\dev\tb\frontend
 npm run check
 ```
-Success: `Tests: … passed`, 0 failed (297 on 13 Nov 2026).
+Success: `Tests: … passed`, 0 failed (300 on 13 Nov 2026).
 
 ## Per feature (newest first)
 
 After each feature: **Get the newest code**, **Stop**, **Start** (above), plus what the feature says here.
+
+### Phone builds for the beta (KAN-60), 13 Nov 2026
+**Nothing to run for local development**: your normal app works as before. These steps are for the day the
+beta server is running (section "Beta server", steps 1-11 done), on the free route from the phone card. They do
+**not** upload anything to a store. Choices: `decisions/features/18-ship-part-1.md`, KAN-60.
+
+You need from the beta server: `apiUrl` (step 5) and the PowerSync instance address (step 9).
+
+**Android: an install link from Expo's free builds** (PowerShell on Windows)
+
+1. Create a free Expo account at https://expo.dev/signup (once).
+2. Install the build tool and log in (once):
+```powershell
+npm install -g eas-cli
+eas login
+cd C:\dev\tb\frontend
+eas init
+```
+Success: `eas init` says the project is linked and adds a project id to `app.json`. Tell Claude "eas init done" so
+the change is saved in the repo (or run `git add app.json; git commit -m "Link Expo project"; git push`).
+
+3. Give the beta builds the server addresses (once; they are public addresses, not secrets):
+```powershell
+cd C:\dev\tb\frontend
+eas env:create --environment preview --name EXPO_PUBLIC_API_URL --value "<apiUrl>" --visibility plaintext
+eas env:create --environment preview --name EXPO_PUBLIC_POWERSYNC_URL --value "<PowerSync instance address>" --visibility plaintext
+```
+Success: each says the variable was created.
+
+4. Build (every time you want a new beta on Android; free builds can wait in a queue for a while):
+```powershell
+cd C:\dev\tb\frontend
+eas build --profile beta --platform android
+```
+Success: it ends with a link and a QR code. Open it on the Android phone, download the APK and install it
+(Android asks to allow installs from the browser once). If it stops with `Build profile "beta" settings: …`, step 3
+is missing or an address does not start with `https://`.
+
+**iPhone: your own phone through Xcode** (Terminal on the Mac; free Apple ID; the app stops opening after 7 days and
+you repeat step 3)
+
+1. Xcode is installed and signed in with your Apple ID: Xcode → Settings → Accounts (once).
+2. Get the newest code:
+```bash
+cd ~/Desktop/travel-buddy
+git checkout main
+git pull
+cd frontend
+npm install
+```
+3. Build and install on the iPhone (connected by cable, unlocked, Developer Mode on):
+```bash
+cd ~/Desktop/travel-buddy/frontend
+export FREE_APPLE_SIGNING=1
+export EXPO_PUBLIC_API_URL="<apiUrl>"
+export EXPO_PUBLIC_POWERSYNC_URL="<PowerSync instance address>"
+export EXPO_PUBLIC_AUTH_MODE=api EXPO_PUBLIC_DATA_MODE=local
+npx expo prebuild --platform ios --clean
+npx expo run:ios --device --configuration Release
+```
+If Xcode asks for a team: open `ios/TravelApp.xcworkspace`, click the app target → **Signing & Capabilities** →
+Team = your name (Personal Team), then run the last command again.
+Success: the app opens on the iPhone. The first time, iPhone → Settings → General → VPN & Device Management → trust
+your Apple ID. "Continue with Apple" does not work in this free build (Apple allows it only with the paid account);
+email and Google login do.
+
+**Before any store upload** (TestFlight, Google Play, `--profile production`): stop. The final app name and bundle id
+must be decided first (store upload rule). Ask Claude.
 
 ### Beta server (KAN-61), 13 Nov 2026
 **Nothing to run for local development.** The steps below are only for the day you set up the beta server, after

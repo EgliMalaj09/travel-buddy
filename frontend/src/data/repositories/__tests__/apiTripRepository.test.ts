@@ -209,11 +209,18 @@ describe('API trip repository', () => {
 
 describe('data mode', () => {
   it('uses the server by default and mock data with mock login', () => {
-    expect(pickDataMode(undefined, undefined)).toBe('local');
-    expect(pickDataMode('local', undefined)).toBe('local');
-    expect(pickDataMode(undefined, 'mock')).toBe('mock');
-    expect(pickDataMode('mock', undefined)).toBe('mock');
-    expect(pickDataMode('api', 'mock')).toBe('api');
+    expect(pickDataMode(undefined, undefined, false)).toBe('local');
+    expect(pickDataMode('local', undefined, false)).toBe('local');
+    expect(pickDataMode(undefined, 'mock', false)).toBe('mock');
+    expect(pickDataMode('mock', undefined, false)).toBe('mock');
+    expect(pickDataMode('api', 'mock', false)).toBe('api');
+  });
+
+  it('never uses sample trips in a release build (beta, KAN-60)', () => {
+    expect(pickDataMode('mock', undefined, true)).toBe('local');
+    expect(pickDataMode(undefined, 'mock', true)).toBe('local');
+    expect(pickDataMode('api', undefined, true)).toBe('api');
+    expect(pickDataMode(undefined, undefined, true)).toBe('local');
   });
 
   it('reads every page of GET /trips and keeps each trip with its stops', async () => {

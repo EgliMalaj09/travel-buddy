@@ -64,14 +64,18 @@ export { FINISH_NOTE_MAX, finishTripProblem } from './repositories/tripRepositor
  *   Needs the connection. Set EXPO_PUBLIC_DATA_MODE=api to use it on a phone too.
  * - "mock": sample trips in memory, gone after a reload. Set EXPO_PUBLIC_DATA_MODE=mock, or use
  *   mock login (EXPO_PUBLIC_AUTH_MODE=mock): a mock user has no account on the server.
+ * Release builds (beta and store builds, KAN-60) never use "mock": they fall back to "local".
  */
 export type DataMode = 'mock' | 'api' | 'local';
 
 export function pickDataMode(
   dataEnv = process.env.EXPO_PUBLIC_DATA_MODE,
   authEnv = process.env.EXPO_PUBLIC_AUTH_MODE,
+  release = !__DEV__,
 ): DataMode {
-  if (dataEnv === 'mock' || dataEnv === 'api' || dataEnv === 'local') return dataEnv;
+  if (dataEnv === 'api' || dataEnv === 'local') return dataEnv;
+  if (release) return 'local';
+  if (dataEnv === 'mock') return 'mock';
   return authEnv === 'mock' ? 'mock' : 'local';
 }
 
