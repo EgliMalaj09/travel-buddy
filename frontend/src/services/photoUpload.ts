@@ -120,7 +120,11 @@ export function uploadState(
   myUserId: string | null,
   onWifiOnlyWait: boolean,
 ): UploadState {
-  if (photo.uploadedAt) return 'uploaded';
+  if (photo.uploadedAt) {
+    // The server's row is back: the queue state is not needed any more.
+    if (getDeviceValue(key(photo.id))) forgetUpload(photo.id);
+    return 'uploaded';
+  }
   if (!photoFilesSupported || photo.ownerUserId !== myUserId || !localPhoto(photo.id, 'full'))
     return 'notOnPhone';
   const a = readAttempt(photo.id);

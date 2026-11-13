@@ -103,6 +103,12 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
   };
   const onTrip =
     !!trip.startDate && !!trip.endDate && today >= trip.startDate && today <= trip.endDate;
+  // The camera or library opens after the sheet has closed (iOS shows nothing while it closes).
+  const addPhotoNext = (source: 'camera' | 'library') => {
+    openTab('photos');
+    clearTimeout(sheetTimer.current);
+    sheetTimer.current = setTimeout(() => void photoAdder.add(source), 300);
+  };
   const addPlace = () =>
     router.push({
       pathname: '/place/edit',
@@ -151,17 +157,11 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
             ? [
                 {
                   label: 'Take a photo',
-                  onPress: () => {
-                    openTab('photos');
-                    void photoAdder.add('camera');
-                  },
+                  onPress: () => addPhotoNext('camera'),
                 },
                 {
                   label: 'Photos from library',
-                  onPress: () => {
-                    openTab('photos');
-                    void photoAdder.add('library');
-                  },
+                  onPress: () => addPhotoNext('library'),
                 },
               ]
             : []),

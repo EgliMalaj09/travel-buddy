@@ -125,6 +125,20 @@ export function removeOrphanPhotoFiles(knownIds: string[]): number {
   return removed;
 }
 
+/**
+ * Removes the copy the picker made in the app's cache. It still holds the photo's hidden data
+ * (EXIF, GPS), so it is not left lying around. The original in the gallery is never touched.
+ */
+export function deletePickerCopy(uri: string): void {
+  if (!photoFilesSupported || !uri.startsWith(Paths.cache.uri)) return;
+  try {
+    const file = new File(uri);
+    if (file.exists) file.delete();
+  } catch {
+    // Already gone.
+  }
+}
+
 /** Removes every file of a photo from this phone. */
 export function deletePhotoFiles(id: string): void {
   if (!photoFilesSupported) return;

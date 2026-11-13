@@ -5,6 +5,7 @@ import { newId } from '@/lib/ids';
 import { exifTakenAt, PICK_LIMIT } from '@/lib/photos';
 import {
   deletePhotoFiles,
+  deletePickerCopy,
   hashOf,
   markAdding,
   photoFilesSupported,
@@ -119,6 +120,7 @@ export async function addPhotos(
       else result.failed += 1;
     } finally {
       markAdding(id, false);
+      deletePickerCopy(asset.uri);
     }
   }
   if (result.added) startPhotoUploads();
