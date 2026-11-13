@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #29 and profile, data export and account deletion (KAN-21, KAN-22).
+Last updated: 13 Nov 2026, after PRs #1 to #30 (profile, data export and account deletion, KAN-21, KAN-22, with its review fixes).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -510,6 +510,8 @@ Needs the rebuilt app (new library expo-sharing, see COMMANDS.md, "Profile, my d
 | ACC-19 | | Scalar: **POST /me/delete** with body `{"confirm": "yes"}` | 400; the account is not touched | |
 | ACC-20 | | *(Shortened wait, see COMMANDS.md)* Delete an account with trips and photos, wait for the erase (about 17–18 minutes: the API waits until the last 15-minute login token has run out) | API window: "Account … erased in … ms" with only an id. Logging in now says the email or password is not right; the email can sign up as a brand-new account with no old trips. (That the photo files are gone too is checked by the automatic tests.) | |
 | ACC-21 | | *(Shortened wait)* Right after deleting, try to log in (email, or Google/Apple) | "This account has been deleted." No restore screen | |
+| ACC-22 | | *(Shortened wait)* Delete, log in again so the restore screen shows, then leave it open until the wait is over. Tap **Restore my account** | "This account has been deleted." Nothing comes back, and you can't get past this screen with that account | |
+| ACC-23 | | *(Only if a phone still has settings from before this update)* First change settings on a second phone with the same account, then open the app on the old phone | The old phone shows the settings from the second phone. Its old phone-only choices don't overwrite them | |
 
 ## 21. API base and backend checks (KAN-58)
 
