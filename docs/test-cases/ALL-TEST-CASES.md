@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #25 and photos and notes (KAN-39/40).
+Last updated: 13 Nov 2026, after PRs #1 to #26 (photos and notes, KAN-39/40, with its review fixes).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -29,9 +29,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 15. [Trip page with tabs](#15-trip-page-with-tabs-kan-53)
 16. [Packing list and weather](#16-packing-list-and-weather-kan-28-kan-29-kan-30)
 17. [Expenses](#17-expenses-kan-42-kan-43)
-18. [API base and backend checks](#18-api-base-and-backend-checks-kan-58)
-19. [Privacy: no personal data in logs (GDPR)](#19-privacy-no-personal-data-in-logs-gdpr)
-20. [Known gaps](#20-known-gaps)
+18. [Photos and notes](#18-photos-and-notes-kan-39-kan-40)
+19. [API base and backend checks](#19-api-base-and-backend-checks-kan-58)
+20. [Privacy: no personal data in logs (GDPR)](#20-privacy-no-personal-data-in-logs-gdpr)
+21. [Known gaps](#21-known-gaps)
 
 ---
 
@@ -443,6 +444,9 @@ Photos are saved on the phone first and upload later (**Wi-Fi only** by default)
 | PHO-23 | | Scalar: **PUT /media/{id}/file** with a PNG or a text file | 415 (not image/jpeg) or 400 ("not a valid JPEG"), nothing stored | |
 | PHO-24 | | Web preview (`npm run web`), Photos tab | Says "Adding photos works in the phone app."; no buttons | |
 | PHO-25 | | Wait 30 days after deleting a photo *(or ask Claude for a quick test with `Media:CleanupAfterDays` = 0)* | The API window says "Media cleanup removed N deleted photos"; the file is gone from Azurite | |
+| PHO-26 | | **iPhone**: trip page **+** → **Take a photo**, then again + → **Photos from library** | The menu closes, the Photos tab opens, and then the camera / library opens (it does not stay hidden or do nothing) | |
+| PHO-27 | | Add a photo **From library** that has a location (taken with location on). Then open the original in the phone's own gallery | The original is still there, unchanged (it still has its location in the gallery). Only the app's copy is without it (PHO-22) | |
+| PHO-28 | | After a photo shows "Saved to your account" (PHO-11), close the app fully and reopen it, on mobile data with Wi-Fi only on | Still "Saved to your account", no cloud mark, and it does not upload again | |
 
 ## 19. API base and backend checks (KAN-58)
 
