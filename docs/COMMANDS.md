@@ -4,7 +4,7 @@
 its own section at the top of "Per feature". Copy one block at a time; each says what success looks like.
 A copy is kept at `/mnt/project-files/COMMANDS.md` in the project files.
 
-Last updated: 13 Nov 2026 (Atlas: globe, lifetime stats and passport).
+Last updated: 13 Nov 2026 (Back office).
 
 ## Catch up now (do this once, today)
 
@@ -90,6 +90,7 @@ scripts\windows\stop.cmd
 | Rebuild the app (after a feature says "rebuild") | `C:\dev\tb\scripts\windows\start.cmd -Rebuild` |
 | Stop but keep the emulator | `C:\dev\tb\scripts\windows\stop.cmd -KeepEmulator` |
 | Quick look in the browser (no phone features) | `cd C:\dev\tb\frontend` then `npm run web` |
+| Back office (after Start, in a new window) | `cd C:\dev\tb\backoffice` then `npm run dev`, open http://localhost:5173 |
 
 **API page (Scalar)**: open http://localhost:5001/scalar while the app is running.
 
@@ -100,17 +101,73 @@ Docker Desktop must be running.
 cd C:\dev\tb\backend
 dotnet test
 ```
-Success: `Passed!` with 0 failed (158 tests on 13 Nov 2026).
+Success: `Passed!` with 0 failed (184 tests on 13 Nov 2026).
 
 ```powershell
 cd C:\dev\tb\frontend
 npm run check
 ```
-Success: `Tests: … passed`, 0 failed (293 on 13 Nov 2026).
+Success: `Tests: … passed`, 0 failed (297 on 13 Nov 2026).
 
 ## Per feature (newest first)
 
 After each feature: **Get the newest code**, **Stop**, **Start** (above), plus what the feature says here.
+
+### Back office (KAN-55), 13 Nov 2026
+A new web app in `backoffice/` (open it in your browser) and new tables in the database (added by the normal start).
+The phone app has a small change (new message and "Update the app" screen), **no rebuild**. You need an
+**authenticator app** on your phone (Google Authenticator, Microsoft Authenticator or 1Password; free).
+
+**1. Get the code**
+```powershell
+cd C:\dev\tb
+git checkout main
+git pull
+```
+Success: the last lines list files under `backoffice/` and `backend/src/TravelApp.Api/Features/Admin`, no `error`.
+
+**2. Make yourself the first owner** (once). Put the email of **your app account** (one you log in to the app with
+email and password) between the quotes. It is kept on this PC only, never in the code.
+```powershell
+cd C:\dev\tb\backend\src\TravelApp.Api
+dotnet user-secrets set "Admin:OwnerEmails:0" "your-email@example.com"
+```
+Success: `Successfully saved Admin:OwnerEmails:0 to the secret store.`
+If your account has no password yet (you only used Google), sign up in the app with email and password first.
+
+**3. Stop, then start (normal start, no -Rebuild)**: this also adds the new tables.
+```powershell
+cd C:\dev\tb
+scripts\windows\stop.cmd
+scripts\windows\start.cmd
+```
+Success: no red `STOPPED` line.
+
+**4. Install the back office** (once, in a **new** PowerShell window)
+```powershell
+cd C:\dev\tb\backoffice
+npm install
+Copy-Item .env.example .env.local
+```
+Success: `added … packages`, no `ERR!`.
+
+**5. Open the back office** (every time; leave this window open)
+```powershell
+cd C:\dev\tb\backoffice
+npm run dev
+```
+Success: `Local: http://localhost:5173/`. Open that address in your browser, log in with the email and password from
+step 2, scan the QR code with your authenticator app and type the 6-digit code.
+Stop it with `Ctrl+C`.
+
+**6. (Optional) Run the automatic tests**
+```powershell
+cd C:\dev\tb\backoffice
+npm run check
+```
+Success: `Tests … passed`, then `built in …`. For the API: `cd C:\dev\tb\backend` then `dotnet test` (184 tests).
+
+Then test with section 23 (BO-01 to BO-27) and GDPR-09 in `docs/test-cases/ALL-TEST-CASES.md`.
 
 ### Atlas: globe, lifetime stats and passport (KAN-49, KAN-50, KAN-51), 13 Nov 2026
 App only. No new library, so **no rebuild**. No database change, no new Docker container, key or account.

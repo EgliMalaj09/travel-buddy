@@ -1,0 +1,26 @@
+name: Back office
+
+on:
+  push:
+    paths: ['backoffice/**', 'backend/openapi/**', '.github/workflows/backoffice.yml']
+  pull_request:
+    paths: ['backoffice/**', 'backend/openapi/**', '.github/workflows/backoffice.yml']
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backoffice
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backoffice/package-lock.json
+      - run: npm ci
+      # The API types must match the committed OpenAPI file.
+      - name: API types are up to date
+        run: npm run api:types && git diff --exit-code -- src/api/schema.d.ts
+      - run: npm run check

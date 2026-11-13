@@ -1,0 +1,30 @@
+/* Design tokens from the "Departures" design guide (/mnt/project-files/redesign/DESIGN-GUIDE.md).
+   Tokens only: no hex colour anywhere else in the back office. */
+:root {
+  --paper: #f2f4f1; --surface: #ffffff; --sunk: #e7ebe6; --ink: #0d1a26; --ink2: #465662; --ink3: #5b6872; --line: #dce2dc;
+  --jet: #1d4ed8; --on-jet: #ffffff; --sun: #ffc02e; --flare: #c8321a; --go: #0b7f58; --on-ink: #f2f4f1;
+  --on-sun: #0d1a26;
+  --shadow: 0 12px 32px -14px rgba(13, 26, 38, 0.28); --scrim: rgba(13, 26, 38, 0.42);
+  --f-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r-s: 12px; --r-m: 18px; --r-c: 22px; --r-l: 28px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s8: 32px;
+  --t-fast: 120ms; --t: 240ms; --t-slow: 420ms;
+  --e-out: cubic-bezier(0.2, 0.8, 0.2, 1); --e-spring: cubic-bezier(0.34, 1.56, 0.64, 1); --e-in: cubic-bezier(0.4, 0, 1, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0a1118; --surface: #141d26; --sunk: #1d2833; --ink: #eef2ef; --ink2: #aeb9c0; --ink3: #8996a0; --line: #27333e;
+    --jet: #86a8ff; --on-jet: #0a1118; --sun: #ffc94d; --flare: #ff7c63; --go: #4fd1a1; --on-ink: #0a1118;
+    --shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.7); --scrim: rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0a1118; --surface: #141d26; --sunk: #1d2833; --ink: #eef2ef; --ink2: #aeb9c0; --ink3: #8996a0; --line: #27333e;
+  --jet: #86a8ff; --on-jet: #0a1118; --sun: #ffc94d; --flare: #ff7c63; --go: #4fd1a1; --on-ink: #0a1118;
+  --shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.7); --scrim: rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}

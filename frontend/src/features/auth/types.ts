@@ -55,6 +55,8 @@ export type AuthErrorCode =
   | 'consent_required'
   /** The account is waiting to be erased: this phone removes the account's data. */
   | 'account_deleted'
+  /** The back office suspended the account (KAN-55): the login shows "Contact support". */
+  | 'account_suspended'
   /** Restore asked for an account that is not waiting to be deleted. */
   | 'not_deleted'
   | 'invalid_input'

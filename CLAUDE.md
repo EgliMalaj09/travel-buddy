@@ -10,6 +10,7 @@ Read this first in every new chat. It is the entry point; details live in the fi
 | --- | --- | --- |
 | Mobile app (React Native + Expo, TypeScript) | Owner | [`frontend/`](frontend/) |
 | API (.NET 10 Minimal APIs, PostgreSQL, PowerSync) | Owner's wife | [`backend/`](backend/) |
+| Back office web app (Vite + React, same API, KAN-55) | Both | [`backoffice/`](backoffice/) |
 | Decisions (data model, tech stack, releases, features) | Both | [`decisions/`](decisions/) |
 
 Version 1 is one public release built in 3 internal parts (Part 1 → Part 2 → Part 3, public launch after Part 3). See [`decisions/releases.md`](decisions/releases.md).
@@ -81,4 +82,4 @@ When the owner says "start the app" / "run everything" on Windows, run `scripts\
 
 - `docs.expo.dev` and `api.expo.dev` may be blocked: use `EXPO_OFFLINE=1 npx expo install <pkg>`.
 - Backend: .NET 10 SDK; Docker must be started by hand (`dockerd &`) for Testcontainers and Compose.
-- Checks: `cd frontend && npm run check`; `cd backend && dotnet build && dotnet test`.
+- Checks: `cd frontend && npm run check`; `cd backoffice && npm run check`; `cd backend && dotnet build && dotnet test`.
