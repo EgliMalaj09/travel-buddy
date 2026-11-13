@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #39 (up to the beta server and its gap cases) and the legal drafts (KAN-62).
+Last updated: 13 Nov 2026, after PRs #1 to #39 (up to the beta server and its gap cases), the legal drafts (KAN-62) and the phone builds (KAN-60).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -37,9 +37,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 23. [Back office](#23-back-office-kan-55)
 24. [Beta server](#24-beta-server-kan-61)
 25. [Legal texts (drafts)](#25-legal-texts-drafts-kan-62)
-26. [API base and backend checks](#26-api-base-and-backend-checks-kan-58)
-27. [Privacy: no personal data in logs (GDPR)](#27-privacy-no-personal-data-in-logs-gdpr)
-28. [Known gaps](#28-known-gaps)
+26. [Phone builds for the beta](#26-phone-builds-for-the-beta-kan-60)
+27. [API base and backend checks](#27-api-base-and-backend-checks-kan-58)
+28. [Privacy: no personal data in logs (GDPR)](#28-privacy-no-personal-data-in-logs-gdpr)
+29. [Known gaps](#29-known-gaps)
 
 ---
 
@@ -661,7 +662,26 @@ sure they match what the app really does before the lawyer sees them.
 | LEGAL-06 | | Privacy policy section 7: follow the paths it gives (You → Settings → Download my data / Delete my account) | The buttons are where the policy says | |
 | LEGAL-07 | | Compare the entry-rules short note with the note at the bottom of a trip's checklist | Same meaning; the policy's version is the one to use once you agree it (with KAN-26) | |
 
-## 26. API base and backend checks (KAN-58)
+## 26. Phone builds for the beta (KAN-60)
+
+After the beta server is running (section 24) and the steps in docs/COMMANDS.md, "Phone builds for the beta", are done.
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| PHONE-01 | | On your PC set `EXPO_PUBLIC_AUTH_MODE=mock` in `.env.local` and start the app as usual | Mock login still works in development (code `123456`). Set it back to `api` afterwards | |
+| PHONE-02 | | `eas build --profile beta --platform android` **before** step 3 (no addresses set) | The build stops at once with `Build profile "beta" settings: EXPO_PUBLIC_API_URL must be an https:// address…` | |
+| PHONE-03 | | After step 3: `eas build --profile beta --platform android`, install the APK on the Android phone | The app installs and opens; the intro and login look like your normal app | |
+| PHONE-04 | | Beta app: sign up with a real email address | The code arrives **by email** (not in any window); sign-up finishes | |
+| PHONE-05 | | Beta app: try code `123456` on a login | Refused: mock login is not in the beta build | |
+| PHONE-06 | | Beta app: create a trip with a stop, a place and a checklist item; then open the back office **Accounts** page | The trip is there after closing and opening the app; the back office counts your account and trip | |
+| PHONE-07 | | Beta app on two phones (Android APK and the iPhone build), same account | A trip made on one shows on the other within a minute (PowerSync Cloud) | |
+| PHONE-08 | | Beta app: add a photo to a trip, then delete the app, install again and log in | The photo comes back (it is on the server's storage) | |
+| PHONE-09 | | Beta app: airplane mode, add a checklist item, then airplane mode off | Works offline; the item syncs when the connection is back | |
+| PHONE-10 | | iPhone: the Mac steps with `FREE_APPLE_SIGNING=1` | The build installs on your iPhone and opens; "Continue with Apple" fails with an error (expected in the free build), email login works | |
+| PHONE-11 | | iPhone build, 8 days later | It no longer opens (free Apple ID limit); running step 3 on the Mac again fixes it | |
+| PHONE-12 | | Back office **App settings**: set the minimum app version to `9.0.0`, open the beta app; then set it back | "Update the app" screen appears; after setting it back and **Check again**, the app opens | |
+
+## 27. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
@@ -669,9 +689,9 @@ sure they match what the app really does before the lawyer sees them.
 | API-02 | A-02 | Open http://localhost:5001/app-info | name, version, environment "Development" | ✅ |
 | API-03 | A-03 | Open http://localhost:5001/scalar | Lists all endpoints | ✅ |
 | API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (194 on 13 Nov 2026, with the beta server) | ✅ |
-| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (283 on 13 Nov 2026, with finish trip) | |
+| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (300 on 13 Nov 2026, with the phone builds) | |
 
-## 27. Privacy: no personal data in logs (GDPR)
+## 28. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
@@ -688,7 +708,7 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 | GDPR-09 | | Do BO-01 to BO-27. Read the API window and the browser console (F12 → Console) | API window: only ids, roles and timings ("Back office login by <id> (owner)", "Account <id> suspended…"); no email, password, code, search words or settings values. Browser console: nothing printed | |
 | GDPR-10 | | On the beta server: sign up, log in and reset a password (BETA-07), then read the logs (BETA-08 command) and the back office audit log | Only ids, purposes, status codes and timings. No email address, code, password or SMTP reply text; a failed email shows only "Code email (login) not sent, SMTP status …" | |
 
-## 28. Known gaps
+## 29. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.

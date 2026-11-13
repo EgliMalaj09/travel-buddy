@@ -63,5 +63,16 @@ or company, postal address, contact email, country for the terms, supervisory au
 
 ## KAN-60: phone builds
 
-Not started yet. Waits for the phone distribution card. Store upload rule: the final app name and bundle id are
-decided before any store upload.
+Code written 13 Nov 2026 on the **free route** recommended on the phone card (card still open). Nothing is uploaded
+to a store. **Store upload rule:** the final app name and bundle id (placeholder `app.travelapp.mobile`) are decided
+before any TestFlight, Google Play or `production` build.
+
+| # | Question | Choice | Status |
+| --- | --- | --- | --- |
+| P-a | How do testers get the app? | Android: an APK link from **EAS Build's free plan** (profile `beta`, internal distribution). iPhone: the owner's own phone through **Xcode with a free Apple ID** (`npx expo run:ios --device --configuration Release`), renewed every 7 days. Paid options (Apple $99 a year for TestFlight, Google $25 once) offered on the card | Waiting for the owner's card (recommended option built) |
+| P-b | Where do the beta addresses come from? | EAS environment `preview` holds `EXPO_PUBLIC_API_URL` and `EXPO_PUBLIC_POWERSYNC_URL` (public addresses, not secrets), set once with `eas env:create`. The `beta` profile fixes `AUTH_MODE=api` and `DATA_MODE=local` | PROPOSED (built) |
+| P-c | Mock mode out of release builds | Release builds (`__DEV__` false) **always** use the real login and never sample trips, whatever the settings say (`pickAuthMode`, `pickDataMode`, tested). Development keeps mock mode | PROPOSED (built) |
+| P-d | Safety at build time | `app.config.js` stops a `beta` or `production` build when the API or PowerSync address is missing or not `https://`, or a mock mode is set | PROPOSED (built) |
+| P-e | Free Apple signing | Xcode's free personal team cannot sign Sign in with Apple or push. `FREE_APPLE_SIGNING=1` leaves both out of that build only (local reminders need no push). "Continue with Apple" does not work in it | PROPOSED (built) |
+| P-f | Showing the legal texts in the app (L-g) | Not built; needs the owner's OK. The beta can start without it (testers are the owners) | OPEN |
+| P-g | Version number | Stays `1.0.0`; EAS counts build numbers (`appVersionSource: remote`). The back office's `minAppVersion` can force an update later | PROPOSED |
