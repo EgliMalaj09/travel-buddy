@@ -106,7 +106,7 @@ Success: `Passed!` with 0 failed (158 tests on 13 Nov 2026).
 cd C:\dev\tb\frontend
 npm run check
 ```
-Success: `Tests: … passed`, 0 failed (292 on 13 Nov 2026).
+Success: `Tests: … passed`, 0 failed (293 on 13 Nov 2026).
 
 ## Per feature (newest first)
 
