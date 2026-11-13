@@ -9,6 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 const SPIN_MS = 1200;
 /** Speed of the slow turn on its own. */
 const IDLE_DEG_PER_MS = 0.006;
+const IDLE_FRAME_MS = 32;
 /** Where the globe looks when nothing is visited yet: Europe, a little from above. */
 const DEFAULT_VIEW: GlobeView = { lng: 12, lat: 38 };
 
@@ -152,9 +153,12 @@ function createDriver(initial: GlobeView, setView: (v: GlobeView) => void): Glob
     if (!autoSpin || reduceMotion) return;
     let last = 0;
     const step = (t: number) => {
-      const dt = last ? Math.min(t - last, 50) : 0;
-      last = t;
-      show(clampView({ ...current, lng: current.lng - dt * IDLE_DEG_PER_MS }));
+      // About 30 frames a second is plenty for a slow turn and saves battery.
+      if (!last || t - last >= IDLE_FRAME_MS) {
+        const dt = last ? Math.min(t - last, 100) : 0;
+        last = t;
+        show(clampView({ ...current, lng: current.lng - dt * IDLE_DEG_PER_MS }));
+      }
       anim = requestAnimationFrame(step);
     };
     anim = requestAnimationFrame(step);
