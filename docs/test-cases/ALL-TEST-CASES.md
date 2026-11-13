@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #22 and trip expenses (KAN-42, KAN-43).
+Last updated: 13 Nov 2026, after PRs #1 to #24 (trip tabs, packing and weather, expenses, and their review fixes).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -27,7 +27,7 @@ Old ids from the earlier files are in the **Was** column, so older results still
 13. [Places](#13-places-kan-34-kan-35)
 14. [Smart checklist](#14-smart-checklist-kan-24-kan-25)
 15. [Trip page with tabs](#15-trip-page-with-tabs-kan-53)
-16. [Packing list and weather](#16-packing-list-and-weather-kan-28-kan-29)
+16. [Packing list and weather](#16-packing-list-and-weather-kan-28-kan-29-kan-30)
 17. [Expenses](#17-expenses-kan-42-kan-43)
 18. [API base and backend checks](#18-api-base-and-backend-checks-kan-58)
 19. [Privacy: no personal data in logs (GDPR)](#19-privacy-no-personal-data-in-logs-gdpr)
@@ -336,17 +336,18 @@ You tab → **Settings**.
 | TAB-03 | | Tap the Places card on Plan | The **Places** tab opens with the places day by day | |
 | TAB-04 | | Tap the Checklist card on Plan | The **Checklist** tab opens with the full list, progress bar and "Add your own item" | |
 | TAB-05 | | Tap each tab in turn | Only that tab's content shows; the underline moves. On a small phone the tab row scrolls sideways | |
-| TAB-06 | | **Photos** and **Expenses** tabs | A friendly "come soon" message (they are built next) | |
+| TAB-06 | | **Photos** tab | A friendly "come soon" message (built next). **Expenses** now has its own cases (EXP) *(updated 13 Nov, expenses)* | |
 | TAB-07 | | On the Places tab, open a place, then go Back | You are still on the Places tab | |
 | TAB-08 | | Go Back to the trips list, open the same trip again | It opens on the tab you used last (until the app is closed) | |
-| TAB-09 | | Tap the round **+** button (bottom right) | "Add to this trip" with **Place**, **Checklist item** and **Something to pack** *(updated 13 Nov)*. During the trip it says **Place for today** | |
+| TAB-09 | | Tap the round **+** button (bottom right) | "Add to this trip" with **Expense**, **Place**, **Checklist item** and **Something to pack**, in that order *(updated 13 Nov, expenses)*. During the trip it says **Place for today** | |
 | TAB-10 | | + → **Place** | The place form opens for this trip (on today's date while the trip is on) | |
 | TAB-11 | | + → **Checklist item** → name → Save | The item is added and the **Checklist** tab opens showing it | |
 | TAB-12 | | Scroll to the bottom of a long tab | The last row is not hidden behind the + button | |
 | TAB-13 | | ••• → Edit trip / Delete trip | Still work as before (TRIP-16, delete question) | |
 | TAB-14 | | Airplane mode: switch tabs, add a place and a checklist item | Everything works offline and syncs later | |
+| TAB-15 | | + → **Checklist item**, and close the trip page (Back) right away, before the second sheet opens | No sheet pops up afterwards on another screen, no crash | |
 
-## 16. Packing list and weather (KAN-28, KAN-29)
+## 16. Packing list and weather (KAN-28, KAN-29, KAN-30)
 
 Weather comes from Open-Meteo through our API (agreed 13 Nov 2026). For weather you need: the phone online, a trip with dates, and stops whose city has a position (cities picked from the list have one).
 
@@ -376,6 +377,8 @@ Weather comes from Open-Meteo through our API (agreed 13 Nov 2026). For weather 
 | PACK-22 | | Scalar: without the login token | 401 | |
 | PACK-23 | | Call it twice in a row, then read the API window | Second answer comes from the cache (fast). The window shows **no** latitude, longitude, dates or web address with them (GDPR) | |
 | PACK-24 | | Scalar: call it more than 60 times in one minute with the same login | 429 Too many requests (stops one account using up the free weather limit) | |
+| PACK-25 | | A trip that is on now (Day 2 or later). Open the Packing tab online, then airplane mode, wait until the next day and reopen | The kept weather still shows (marked offline), and the days already over are no longer listed | |
+| PACK-26 | | Scalar: **GET /weather/days** with `from` and `to` = today + 400 days, then today + 401 days | 400 days: 200 (kind "typical"). 401 days: 400 with a clear message | |
 
 ## 17. Expenses (KAN-42, KAN-43)
 
@@ -405,6 +408,9 @@ Amounts are kept in the money you paid in. The app shows them in **your home cur
 | EXP-20 | | Scalar: `currencies=mad` or `dates=2020-01-01` | 400 with a clear message | |
 | EXP-21 | | Log in as another user on the same phone, open their trips | None of the first user's expenses or kept rates show | |
 | EXP-22 | | Change your home currency (when the profile screen allows it, KAN-22) | Totals are shown in the new home currency | ⏸ waits for KAN-22 |
+| EXP-23 | | Add 3 expenses on the same day with different times (e.g. 09:00, 13:00, 20:00), in a mixed order. Let them sync, then reopen the tab | Inside that day the newest time is on top (20:00, 13:00, 09:00), the same before and after sync | |
+| EXP-24 | | Airplane mode: add expenses in a foreign currency on 10 different past days (edit the day). Go online and wait | Some rows convert at once, the rest show "converting…" and are converted about a minute later, without reopening the app | |
+| EXP-25 | | Scalar: **GET /fx/rates** with 10 dates not asked before | The first 7 days come back with rates; the other days come back without rates. Calling again a minute later fills them | |
 
 ## 18. API base and backend checks (KAN-58)
 
