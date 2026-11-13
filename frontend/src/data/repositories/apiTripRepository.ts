@@ -6,6 +6,7 @@ import { notifyDataChanged } from '../changes';
 import type { Flight, Trip, TripActivity, TripStop } from '../types';
 import {
   checkFinish,
+  checkFinishedEdit,
   cleanFinishNote,
   tripInputProblem,
   type FlightInput,
@@ -292,7 +293,9 @@ export function createApiTripRepository(tripApi: TripApi = createHttpTripApi()):
     async updateTrip(id, input) {
       check(input);
       const current = await load(true);
-      if (!current.trips.some((t) => t.id === id)) throw new Error('Trip not found.');
+      const existing = current.trips.find((t) => t.id === id);
+      if (!existing) throw new Error('Trip not found.');
+      checkFinishedEdit(existing, input);
       await send([
         { op: 'PATCH', type: 'trips', id, data: tripColumns(input) },
         ...childChanges(id, input, current),

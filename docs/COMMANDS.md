@@ -143,7 +143,7 @@ npx jest src/features/finish src/lib/__tests__/finishTrip.test.ts
 ```
 Success: `Tests: … passed`, no `failed`.
 
-Then test with section 21 (FIN-01 to FIN-22) in `docs/test-cases/ALL-TEST-CASES.md`.
+Then test with section 21 (FIN-01 to FIN-23) in `docs/test-cases/ALL-TEST-CASES.md`.
 
 ### Profile, my data and account deletion (KAN-21, KAN-22), 13 Nov 2026
 A new phone library (expo-sharing, for "Download my data"), so the app must be **rebuilt once**. A new database

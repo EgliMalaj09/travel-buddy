@@ -5,6 +5,7 @@ import { rowToFlight, rowToStop, rowToTrip, type Row } from '../local/rows';
 import type { Trip } from '../types';
 import {
   checkFinish,
+  checkFinishedEdit,
   cleanFinishNote,
   tripInputProblem,
   type TripInput,
@@ -179,7 +180,9 @@ export function createLocalTripRepository(
     },
     async updateTrip(id, input) {
       check(input);
-      if (!(await findTrip(id))) throw new Error('Trip not found.');
+      const existing = await findTrip(id);
+      if (!existing) throw new Error('Trip not found.');
+      checkFinishedEdit(existing, input);
       await db.writeTransaction(async (tx) => {
         await update(tx, 'trips', id, {
           name: input.name.trim(),

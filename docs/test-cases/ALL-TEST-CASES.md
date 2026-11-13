@@ -543,6 +543,7 @@ Create them with **+** on Home and dates in the past.
 | FIN-19 | | Scalar: the same with `"finished_at"`, `"rating": 6` | Rejected: "The rating is 1 to 5." | |
 | FIN-20 | | Scalar: finish a Someday trip (no dates) | Rejected: "A trip needs its dates before it can be finished." | |
 | FIN-21 | | Settings → **Download my data** after finishing a trip | The trip in the file has `rating` and `finishNote` | |
+| FIN-23 | | Finished trip: ••• → **Edit trip**, remove the dates (Someday) → **Save changes** | "A finished trip keeps its dates. Open the trip again first to make it Someday." Changing the name or stops works |
 | FIN-22 | | Design kit screen (if you open it) | Suns, stamps, stat tiles and the passport grid show, in the app's colours | |
 
 ## 22. API base and backend checks (KAN-58)
@@ -553,7 +554,7 @@ Create them with **+** on Home and dates in the past.
 | API-02 | A-02 | Open http://localhost:5001/app-info | name, version, environment "Development" | ✅ |
 | API-03 | A-03 | Open http://localhost:5001/scalar | Lists all endpoints | ✅ |
 | API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (161 on 13 Nov 2026, with finish trip) | ✅ |
-| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (282 on 13 Nov 2026, with finish trip) | |
+| API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (283 on 13 Nov 2026, with finish trip) | |
 
 ## 23. Privacy: no personal data in logs (GDPR)
 

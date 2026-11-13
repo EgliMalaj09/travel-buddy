@@ -80,6 +80,14 @@ export function finishTripProblem(trip: Trip, input: FinishInput, today: IsoDate
   return null;
 }
 
+/** A finished trip keeps its dates (the server refuses a finished trip without them). */
+export function checkFinishedEdit(trip: Trip, input: TripInput): void {
+  if (trip.status === 'finished' && !input.startDate)
+    throw new Error(
+      'A finished trip keeps its dates. Open the trip again first to make it Someday.',
+    );
+}
+
 /** The note as it is saved: trimmed, empty means none. */
 export const cleanFinishNote = (note: string | null) => note?.trim() || null;
 
@@ -210,6 +218,7 @@ export function createMockTripRepository(
       check(input);
       const i = data.trips.findIndex((t) => t.id === id && !t.deletedAt);
       if (i < 0) throw new Error('Trip not found.');
+      checkFinishedEdit(data.trips[i]!, input);
       const trip = touch(data.trips[i]!, {
         name: input.name.trim(),
         startDate: input.startDate,
