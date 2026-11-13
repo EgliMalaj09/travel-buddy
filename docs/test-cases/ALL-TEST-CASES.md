@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #28 and profile, data export and account deletion (KAN-21, KAN-22).
+Last updated: 13 Nov 2026, after PRs #1 to #29 and profile, data export and account deletion (KAN-21, KAN-22).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -480,6 +480,8 @@ Needs the rebuilt app (see COMMANDS.md, "Map and exact places") and internet for
 | MAP-22 | | Scalar: **GET /geo/search** with `q=colosseum` (and optionally `lat=41.9`, `lng=12.5`) | 200 with `places` (name, address, cityName, countryCode, lat, lng, geoProviderId "osm:…", category) and the attribution | |
 | MAP-23 | | Scalar: **GET /geo/reverse** with `lat=41.8902`, `lng=12.4922` | 200 with `place` (the Colosseum or the street there). With `lat=-70`, `lng=0`: `place` is null | |
 | MAP-24 | | Scalar: `/geo/search` with `q=a`, or with only `lat`, or without a token | 400 for the first two, 401 without a token | |
+| MAP-25 | | Map tab of a trip with places on 2 days: tap **Day 1**, then **Day 2**, then **Day 1** again, then **All days** | The map moves every time, also when going back to a day it showed before | |
+| MAP-26 | | Very weak signal (or a slow network on the emulator): **Set it on the map**, move, **Use this spot** | While it saves, **Cancel** is greyed out. After at most about 10 seconds you are back in the form, with numbers like "41.890210, 12.492231" if no address came back. Nothing hangs | |
 
 ## 20. Profile, my data and deleting the account (KAN-21, KAN-22)
 
