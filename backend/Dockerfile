@@ -4,7 +4,8 @@
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY global.json Directory.Build.props Directory.Packages.props ./
+# .editorconfig marks the EF Core migrations as generated code (no analyzer errors), as in CI.
+COPY global.json Directory.Build.props Directory.Packages.props .editorconfig ./
 COPY src/TravelApp.Api/TravelApp.Api.csproj src/TravelApp.Api/
 RUN dotnet restore src/TravelApp.Api/TravelApp.Api.csproj
 COPY src/ src/
