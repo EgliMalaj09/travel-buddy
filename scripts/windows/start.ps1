@@ -6,7 +6,7 @@
 
   What it does, in order (each step is skipped when it is already running):
     1. Docker Desktop        starts it and waits until it is ready
-    2. Database + PowerSync  docker compose up (backend\docker-compose.yml)
+    2. Database + PowerSync + photo storage (Azurite)  docker compose up (backend\docker-compose.yml)
     3. Database tables       dotnet ef database update (EF Core migrations)
     4. API                   dotnet run, in its own window, http://localhost:5001
     5. Android emulator      starts your first emulator (or -Avd <name>) and waits for it to boot
@@ -94,6 +94,10 @@ try {
   docker compose up -d powersync
   if ($LASTEXITCODE -ne 0) { Write-Host '    WARNING: PowerSync did not start (login and the app still work without it). Try again later.' -ForegroundColor Yellow }
   else { Ok 'PowerSync is running on localhost:8080' }
+  # Photo files (KAN-40): Azurite, the free Azure Blob Storage emulator. Only the API talks to it.
+  docker compose up -d azurite
+  if ($LASTEXITCODE -ne 0) { Write-Host '    WARNING: Photo storage (Azurite) did not start: photos stay on the phone until it runs. Try again later.' -ForegroundColor Yellow }
+  else { Ok 'Photo storage (Azurite) is running on localhost:10000' }
 } finally { Pop-Location }
 
 # ---------- 3. Database tables (migrations) ----------

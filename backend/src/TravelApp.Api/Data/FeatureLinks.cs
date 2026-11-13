@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Expenses;
+using TravelApp.Api.Features.Media;
 using TravelApp.Api.Features.Places;
 using TravelApp.Api.Features.Checklist;
 using TravelApp.Api.Features.Trips;
@@ -45,5 +46,17 @@ internal sealed class ExpenseLinks : IEntityTypeConfiguration<Expense>
     {
         builder.HasOne<Trip>().WithMany().HasForeignKey(e => e.TripId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne<User>().WithMany().HasForeignKey(e => e.CreatedByUserId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+internal sealed class MediaLinks : IEntityTypeConfiguration<MediaItem>
+{
+    // A trip's photo records go with the trip, and a user's with the account, only when rows are really removed.
+    // A normal delete is a soft delete (ITripDeleteHook); the cleanup job removes the files and then the rows.
+    // Account deletion (KAN-22) must delete the user's files in Blob Storage before the rows cascade away.
+    public void Configure(EntityTypeBuilder<MediaItem> builder)
+    {
+        builder.HasOne<Trip>().WithMany().HasForeignKey(m => m.TripId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne<User>().WithMany().HasForeignKey(m => m.OwnerUserId).OnDelete(DeleteBehavior.Cascade);
     }
 }

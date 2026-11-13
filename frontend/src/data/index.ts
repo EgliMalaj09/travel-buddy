@@ -5,11 +5,14 @@ import { notifyOwnerChanged } from './changes';
 import {
   createLocalChecklist,
   createLocalExpenses,
+  createLocalMedia,
   createLocalPlaces,
   createLocalTrips,
   setLocalOwner,
 } from './local/localStore';
 import { createApiExpenseRepository } from './repositories/apiExpenseRepository';
+import { createApiMediaRepository } from './repositories/apiMediaRepository';
+import { createMockMediaRepository, type MediaRepository } from './repositories/mediaRepository';
 import { createApiPlaceRepository } from './repositories/apiPlaceRepository';
 import {
   createMemoryChecklistRepository,
@@ -30,6 +33,9 @@ export {
   EXPENSE_TITLE_MAX,
   expenseInputProblem,
 } from './repositories/expenseRepository';
+
+export type { MediaRepository, PhotoInput } from './repositories/mediaRepository';
+export { DUPLICATE_PHOTO } from './repositories/mediaRepository';
 
 export type { ChecklistEdit, ChecklistRepository } from './repositories/checklistRepository';
 export { checklistEditProblem, QUANTITY_MAX } from './repositories/checklistRepository';
@@ -64,6 +70,7 @@ interface Repositories {
   trips: TripRepository;
   places: PlaceRepository;
   expenses: ExpenseRepository;
+  media: MediaRepository;
 }
 
 function createRepositories(mode: DataMode): { mode: DataMode; repos: Repositories } {
@@ -74,6 +81,7 @@ function createRepositories(mode: DataMode): { mode: DataMode; repos: Repositori
         trips: createMockTripRepository(),
         places: createMockPlaceRepository(),
         expenses: createMockExpenseRepository(),
+        media: createMockMediaRepository(),
       },
     };
   }
@@ -81,7 +89,9 @@ function createRepositories(mode: DataMode): { mode: DataMode; repos: Repositori
     const trips = createLocalTrips();
     const places = createLocalPlaces();
     const expenses = createLocalExpenses();
-    if (trips && places && expenses) return { mode, repos: { trips, places, expenses } };
+    const media = createLocalMedia();
+    if (trips && places && expenses && media)
+      return { mode, repos: { trips, places, expenses, media } };
   }
   return {
     mode: 'api',
@@ -89,6 +99,7 @@ function createRepositories(mode: DataMode): { mode: DataMode; repos: Repositori
       trips: createApiTripRepository(),
       places: createApiPlaceRepository(),
       expenses: createApiExpenseRepository(),
+      media: createApiMediaRepository(),
     },
   };
 }
@@ -125,6 +136,7 @@ export function setDataOwner(userId: string | null): void {
   repositories.trips.reset?.();
   repositories.places.reset?.();
   repositories.expenses.reset?.();
+  repositories.media.reset?.();
   repositories.checklist.reset?.();
   clearWeatherCache();
   clearFxCache();

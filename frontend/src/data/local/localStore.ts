@@ -7,6 +7,7 @@ import { useUiStore } from '@/store/uiStore';
 import { notifyDataChanged } from '../changes';
 import { createHttpTripApi } from '../repositories/apiTripRepository';
 import { createLocalExpenseRepository } from '../repositories/localExpenseRepository';
+import { createLocalMediaRepository } from '../repositories/localMediaRepository';
 import { createLocalPlaceRepository } from '../repositories/localPlaceRepository';
 import {
   createLocalChecklistRepository,
@@ -14,6 +15,7 @@ import {
 } from '../repositories/checklistRepository';
 import { createLocalTripRepository, type LocalDb } from '../repositories/localTripRepository';
 import type { ExpenseRepository } from '../repositories/expenseRepository';
+import type { MediaRepository } from '../repositories/mediaRepository';
 import type { PlaceRepository } from '../repositories/placeRepository';
 import type { TripRepository } from '../repositories/tripRepository';
 import { syncStatusFrom } from './syncStatus';
@@ -128,4 +130,9 @@ export function createLocalChecklist(): ChecklistRepository | null {
 /** Expenses in the same local database, synced the same way (KAN-42). */
 export function createLocalExpenses(): ExpenseRepository | null {
   return createLocalExpenseRepository(readyDb());
+}
+
+/** Photo records in the same local database, synced the same way (KAN-39). Files: services/photoFiles. */
+export function createLocalMedia(): MediaRepository | null {
+  return createLocalMediaRepository(readyDb());
 }

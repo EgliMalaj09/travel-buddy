@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { setDataOwner } from '@/data';
 import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
+import { usePhotoSync } from '@/features/photos/usePhotoSync';
 import { useReminderSync } from '@/features/reminders/useReminderSync';
 import { AnimatedSplash } from '@/features/splash/AnimatedSplash';
 import { takeFirstLaunch } from '@/features/splash/splashPlan';
@@ -40,6 +41,8 @@ function AppStack() {
   useEffect(() => useUserSettings.getState().load(dataOwner), [dataOwner]);
   // Reminders on the phone follow the trips; cleared when nobody is logged in (KAN-32).
   useReminderSync(phase === 'signedIn');
+  // Photo files upload in the background while the app is open (KAN-39).
+  usePhotoSync(dataOwner);
 
   // Each group is only reachable in its phase; Expo Router sends the user to the first open screen.
   return (
@@ -78,6 +81,7 @@ function AppStack() {
           <Stack.Screen name="trip/edit/[id]" options={{ title: '' }} />
           <Stack.Screen name="settings" options={{ title: 'Settings' }} />
           <Stack.Screen name="place/edit" options={{ title: '' }} />
+          <Stack.Screen name="photo/[id]" options={{ title: '' }} />
           <Stack.Screen name="expense/edit" options={{ title: '' }} />
           <Stack.Screen name="trip/checklist/[id]" options={{ title: 'Checklist' }} />
           <Stack.Screen name="design-kit" options={{ title: 'Design kit' }} />

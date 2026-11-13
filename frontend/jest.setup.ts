@@ -74,3 +74,29 @@ jest.mock('expo-notifications', () => ({
   AndroidImportance: { DEFAULT: 3 },
   SchedulableTriggerInputTypes: { DATE: 'date' },
 }));
+
+// Photos (KAN-39): the file system, image tools, picker and network state are native. Tests of
+// the photo logic pass fakes; these stubs only let modules load (no files exist in tests).
+jest.mock('expo-file-system', () => {
+  class Directory {
+    exists = false;
+    name = '';
+    create = jest.fn();
+    delete = jest.fn();
+    list = () => [];
+  }
+  class File {
+    exists = false;
+    uri = 'file:///test';
+    parentDirectory = new Directory();
+    static downloadFileAsync = jest.fn(async () => null);
+  }
+  return { Directory, File, Paths: { document: {}, cache: {} }, UploadType: { BINARY_CONTENT: 0 } };
+});
+jest.mock('expo-image-manipulator', () => ({ ImageManipulator: {}, SaveFormat: { JPEG: 'jpeg' } }));
+jest.mock('expo-image-picker', () => ({}));
+jest.mock('expo-network', () => ({
+  NetworkStateType: { NONE: 'NONE', WIFI: 'WIFI', CELLULAR: 'CELLULAR', ETHERNET: 'ETHERNET' },
+  getNetworkStateAsync: jest.fn(async () => ({ type: 'WIFI', isConnected: true })),
+  addNetworkStateListener: jest.fn(() => ({ remove: jest.fn() })),
+}));

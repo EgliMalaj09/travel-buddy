@@ -50,6 +50,7 @@ function fakeServer(reject?: (c: SyncChange) => string | null) {
     places: new Map(),
     expenses: new Map(),
     checklist_items: new Map(),
+    media: new Map(),
   };
   const uploads: SyncChange[][] = [];
   const sync = { createdAt: '2026-11-12T10:00:00Z', updatedAt: '2026-11-12T10:00:00Z' };

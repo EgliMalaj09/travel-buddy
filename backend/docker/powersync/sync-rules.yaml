@@ -34,3 +34,8 @@ streams:
   my_expenses:
     auto_subscribe: true
     query: select * from expenses where deleted_at is null and (scope = 'shared' or owner_user_id = auth.user_id()) and trip_id in (select id from trips where owner_id = auth.user_id() and deleted_at is null)
+  # Photos and notes (KAN-39/40): the photo records of the user's trips. The image files are not synced: the
+  # phone uploads and downloads them through /media/{id}/file and /thumbnail.
+  my_media:
+    auto_subscribe: true
+    query: select * from media where deleted_at is null and purpose = 'trip_photo' and trip_id in (select id from trips where owner_id = auth.user_id() and deleted_at is null)

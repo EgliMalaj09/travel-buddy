@@ -1,4 +1,13 @@
-import type { ChecklistItem, Expense, Flight, Place, Trip, TripActivity, TripStop } from '../types';
+import type {
+  ChecklistItem,
+  Expense,
+  Flight,
+  Media,
+  Place,
+  Trip,
+  TripActivity,
+  TripStop,
+} from '../types';
 
 /** A row as SQLite returns it. */
 export type Row = Record<string, unknown>;
@@ -186,5 +195,36 @@ export function rowToExpense(r: Row): Expense {
     updatedAt: isoTime(r.updated_at) ?? '',
     deletedAt: isoTime(r.deleted_at),
     version: num(r.version) ?? 0,
+  };
+}
+
+export function rowToMedia(r: Row): Media {
+  return {
+    id: String(r.id),
+    ownerUserId: text(r.owner_user_id) ?? '',
+    tripId: text(r.trip_id) ?? '',
+    placeId: text(r.place_id),
+    mediaType: (text(r.media_type) ?? 'photo') as Media['mediaType'],
+    purpose: (text(r.purpose) ?? 'trip_photo') as Media['purpose'],
+    scope: (text(r.scope) ?? 'shared') as Media['scope'],
+    source: (text(r.source) ?? 'library') as Media['source'],
+    isSuggested: Boolean(num(r.is_suggested)),
+    caption: text(r.caption),
+    takenAt: isoTime(r.taken_at),
+    lat: num(r.lat),
+    lng: num(r.lng),
+    countryCode: text(r.country_code)?.trim() || null,
+    width: num(r.width) ?? 0,
+    height: num(r.height) ?? 0,
+    mimeType: text(r.mime_type) ?? 'image/jpeg',
+    contentHash: text(r.content_hash) ?? '',
+    qualityTier: (text(r.quality_tier) ?? 'compressed') as Media['qualityTier'],
+    fileKey: text(r.file_key),
+    thumbnailKey: text(r.thumbnail_key),
+    sizeBytes: num(r.size_bytes),
+    uploadedAt: isoTime(r.uploaded_at),
+    includeInVideo: r.include_in_video == null ? true : Boolean(num(r.include_in_video)),
+    sortOrder: num(r.sort_order),
+    ...sync(r),
   };
 }

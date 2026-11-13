@@ -150,6 +150,46 @@ export interface Expense extends SyncFields {
   note: string | null;
 }
 
+/**
+ * A photo of a trip (data model section 12, KAN-39). V1: photos only (D16), every photo "shared" and
+ * owned by the person who added it (D3). The file itself is not here: the phone keeps it under the
+ * photo's id (services/photoFiles) and the server sets fileKey, thumbnailKey and uploadedAt once
+ * it has the file (D4).
+ */
+export interface Media extends SyncFields {
+  id: string;
+  /** Set by the server: who added it. */
+  ownerUserId: string;
+  tripId: string;
+  placeId: string | null;
+  mediaType: 'photo' | 'video';
+  purpose: 'trip_photo' | 'avatar';
+  scope: 'shared' | 'personal';
+  source: 'camera' | 'library' | 'autocapture';
+  isSuggested: boolean;
+  /** The user's note on the photo. */
+  caption: string | null;
+  /** When the photo was taken (from the photo), else empty. */
+  takenAt: IsoDateTime | null;
+  lat: number | null;
+  lng: number | null;
+  countryCode: CountryCode | null;
+  width: number;
+  height: number;
+  mimeType: string;
+  /** SHA-256 of the original file, lowercase hex: stops the same photo being added twice. */
+  contentHash: string;
+  qualityTier: 'compressed' | 'full';
+  /** Server only. */
+  fileKey: string | null;
+  thumbnailKey: string | null;
+  sizeBytes: number | null;
+  /** Server only. Empty = the file is not on the server yet. */
+  uploadedAt: IsoDateTime | null;
+  includeInVideo: boolean;
+  sortOrder: number | null;
+}
+
 export type ChecklistItemType = 'task' | 'packing';
 
 export type TaskCategory =
