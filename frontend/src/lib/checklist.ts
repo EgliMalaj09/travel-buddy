@@ -1,4 +1,10 @@
-import type { ChecklistItem, IsoDate, TaskCategory } from '@/data/types';
+import type {
+  ChecklistItem,
+  ChecklistItemType,
+  IsoDate,
+  PackingCategory,
+  TaskCategory,
+} from '@/data/types';
 
 import type { ChecklistSuggestion } from './checklistRules';
 import { stableId } from './stableId';
@@ -18,16 +24,31 @@ export type AutoFields = Pick<
   | 'sourceUrl'
   | 'sourceCheckedAt'
   | 'sortOrder'
+  | 'quantity'
 >;
+
+/**
+ * One item the rules want: a to-do (checklistRules.ts) or a packing item (packingRules.ts).
+ * Packing rule ids start with "pack-", so they never meet a to-do rule id.
+ */
+export type ItemSuggestion = Omit<ChecklistSuggestion, 'category'> & {
+  category: TaskCategory | PackingCategory;
+  /** Default "task". */
+  type?: ChecklistItemType;
+  /** Packing only. */
+  quantity?: number | null;
+};
+
+export type PlannedItem = AutoFields & { id: string; ruleId: string; type: ChecklistItemType };
 
 export interface ChecklistPlan {
   /** New auto items (id made with autoItemId). */
-  add: (AutoFields & { id: string; ruleId: string })[];
+  add: PlannedItem[];
   /** Auto items the user has not touched whose rule text or due date changed (dates moved, new rules). */
   update: { id: string; changes: Partial<AutoFields> }[];
 }
 
-const fieldsOf = (s: ChecklistSuggestion): AutoFields => ({
+const fieldsOf = (s: ItemSuggestion): AutoFields => ({
   title: s.title,
   notes: s.notes,
   category: s.category,
@@ -36,6 +57,7 @@ const fieldsOf = (s: ChecklistSuggestion): AutoFields => ({
   sourceUrl: s.sourceUrl,
   sourceCheckedAt: s.sourceCheckedAt,
   sortOrder: s.sortOrder,
+  quantity: s.quantity ?? null,
 });
 
 /**
@@ -51,7 +73,7 @@ const fieldsOf = (s: ChecklistSuggestion): AutoFields => ({
 export function planChecklist(
   tripId: string,
   items: ChecklistItem[],
-  suggestions: ChecklistSuggestion[],
+  suggestions: ItemSuggestion[],
 ): ChecklistPlan {
   const byRule = new Map(items.filter((i) => i.ruleId).map((i) => [i.ruleId!, i]));
   const plan: ChecklistPlan = { add: [], update: [] };
@@ -59,7 +81,12 @@ export function planChecklist(
     const item = byRule.get(s.ruleId) ?? items.find((i) => i.id === autoItemId(tripId, s.ruleId));
     const wanted = fieldsOf(s);
     if (!item) {
-      plan.add.push({ id: autoItemId(tripId, s.ruleId), ruleId: s.ruleId, ...wanted });
+      plan.add.push({
+        id: autoItemId(tripId, s.ruleId),
+        ruleId: s.ruleId,
+        type: s.type ?? 'task',
+        ...wanted,
+      });
       continue;
     }
     if (item.deletedAt || item.source !== 'auto' || item.done) continue;
@@ -101,7 +128,7 @@ export interface ChecklistView {
   next: ChecklistItem | null;
 }
 
-const byDueThenOrder = (a: ChecklistItem, b: ChecklistItem) =>
+export const byDueThenOrder = (a: ChecklistItem, b: ChecklistItem) =>
   (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999') || a.sortOrder - b.sortOrder;
 
 /** The task list as the screens show it. Deleted rows are left out. */

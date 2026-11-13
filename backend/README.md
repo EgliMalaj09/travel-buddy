@@ -68,7 +68,7 @@ dotnet ef database update --project src/TravelApp.Api
 | Path | What |
 | --- | --- |
 | `src/TravelApp.Api/Program.cs` | Wiring only |
-| `src/TravelApp.Api/Features/<Feature>/` | One folder per feature (today: `Health`, `AppInfo` as the example of the conventions, `Trips`) |
+| `src/TravelApp.Api/Features/<Feature>/` | One folder per feature (today: `Health`, `AppInfo` as the example of the conventions, `Auth`, `Trips`, `Places`, `Checklist`, `Sync`, `Weather`) |
 | `src/TravelApp.Api/Shared/` | Code used by 2+ features: `SyncEntity` base (sync fields), UUID v7 ids, error format, logging |
 | `src/TravelApp.Api/Data/` | `AppDbContext` (applies each feature's table setup), migrations |
 | `tests/TravelApp.Api.Tests/` | xUnit tests; `Infrastructure/ApiFactory` starts real PostgreSQL + the API |
@@ -136,7 +136,7 @@ One API project organised by feature (`src/TravelApp.Api/Features/<Feature>/`) p
 | Me | `GET /me`, `POST /me/profile` (KAN-12); later `PATCH /me`, `POST /me/delete`, `POST /me/restore`, `POST /me/data-request` |
 | Sync (KAN-16) | `POST /sync/upload`: the phone's waiting changes `{ op: PUT/PATCH/DELETE, type: table, id, data: { snake_case columns } }`, one result per change (`ok` or `rejected` + reasons); PowerSync Sync Streams for reads |
 | Trips | `GET /trips?limit=50&after=<cursor>`: your trips with stops and flights, one page at a time (default 50, max 100; follow `nextCursor` until it is empty). The app reads here until PowerSync is on the phone |
-| Rules and data | `GET /checklist-rules?version=`, `GET /weather?lat=&lng=&from=&to=`, FX rates for trip dates |
+| Rules and data | `GET /checklist-rules?version=`, `GET /weather/days?lat=&lng=&from=&to=` (KAN-29: max 31 days, forecast up to 15 days ahead then "typical" weather, cached in `weather_cache`), FX rates for trip dates |
 | Media | `POST /media/{id}/upload-url`, `POST /media/{id}/uploaded`, `GET /media/{id}/url?size=thumb|full` |
 | Part 2 | `POST /trips/{id}/invite-link`, `POST /invites/{token}/accept`, member remove and leave, `POST /trips/{id}/video`, RevenueCat webhook |
 | Part 3 | `POST /trips/{id}/diary`, `POST /trips/{id}/postcards/{countryCode}`, album orders, `POST /recap/{year}/reward` |
@@ -149,7 +149,7 @@ Each feature's Confluence page has the details.
 | --- | --- | --- |
 | PowerSync (Open Edition locally, Cloud free plan for beta) | Sync | Part 1 |
 | Azure (App Service, PostgreSQL, Blob Storage, Communication Services) | Hosting | Part 1 beta |
-| Weather API (Open-Meteo for dev/beta, check commercial terms) | Packing list | Part 1 |
+| Weather API: Open-Meteo (agreed 13 Nov 2026; free tier is non-commercial, paid plan or MET Norway before public launch). URLs in configuration `Weather:ForecastUrl` / `Weather:ArchiveUrl` | Packing list | Part 1 |
 | FX rates API (free daily rates covering all currencies, check terms) | Expenses | Part 1 |
 | Push (APNs / FCM, e.g. Expo push service) | Video ready, recap | Part 2 |
 | RevenueCat | Store purchases | Part 2 |

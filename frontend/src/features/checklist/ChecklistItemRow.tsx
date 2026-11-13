@@ -4,6 +4,7 @@ import { Linking, Pressable, View } from 'react-native';
 import { AppText, Checkbox } from '@/components';
 import type { ChecklistItem } from '@/data';
 import { dueLabel } from '@/lib/checklist';
+import { packingTitle } from '@/lib/packing';
 import { useTheme } from '@/theme/ThemeProvider';
 
 /** One line of the checklist: tick box, title, due date, notes, official link, and a ••• menu. */
@@ -33,7 +34,7 @@ export function ChecklistItemRow({
               color={item.done ? colors.inkSoft : undefined}
               style={item.done ? { textDecorationLine: 'line-through' } : undefined}
             >
-              {item.title}
+              {item.type === 'packing' ? packingTitle(item) : item.title}
             </AppText>
           }
         />

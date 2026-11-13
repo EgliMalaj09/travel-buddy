@@ -8,6 +8,7 @@ import { ActionSheet, EmptyState, Screen, TabRow } from '@/components';
 import { repositories, useAsync, useDataVersion } from '@/data';
 import { ChecklistItemSheet } from '@/features/checklist/ChecklistItemSheet';
 import { ChecklistList } from '@/features/checklist/ChecklistList';
+import { PackingList } from '@/features/packing/PackingList';
 import { TripPlaces } from '@/features/places/TripPlaces';
 import { todayIso } from '@/lib/dates';
 import {
@@ -30,7 +31,7 @@ const fabSize = 56;
 
 /**
  * The trip page (KAN-53): one home for a trip. Header, then tabs for Plan, Places, Checklist,
- * Photos and Expenses, and a quick-add button. The ••• menu edits or deletes the trip.
+ * Packing, Photos and Expenses, and a quick-add button. The ••• menu edits or deletes the trip.
  * `linkTab` comes from `?tab=` (reminders open the Checklist tab).
  */
 export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
@@ -42,7 +43,9 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
   const [tab, setTab] = useState<TripTab>(() => openingTripTab(linkTab, lastTab));
   // Which sheet is open. A sheet instead of Alert.alert, because Alert.alert with buttons does
   // nothing on web.
-  const [sheet, setSheet] = useState<'menu' | 'delete' | 'add' | 'checklistItem' | null>(null);
+  const [sheet, setSheet] = useState<
+    'menu' | 'delete' | 'add' | 'checklistItem' | 'packingItem' | null
+  >(null);
 
   // The pause before a second sheet opens; cleared if the page closes first.
   const sheetTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -143,6 +146,7 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
         actions={[
           { label: onTrip ? 'Place for today' : 'Place', onPress: addPlace },
           { label: 'Checklist item', onPress: openSheetNext('checklistItem') },
+          { label: 'Something to pack', onPress: openSheetNext('packingItem') },
         ]}
         onClose={() => setSheet(null)}
       />
@@ -152,6 +156,17 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
           onSave={async (edit) => {
             await repositories.checklist.addItem(trip.id, edit);
             openTab('checklist');
+          }}
+          onClose={() => setSheet(null)}
+        />
+      ) : null}
+      {sheet === 'packingItem' ? (
+        <ChecklistItemSheet
+          type="packing"
+          initial={null}
+          onSave={async (edit) => {
+            await repositories.checklist.addItem(trip.id, edit, 'packing');
+            openTab('packing');
           }}
           onClose={() => setSheet(null)}
         />
@@ -175,6 +190,8 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
             <TripPlaces trip={trip} places={places} today={today} />
           ) : tab === 'checklist' ? (
             <ChecklistList tripId={trip.id} />
+          ) : tab === 'packing' ? (
+            <PackingList tripId={trip.id} />
           ) : tab === 'photos' ? (
             <EmptyState
               icon="images-outline"

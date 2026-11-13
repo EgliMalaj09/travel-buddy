@@ -7,6 +7,7 @@ using TravelApp.Api.Features.Health;
 using TravelApp.Api.Features.Places;
 using TravelApp.Api.Features.Sync;
 using TravelApp.Api.Features.Trips;
+using TravelApp.Api.Features.Weather;
 using TravelApp.Api.Shared;
 
 // Program.cs only wires things up (structure rule 4): services, then one Map<Feature>Endpoints() per feature.
@@ -29,6 +30,7 @@ builder.Services.AddTripsFeature();
 builder.Services.AddPlacesFeature();
 builder.Services.AddChecklistFeature();
 builder.Services.AddSyncFeature();
+builder.Services.AddWeatherFeature(builder.Configuration);
 
 // The web build of the app (npm run web, http://localhost:8081) calls the API from another port,
 // so the browser needs CORS. Development only: phones do not use CORS.
@@ -60,6 +62,7 @@ app.MapAuthEndpoints();
 app.MapTripsEndpoints();
 app.MapPlacesEndpoints();
 app.MapSyncEndpoints();
+app.MapWeatherEndpoints();
 
 app.Run();
 

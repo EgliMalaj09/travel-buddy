@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 import { AppText, Card } from '@/components';
 import type { Flight, IsoDate, Place, Trip, TripStop } from '@/data/types';
 import { ChecklistCard } from '@/features/checklist/ChecklistCard';
+import { PackingCard } from '@/features/packing/PackingCard';
 import { formatDateRange, formatDay } from '@/lib/dates';
 import { placesOn } from '@/lib/places';
 import { directionLabels, flightTitle } from '@/lib/tripDraft';
@@ -11,7 +12,7 @@ import type { TripTab } from '@/lib/tripTabs';
 import { flagEmoji, stopDates } from '@/lib/trips';
 import { useTheme } from '@/theme/ThemeProvider';
 
-/** The Plan tab: checklist and places at a glance (each opens its tab), stops and flights. */
+/** The Plan tab: checklist, packing and places at a glance (each opens its tab), stops and flights. */
 export function PlanTab({
   trip,
   stops,
@@ -39,6 +40,9 @@ export function PlanTab({
   return (
     <>
       <ChecklistCard tripId={trip.id} onPress={() => openTab('checklist')} />
+      {trip.status !== 'finished' ? (
+        <PackingCard tripId={trip.id} onPress={() => openTab('packing')} />
+      ) : null}
 
       <Pressable
         accessibilityRole="button"

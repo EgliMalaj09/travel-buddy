@@ -2,30 +2,49 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, View } from 'react-native';
 
 import { AppText, Button, Chip, Input } from '@/components';
-import { checklistEditProblem, type ChecklistEdit } from '@/data';
+import { checklistEditProblem, QUANTITY_MAX, type ChecklistEdit } from '@/data';
+import type { ChecklistItemType } from '@/data/types';
 import { taskCategories, taskCategoryLabels } from '@/lib/checklist';
+import { packingCategories, packingCategoryLabels } from '@/lib/packing';
 import { useTheme } from '@/theme/ThemeProvider';
 
-/** Add or edit one item: name, group and an optional note. */
+const groups = {
+  task: taskCategories.map((c) => ({ key: c as string, label: taskCategoryLabels[c] })),
+  packing: packingCategories.map((c) => ({ key: c as string, label: packingCategoryLabels[c] })),
+};
+
+/** Add or edit one item: name, group and an optional note; packing items also "how many". */
 export function ChecklistItemSheet({
   initial,
+  type = 'task',
   onSave,
   onClose,
 }: {
   /** Null to add a new item. */
   initial: ChecklistEdit | null;
+  /** A to-do (default) or a packing item. */
+  type?: ChecklistItemType;
   onSave: (edit: ChecklistEdit) => Promise<void>;
   onClose: () => void;
 }) {
   const { colors, radii, space } = useTheme();
   const [title, setTitle] = useState(initial?.title ?? '');
   const [notes, setNotes] = useState(initial?.notes ?? '');
-  const [category, setCategory] = useState(initial?.category ?? 'other');
+  const [category, setCategory] = useState<ChecklistEdit['category']>(
+    initial?.category ?? (type === 'packing' ? 'clothes' : 'other'),
+  );
+  const [quantity, setQuantity] = useState(initial?.quantity ?? 1);
+  const packing = type === 'packing';
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const save = async () => {
-    const edit = { title, notes: notes || null, category };
+    const edit: ChecklistEdit = {
+      title,
+      notes: notes || null,
+      category,
+      ...(packing ? { quantity } : {}),
+    };
     const problem = checklistEditProblem(edit);
     if (problem) return setError(problem);
     setSaving(true);
@@ -60,15 +79,17 @@ export function ChecklistItemSheet({
               gap: space.lg,
             }}
           >
-            <AppText variant="heading">{initial ? 'Edit item' : 'Add your own item'}</AppText>
+            <AppText variant="heading">
+              {initial ? 'Edit item' : packing ? 'Add something to pack' : 'Add your own item'}
+            </AppText>
             <Input
-              label="What to do"
+              label={packing ? 'What to pack' : 'What to do'}
               value={title}
               onChangeText={(t) => {
                 setTitle(t);
                 setError(null);
               }}
-              placeholder="e.g. Renew my driving licence"
+              placeholder={packing ? 'e.g. Camera' : 'e.g. Renew my driving licence'}
               maxLength={120}
               autoFocus={!initial}
               error={error ?? undefined}
@@ -83,16 +104,40 @@ export function ChecklistItemSheet({
             <View style={{ gap: space.sm }}>
               <AppText variant="label">Group</AppText>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
-                {taskCategories.map((c) => (
+                {groups[type].map((g) => (
                   <Chip
-                    key={c}
-                    label={taskCategoryLabels[c]}
-                    selected={category === c}
-                    onPress={() => setCategory(c)}
+                    key={g.key}
+                    label={g.label}
+                    selected={category === g.key}
+                    onPress={() => setCategory(g.key as ChecklistEdit['category'])}
                   />
                 ))}
               </View>
             </View>
+            {packing ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
+                <AppText variant="label" style={{ flex: 1 }}>
+                  How many
+                </AppText>
+                <Button
+                  title="−"
+                  kind="secondary"
+                  accessibilityLabel="One less"
+                  disabled={quantity <= 1}
+                  onPress={() => setQuantity((q) => Math.max(1, q - 1))}
+                />
+                <AppText variant="body" accessibilityLiveRegion="polite">
+                  {quantity}
+                </AppText>
+                <Button
+                  title="+"
+                  kind="secondary"
+                  accessibilityLabel="One more"
+                  disabled={quantity >= QUANTITY_MAX}
+                  onPress={() => setQuantity((q) => Math.min(QUANTITY_MAX, q + 1))}
+                />
+              </View>
+            ) : null}
             <Button
               title={saving ? 'Saving…' : 'Save'}
               disabled={saving}

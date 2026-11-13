@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #20 and the trip page with tabs (KAN-53).
+Last updated: 13 Nov 2026, after PRs #1 to #21 and the packing list with weather (KAN-28, KAN-29).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -27,9 +27,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 13. [Places](#13-places-kan-34-kan-35)
 14. [Smart checklist](#14-smart-checklist-kan-24-kan-25)
 15. [Trip page with tabs](#15-trip-page-with-tabs-kan-53)
-16. [API base and backend checks](#16-api-base-and-backend-checks-kan-58)
-17. [Privacy: no personal data in logs (GDPR)](#17-privacy-no-personal-data-in-logs-gdpr)
-18. [Known gaps](#18-known-gaps)
+16. [Packing list and weather](#16-packing-list-and-weather-kan-28-kan-29)
+17. [API base and backend checks](#17-api-base-and-backend-checks-kan-58)
+18. [Privacy: no personal data in logs (GDPR)](#18-privacy-no-personal-data-in-logs-gdpr)
+19. [Known gaps](#19-known-gaps)
 
 ---
 
@@ -323,28 +324,58 @@ You tab → **Settings**.
 | CHK-11 | | Airplane mode: tick, add and delete items, then go back online | Works offline; syncs without copies | |
 | CHK-12 | | Log in with the same account on a second phone / emulator | Same list, no doubled items | |
 | CHK-13 | | Delete the trip | The checklist is deleted with it (also on the server) | |
-| CHK-14 | | Tap a "get ready" or "tomorrow" reminder *(updated 13 Nov)* | The trip page opens on its **Checklist** tab | |
+| CHK-14 | | Tap a "get ready" reminder *(updated 13 Nov, packing)* | The trip page opens on its **Checklist** tab. (The "tomorrow" reminder now opens **Packing**, see PACK-15) | |
 
 ## 15. Trip page with tabs (KAN-53)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
-| TAB-01 | | Open any trip | Header with name, dates, flags, "in N days" / "Day N of M"; under it 5 tabs: **Plan, Places, Checklist, Photos, Expenses**. Plan is underlined | |
-| TAB-02 | | Plan tab | Checklist card, **Places · N planned** card, Stops, and Flights (if any) | |
+| TAB-01 | | Open any trip | Header with name, dates, flags, "in N days" / "Day N of M"; under it 6 tabs: **Plan, Places, Checklist, Packing, Photos, Expenses**. Plan is underlined *(updated 13 Nov, packing)* | |
+| TAB-02 | | Plan tab | Checklist card, **Packing · X of Y packed** card, **Places · N planned** card, Stops, and Flights (if any) *(updated 13 Nov, packing)* | |
 | TAB-03 | | Tap the Places card on Plan | The **Places** tab opens with the places day by day | |
 | TAB-04 | | Tap the Checklist card on Plan | The **Checklist** tab opens with the full list, progress bar and "Add your own item" | |
 | TAB-05 | | Tap each tab in turn | Only that tab's content shows; the underline moves. On a small phone the tab row scrolls sideways | |
 | TAB-06 | | **Photos** and **Expenses** tabs | A friendly "come soon" message (they are built next) | |
 | TAB-07 | | On the Places tab, open a place, then go Back | You are still on the Places tab | |
 | TAB-08 | | Go Back to the trips list, open the same trip again | It opens on the tab you used last (until the app is closed) | |
-| TAB-09 | | Tap the round **+** button (bottom right) | "Add to this trip" with **Place** and **Checklist item**. During the trip it says **Place for today** | |
+| TAB-09 | | Tap the round **+** button (bottom right) | "Add to this trip" with **Place**, **Checklist item** and **Something to pack** *(updated 13 Nov)*. During the trip it says **Place for today** | |
 | TAB-10 | | + → **Place** | The place form opens for this trip (on today's date while the trip is on) | |
 | TAB-11 | | + → **Checklist item** → name → Save | The item is added and the **Checklist** tab opens showing it | |
 | TAB-12 | | Scroll to the bottom of a long tab | The last row is not hidden behind the + button | |
 | TAB-13 | | ••• → Edit trip / Delete trip | Still work as before (TRIP-16, delete question) | |
 | TAB-14 | | Airplane mode: switch tabs, add a place and a checklist item | Everything works offline and syncs later | |
 
-## 16. API base and backend checks (KAN-58)
+## 16. Packing list and weather (KAN-28, KAN-29)
+
+Weather comes from Open-Meteo through our API (agreed 13 Nov 2026). For weather you need: the phone online, a trip with dates, and stops whose city has a position (cities picked from the list have one).
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| PACK-01 | | Open a trip with dates. Plan tab | A **Packing · 0 of N packed** card with the first city's weather (e.g. "Rome: 9–18°C · rain likely on 2 days"). Tap opens the **Packing** tab | |
+| PACK-02 | | Packing tab of a 4-night trip with no activities | Groups **Documents and money, Clothes, Toiletries and health, Tech**. Clothes show how many, e.g. "Underwear × 5", "T-shirts and tops × 4" | |
+| PACK-03 | | Look at the **Weather** card on the Packing tab, trip starting in the next 2 weeks | One line per city with temperatures and rain/snow, labelled **Forecast**, and the link "Weather data by Open-Meteo.com" | |
+| PACK-04 | | Same for a trip 2+ months away | Labelled **Typical for these dates (past years)** | |
+| PACK-05 | | A trip somewhere cold (e.g. Oslo in January) | Warm jacket, jumper, hat/scarf/gloves, thermal layer (and winter boots if snow) | |
+| PACK-06 | | A hot trip (e.g. Athens in July) | Shorts, sunglasses, sun hat, sun cream, water bottle | |
+| PACK-07 | | Trip with activities Beach, Hiking or Skiing | Their gear appears once each (no doubles like two "Sun cream") | |
+| PACK-08 | | Trip with a flight | Boarding passes, liquids bag; power bank says "hand luggage" | |
+| PACK-09 | | Tick items, then untick one | "X of N packed" and the Plan card change; at all packed: "All N packed. Have a great trip!" | |
+| PACK-10 | | **Add something to pack** → name, group, **How many** with − / + → Save | Appears in that group with "× N" | |
+| PACK-11 | | Item ••• → Edit, change the number → Save | New number kept; it does not change when the trip changes | |
+| PACK-12 | | Item ••• → Delete, then leave the tab and come back | Gone, does not come back | |
+| PACK-13 | | Edit the trip: make it longer | Untouched clothes counts go up (e.g. socks 5 → 8); ticked and edited items stay as they were | |
+| PACK-14 | | Edit the trip: remove the Beach activity | Swimwear etc. move to **No longer needed**; **Remove them** clears them | |
+| PACK-15 | | Tap the "tomorrow" reminder (evening before the trip) | The trip page opens on its **Packing** tab | |
+| PACK-16 | | Open the Packing tab once online, then airplane mode and reopen the app | Same list and the last weather, with "Offline: this is the last weather the phone had" after 3 hours | |
+| PACK-17 | | Airplane mode on a new trip (never online) | "No weather yet" card; the list still has documents, clothes, toiletries and tech. Nothing weather-based disappears | |
+| PACK-18 | | Tick and add items in airplane mode, then go online. Open the trip on a second phone | Everything synced, no doubled items | |
+| PACK-19 | | + → **Something to pack** → Save | Added, and the **Packing** tab opens | |
+| PACK-20 | | Scalar: **GET /weather/days** with the login token, e.g. `lat=41.9`, `lng=12.5`, `from` today, `to` today+3 | 200 with `days` (date, kind "forecast", minC, maxC, precipitationMm, precipitationChance, snowCm) and the attribution | |
+| PACK-21 | | Scalar: same with `to` before `from`, more than 31 days, or `lat=100` | 400 with a clear message | |
+| PACK-22 | | Scalar: without the login token | 401 | |
+| PACK-23 | | Call it twice in a row, then read the API window | Second answer comes from the cache (fast). The window shows **no** latitude, longitude, dates or web address with them (GDPR) | |
+
+## 17. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
@@ -354,18 +385,18 @@ You tab → **Settings**.
 | API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (66 on 13 Nov 2026) | ✅ |
 | API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (172 on 13 Nov 2026) | |
 
-## 17. Privacy: no personal data in logs (GDPR)
+## 18. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
 | GDPR-01 | | Sign up, log in from a new phone, reset a password. Read the API window | `[dev email]` lines show the purpose and the code, **never the email**. No password, token or request body anywhere | |
-| GDPR-02 | | Create a trip, a place and checklist items. Read the API window | No trip names, cities, place names, notes or positions | |
+| GDPR-02 | | Create a trip, a place and checklist items, open the Packing tab. Read the API window *(updated 13 Nov)* | No trip names, cities, place names, notes, positions or weather web addresses | |
 | GDPR-03 | | Read the Expo / Metro window while using the app (mock login too) | No email, name, token or trip details printed | |
 | GDPR-04 | | *(When Sentry is turned on)* Cause an error, open the report in Sentry | No user, email, request body, console lines or `?query` values in the report | |
 
-## 18. Known gaps
+## 19. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.
@@ -373,3 +404,5 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 4. Apple login can only be tested once the paid Apple Developer account exists.
 5. Settings are kept on the phone per account until the server table exists (KAN-22).
 6. The checklist rule wording (entry rules) still needs your review (KAN-26).
+7. Packing lists are not yet personal in shared trips (each traveller their own list): that comes with shared trips in Part 2.
+8. Open-Meteo is free only while the app is not commercial: before the public launch, buy their plan or switch to MET Norway (on the switch list).

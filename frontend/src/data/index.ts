@@ -1,3 +1,5 @@
+import { clearWeatherCache } from '@/services/weather';
+
 import { notifyOwnerChanged } from './changes';
 import {
   createLocalChecklist,
@@ -17,7 +19,7 @@ export type { PlaceInput, PlaceRepository } from './repositories/placeRepository
 export { PLACE_NOTE_MAX, PLACE_TITLE_MAX, placeInputProblem } from './repositories/placeRepository';
 
 export type { ChecklistEdit, ChecklistRepository } from './repositories/checklistRepository';
-export { checklistEditProblem } from './repositories/checklistRepository';
+export { checklistEditProblem, QUANTITY_MAX } from './repositories/checklistRepository';
 export type {
   FlightInput,
   StopInput,
@@ -100,6 +102,7 @@ export function setDataOwner(userId: string | null): void {
   repositories.trips.reset?.();
   repositories.places.reset?.();
   repositories.checklist.reset?.();
+  clearWeatherCache();
   notifyOwnerChanged();
 }
 

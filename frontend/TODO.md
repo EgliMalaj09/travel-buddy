@@ -30,7 +30,7 @@ Suggested order. The owner works on the frontend with **mock data** while the ba
 | [ ] | 8 | FE - Map | KAN-37 | KAN-36 (M1–M4) | 557074 |
 | [ ] | 9 | FE - Photos and notes | KAN-39 | KAN-38 (PH1–PH6) | 524314 |
 | [ ] | 10 | FE - Smart checklist (**built 13 Nov 2026, PR from `claude/project-thread-1xs6m3`**: rules in `src/lib/checklistRules.ts` made on the phone, offline; trip page card + checklist screen; get-ready/evening reminders open it. Owner to review the rule wording) | KAN-24 | KAN-23 (C1–C6) | 98543 |
-| [ ] | 11 | FE - Packing list | KAN-28 | KAN-27 (K1–K5) | 426033 |
+| [ ] | 11 | FE - Packing list (**built 13 Nov 2026, branch `claude/project-thread-1qomml`**: rules in `src/lib/packingRules.ts` made on the phone, offline; Packing tab + Plan card; weather from `GET /weather/days` (Open-Meteo), kept on the phone for offline) | KAN-28 | KAN-27 (K1–K5) | 426033 |
 | [ ] | 12 | FE - Expenses | KAN-42 | KAN-41 (E1–E5) | 98559 |
 | [ ] | 13 | FE - Countdown and reminders (**built 12 Nov 2026, PR from `claude/project-thread-xefm9t`**: local reminders 30/7/1 days, pack tonight, flight evening before + 3 h before; next reminders on Home. Settings switches come with KAN-21; the 30/7 and evening reminders open the checklist (KAN-24)) | KAN-32 | KAN-31 (N1–N5) | 491522 |
 | [ ] | 14 | FE - Today suggestion (**built 12 Nov 2026, same PR**: Today card on Home with tonight's city, travel day and today's flights; planned places for today added with KAN-34 on 12 Nov 2026) | KAN-45 | KAN-44 (TD1–TD3) | 131074 |
