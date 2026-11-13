@@ -7,6 +7,7 @@ export { Card } from './Card';
 export { Checkbox } from './Checkbox';
 export { Chip } from './Chip';
 export { CodeInput } from './CodeInput';
+export { Globe } from './Globe';
 export { Input } from './Input';
 export { Logo } from './Logo';
 export { AppMap, AppMapMarker, mapSupported, type AppMapProps } from './Map';

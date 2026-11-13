@@ -2,15 +2,7 @@ import { buildMockData } from '@/data/mock/mockTrips';
 import type { Trip, TripStop } from '@/data/types';
 
 import { addDays } from '../dates';
-import {
-  countdown,
-  currentStop,
-  formatFlightTime,
-  greeting,
-  homeFocus,
-  nextFlight,
-  travelStats,
-} from '../home';
+import { countdown, currentStop, formatFlightTime, greeting, homeFocus, nextFlight } from '../home';
 
 const today = '2027-04-01';
 const data = buildMockData(today);
@@ -84,17 +76,6 @@ describe('nextFlight', () => {
 
   it('formats the departure time', () => {
     expect(formatFlightTime('2027-04-12T09:40')).toBe('Mon 12 Apr · 09:40');
-  });
-});
-
-describe('travelStats', () => {
-  it('counts past trips, countries and days', () => {
-    const stopsByTrip = new Map(data.trips.map((t) => [t.id, stopsOf(t.id)]));
-    expect(travelStats(data.trips, stopsByTrip, today)).toEqual({
-      trips: 1,
-      countries: 3,
-      days: 10,
-    });
   });
 });
 

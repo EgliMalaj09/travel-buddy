@@ -5,7 +5,7 @@ import { tabBarOptions } from '@/components';
 import { useBiometricOffer } from '@/features/auth/useBiometricOffer';
 import { useTheme } from '@/theme/ThemeProvider';
 
-/** The 4 agreed tabs: Home, Trips, Globe, You. */
+/** The 4 agreed tabs: Home, Trips, Atlas (route `globe`), You. */
 export default function TabsLayout() {
   const theme = useTheme();
   useBiometricOffer();
@@ -32,7 +32,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="globe"
         options={{
-          title: 'Globe',
+          title: 'Atlas',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="earth-outline" color={String(color)} size={size} />
           ),

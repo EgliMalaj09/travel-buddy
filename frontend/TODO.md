@@ -35,8 +35,8 @@ Suggested order. The owner works on the frontend with **mock data** while the ba
 | [ ] | 13 | FE - Countdown and reminders (**built 12 Nov 2026, PR from `claude/project-thread-xefm9t`**: local reminders 30/7/1 days, pack tonight, flight evening before + 3 h before; next reminders on Home. Settings switches come with KAN-21; the 30/7 and evening reminders open the checklist (KAN-24)) | KAN-32 | KAN-31 (N1–N5) | 491522 |
 | [ ] | 14 | FE - Today suggestion (**built 12 Nov 2026, same PR**: Today card on Home with tonight's city, travel day and today's flights; planned places for today added with KAN-34 on 12 Nov 2026) | KAN-45 | KAN-44 (TD1–TD3) | 131074 |
 | [ ] | 15 | FE - Finish trip | KAN-47 | KAN-46 (F1–F4) | 426049 |
-| [ ] | 16 | FE - Globe test (mid-range phone) | KAN-49 | KAN-48 (G1–G5) | 557090 |
-| [ ] | 17 | FE - Globe and lifetime stats | KAN-50 | KAN-48 | 557090 |
+| [ ] | 16 | FE - Globe test (mid-range phone) (**built 13 Nov 2026**: dotted SVG globe, test case ATL-14; choices in decisions/features/12-atlas.md) | KAN-49 | KAN-48 (G1–G5) | 557090 |
+| [ ] | 17 | FE - Globe and lifetime stats (**built 13 Nov 2026**: Atlas tab, stats, passport strip, countries list) | KAN-50 | KAN-48 | 557090 |
 | [ ] | 18 | Template - Passport stamp | KAN-51 | KAN-48 | 557090 |
 | [ ] | 19 | FE - Profile, settings and account deletion (**Settings screen built 12 Nov 2026; the rest built 13 Nov 2026**: settings saved to the account and synced (PowerSync), Edit profile, Download my data (expo-sharing, needs `-Rebuild`), Delete account (type DELETE, 30 days to restore), Restore screen, temperature unit. Choices: `../decisions/features/10-profile-account.md`) | KAN-21 | KAN-20 (P1–P5) | 426017 |
 | [ ] | 20 | FE - Ship Part 1 builds (EAS, TestFlight, Google Play internal, test checklist). ⚠️ **First decide the final app name and bundle id** (placeholder `app.travelapp.mobile`, cannot change after the first upload) | KAN-60 | KAN-59 (SH1–SH4) | 98575 |

@@ -1,7 +1,7 @@
 import type { Flight, IsoDate, Trip, TripStop } from '@/data/types';
 
 import { daysBetween, formatDay } from './dates';
-import { groupTrips, stopDates, tripCountries, tripGroup } from './trips';
+import { groupTrips, stopDates } from './trips';
 
 /**
  * Pure helpers for the Home dashboard. Kept out of the screen so they can be tested
@@ -60,31 +60,6 @@ export function nextFlight(flights: Flight[], today: IsoDate): Flight | null {
 export function formatFlightTime(localTime: string): string {
   const time = localTime.slice(11, 16);
   return time ? `${formatDay(localTime.slice(0, 10))} · ${time}` : formatDay(localTime);
-}
-
-export interface TravelStats {
-  /** Trips that are over (finished, or past their last day). */
-  trips: number;
-  /** Different countries on those trips. */
-  countries: number;
-  /** Days spent travelling on those trips. */
-  days: number;
-}
-
-/** Simple lifetime numbers from past trips. The full stats come with the Globe (KAN-50). */
-export function travelStats(
-  trips: Trip[],
-  stopsByTrip: Map<string, TripStop[]>,
-  today: IsoDate,
-): TravelStats {
-  const past = trips.filter((t) => !t.deletedAt && tripGroup(t, today) === 'past');
-  const countries = new Set<string>();
-  let days = 0;
-  for (const t of past) {
-    for (const c of tripCountries(stopsByTrip.get(t.id) ?? [])) countries.add(c);
-    if (t.startDate && t.endDate) days += daysBetween(t.startDate, t.endDate) + 1;
-  }
-  return { trips: past.length, countries: countries.size, days };
 }
 
 /** "Good morning" / "Good afternoon" / "Good evening" from the hour (0–23). */

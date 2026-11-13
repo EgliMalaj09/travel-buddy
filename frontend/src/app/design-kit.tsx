@@ -16,6 +16,7 @@ import {
   Logo,
   OptionPicker,
   OrDivider,
+  Globe,
   PassportGrid,
   PhotoPlaceholder,
   Screen,
@@ -159,6 +160,21 @@ export default function DesignKitScreen() {
       >
         <StatTile onAccent value="48" label="photos" />
         <StatTile onAccent value="7" label="countries now" />
+      </View>
+
+      <AppText variant="heading">Core: atlas (KAN-49/50)</AppText>
+      <Globe
+        visited={['PT', 'IT', 'AT', 'GR']}
+        here="PT"
+        focus="IT"
+        size={260}
+        reduceMotion
+        accessibilityLabel="Globe example"
+      />
+      <View style={{ flexDirection: 'row', gap: space.sm }}>
+        <StatTile compact value="6" label="countries" />
+        <StatTile compact value="5" label="trips" />
+        <StatTile compact value="38" label="days away" />
       </View>
 
       <AppText variant="heading">Feature: groups</AppText>

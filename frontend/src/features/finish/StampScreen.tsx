@@ -124,8 +124,23 @@ export function StampScreen({ id }: { id: string }) {
           Every finished trip adds a stamp for each new country.
         </AppText>
       </Screen>
-      <View style={{ paddingHorizontal: space.lg, paddingBottom: insets.bottom + space.lg }}>
-        <Button title="Done" onPress={() => router.back()} />
+      <View
+        style={{
+          paddingHorizontal: space.lg,
+          paddingBottom: insets.bottom + space.lg,
+          gap: space.sm,
+        }}
+      >
+        <Button
+          title="See your atlas"
+          onPress={() =>
+            router.navigate({
+              pathname: '/globe',
+              params: { focus: fresh[0] ?? recap.countries[0] ?? '' },
+            })
+          }
+        />
+        <Button title="Done" kind="secondary" onPress={() => router.back()} />
       </View>
     </View>
   );
