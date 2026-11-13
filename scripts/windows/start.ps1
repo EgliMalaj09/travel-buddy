@@ -106,14 +106,24 @@ try {
 
 # ---------- 3. Database tables (migrations) ----------
 Step 'Database tables (EF Core migrations)'
-dotnet ef --version *> $null
-if ($LASTEXITCODE -ne 0) {
-  Info 'Installing dotnet-ef (one time)...'
-  dotnet tool install --global dotnet-ef
+# dotnet-ef must match the EF Core version of the backend (10.x); a newer major does not restore by itself.
+$efWanted = '10.0.15'
+$efVersion = (dotnet ef --version 2>$null | Select-Object -Last 1)
+if ($LASTEXITCODE -ne 0 -or -not $efVersion) {
+  Info "Installing dotnet-ef $efWanted (one time)..."
+  dotnet tool install --global dotnet-ef --version $efWanted
   if ($LASTEXITCODE -ne 0) { Fail 'Could not install dotnet-ef.' }
+} elseif (-not ($efVersion.Trim()).StartsWith('10.')) {
+  Info "Switching dotnet-ef from $($efVersion.Trim()) to $efWanted (matches the backend)..."
+  dotnet tool uninstall --global dotnet-ef
+  dotnet tool install --global dotnet-ef --version $efWanted
+  if ($LASTEXITCODE -ne 0) { Fail 'Could not switch dotnet-ef to version 10.' }
 }
 Push-Location $Backend
 try {
+  Info 'Downloading backend libraries (dotnet restore)...'
+  dotnet restore
+  if ($LASTEXITCODE -ne 0) { Fail 'dotnet restore failed. Check your internet connection and read the red text above.' }
   dotnet ef database update --project $ApiProject
   if ($LASTEXITCODE -ne 0) { Fail 'The database update failed. Read the red text above; often the API code does not build yet (try "dotnet build" in the backend folder).' }
 } finally { Pop-Location }
