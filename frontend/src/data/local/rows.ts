@@ -1,4 +1,4 @@
-import type { Flight, Trip, TripActivity, TripStop } from '../types';
+import type { Flight, Place, Trip, TripActivity, TripStop } from '../types';
 
 /** A row as SQLite returns it. */
 export type Row = Record<string, unknown>;
@@ -106,6 +106,38 @@ export function rowToFlight(r: Row): Flight {
     bookingCode: text(r.booking_code),
     seat: text(r.seat),
     terminal: text(r.terminal),
+    ...sync(r),
+  };
+}
+
+export function rowToPlace(r: Row): Place {
+  return {
+    id: String(r.id),
+    tripId: text(r.trip_id),
+    createdByUserId: text(r.created_by_user_id) ?? '',
+    ownerUserId: text(r.owner_user_id),
+    scope: (text(r.scope) ?? 'shared') as Place['scope'],
+    status: (text(r.status) ?? 'planned') as Place['status'],
+    title: text(r.title) ?? '',
+    note: text(r.note),
+    lat: num(r.lat),
+    lng: num(r.lng),
+    countryCode: text(r.country_code) ?? '',
+    cityName: text(r.city_name),
+    address: text(r.address),
+    geoProviderId: text(r.geo_provider_id),
+    category: (text(r.category) ?? 'other') as Place['category'],
+    plannedDate: date(r.planned_date),
+    visitedAt: isoTime(r.visited_at),
+    source: (text(r.source) ?? 'manual') as Place['source'],
+    // SQLite 0/1, or true/false text from PostgreSQL.
+    isSuggested:
+      r.is_suggested === true ||
+      r.is_suggested === 1 ||
+      r.is_suggested === 'true' ||
+      r.is_suggested === '1',
+    coverMediaId: text(r.cover_media_id),
+    copiedFromPlaceId: text(r.copied_from_place_id),
     ...sync(r),
   };
 }

@@ -50,10 +50,12 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
     const stopsByTrip = new Map<string, TripStop[]>(trips.map((t, i) => [t.id, stops[i] ?? []]));
     const focus = homeFocus(trips, today);
     const flights = focus ? await repositories.trips.listFlights(focus.trip.id) : [];
+    // Today's planned places (KAN-34). Only needed while the trip is happening.
+    const places = focus?.kind === 'now' ? await repositories.places.listPlaces(focus.trip.id) : [];
     const reminders = planReminders({ ...(await loadReminderInput()), now: new Date() });
     const permission = await reminderPermission();
-    return { trips, stopsByTrip, focus, flights, reminders, permission };
-  }, [version, today, JSON.stringify(reminderSettings)]);
+    return { trips, stopsByTrip, focus, flights, places, reminders, permission };
+  }, [version, today, reminderSettings]);
 
   const header = (
     <View
@@ -88,10 +90,10 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
   }
   if (!data) return <Screen header={header}>{null}</Screen>;
 
-  const { trips, stopsByTrip, focus, flights, reminders, permission } = data;
+  const { trips, stopsByTrip, focus, flights, places, reminders, permission } = data;
   const todayItems =
     focus?.kind === 'now'
-      ? todayPlan(focus.trip, stopsByTrip.get(focus.trip.id) ?? [], flights, today)
+      ? todayPlan(focus.trip, stopsByTrip.get(focus.trip.id) ?? [], flights, today, places)
       : [];
   const countriesOf = (id: string) => tripCountries(stopsByTrip.get(id) ?? []);
   const groups = groupTrips(trips, today);
@@ -136,7 +138,14 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
         </Card>
       )}
 
-      {todayItems.length > 0 ? <TodayCard items={todayItems} /> : null}
+      {todayItems.length > 0 && focus ? (
+        <TodayCard
+          items={todayItems}
+          onOpenPlace={(placeId) =>
+            router.push({ pathname: '/place/edit', params: { tripId: focus.trip.id, placeId } })
+          }
+        />
+      ) : null}
 
       {reminders.length > 0 ? (
         <RemindersCard reminders={reminders} permission={permission} now={now} />
@@ -253,8 +262,14 @@ function FocusCard({
   );
 }
 
-/** "Today" (KAN-45): what the trip already knows about today. Places are added with KAN-34. */
-function TodayCard({ items }: { items: TodayItem[] }) {
+/** "Today" (KAN-45): what the trip knows about today, with today's planned places (KAN-34). */
+function TodayCard({
+  items,
+  onOpenPlace,
+}: {
+  items: TodayItem[];
+  onOpenPlace: (placeId: string) => void;
+}) {
   const { space } = useTheme();
   return (
     <View style={{ gap: space.sm }}>
@@ -267,6 +282,7 @@ function TodayCard({ items }: { items: TodayItem[] }) {
             text={item.text}
             detail={item.detail}
             first={i === 0}
+            onPress={item.placeId ? () => onOpenPlace(item.placeId!) : undefined}
           />
         ))}
       </Card>
@@ -325,16 +341,21 @@ function InfoRow({
   text,
   detail,
   first = false,
+  onPress,
 }: {
   icon: React.ComponentProps<typeof Ionicons>['name'];
   text: string;
   detail?: string;
   /** The first row of a card has no line above it. */
   first?: boolean;
+  onPress?: () => void;
 }) {
   const { colors, space } = useTheme();
   return (
-    <View
+    <Pressable
+      disabled={!onPress}
+      accessibilityRole={onPress ? 'button' : undefined}
+      onPress={onPress}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -349,7 +370,8 @@ function InfoRow({
         <AppText variant="label">{text}</AppText>
         {detail ? <AppText variant="date">{detail}</AppText> : null}
       </View>
-    </View>
+      {onPress ? <Ionicons name="chevron-forward" size={16} color={colors.inkSoft} /> : null}
+    </Pressable>
   );
 }
 

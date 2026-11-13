@@ -464,6 +464,151 @@ namespace TravelApp.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TravelApp.Api.Features.Places.Place", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("address");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("category");
+
+                    b.Property<string>("CityName")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("city_name");
+
+                    b.Property<Guid?>("CopiedFromPlaceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("copied_from_place_id");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character(2)")
+                        .HasColumnName("country_code")
+                        .IsFixedLength();
+
+                    b.Property<Guid?>("CoverMediaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cover_media_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("GeoProviderId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("geo_provider_id");
+
+                    b.Property<bool>("IsSuggested")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_suggested");
+
+                    b.Property<double?>("Lat")
+                        .HasColumnType("double precision")
+                        .HasColumnName("lat");
+
+                    b.Property<double?>("Lng")
+                        .HasColumnType("double precision")
+                        .HasColumnName("lng");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("note");
+
+                    b.Property<Guid?>("OwnerUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<DateOnly?>("PlannedDate")
+                        .HasColumnType("date")
+                        .HasColumnName("planned_date");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("scope");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("title");
+
+                    b.Property<Guid?>("TripId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("trip_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.Property<DateTimeOffset?>("VisitedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("visited_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_places");
+
+                    b.HasIndex("CreatedByUserId")
+                        .HasDatabaseName("ix_places_created_by_user_id");
+
+                    b.HasIndex("TripId", "PlannedDate")
+                        .HasDatabaseName("ix_places_trip_id_planned_date");
+
+                    b.ToTable("places", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_places_bucket_trip", "(status = 'bucket') = (trip_id IS NULL)");
+
+                            t.HasCheckConstraint("ck_places_category", "category IN ('food', 'sight', 'stay', 'transport', 'other')");
+
+                            t.HasCheckConstraint("ck_places_position", "(lat IS NULL) = (lng IS NULL) AND (lat IS NULL OR (lat BETWEEN -90 AND 90 AND lng BETWEEN -180 AND 180))");
+
+                            t.HasCheckConstraint("ck_places_scope", "scope IN ('shared', 'personal')");
+
+                            t.HasCheckConstraint("ck_places_source", "source IN ('manual', 'autocapture')");
+
+                            t.HasCheckConstraint("ck_places_status", "status IN ('bucket', 'planned', 'visited')");
+                        });
+                });
+
             modelBuilder.Entity("TravelApp.Api.Features.Trips.Flight", b =>
                 {
                     b.Property<Guid>("Id")
@@ -805,6 +950,22 @@ namespace TravelApp.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_trusted_devices_asp_net_users_user_id");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Features.Places.Place", b =>
+                {
+                    b.HasOne("TravelApp.Api.Features.Auth.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_places_users_created_by_user_id");
+
+                    b.HasOne("TravelApp.Api.Features.Trips.Trip", null)
+                        .WithMany()
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_places_trip_trip_id");
                 });
 
             modelBuilder.Entity("TravelApp.Api.Features.Trips.Flight", b =>

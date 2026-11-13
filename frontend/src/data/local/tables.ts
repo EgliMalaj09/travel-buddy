@@ -1,5 +1,5 @@
 /**
- * The trip tables on the phone (local SQLite via PowerSync, KAN-15).
+ * The synced tables on the phone (trips, stops, flights, places) (local SQLite via PowerSync, KAN-15).
  * Names and columns are the server's (snake_case), because PowerSync copies whole rows from
  * PostgreSQL (backend/docker/powersync/sync-rules.yaml). `id` is added by PowerSync itself.
  *
@@ -61,6 +61,30 @@ export const tripTables = {
     terminal: 'text',
     ...sync,
   },
+  // Places (KAN-34/35). Booleans are 0/1, planned_date "2027-04-12", visited_at ISO text.
+  places: {
+    trip_id: 'text',
+    created_by_user_id: 'text',
+    owner_user_id: 'text',
+    scope: 'text',
+    status: 'text',
+    title: 'text',
+    note: 'text',
+    lat: 'real',
+    lng: 'real',
+    country_code: 'text',
+    city_name: 'text',
+    address: 'text',
+    geo_provider_id: 'text',
+    category: 'text',
+    planned_date: 'text',
+    visited_at: 'text',
+    source: 'text',
+    is_suggested: 'integer',
+    cover_media_id: 'text',
+    copied_from_place_id: 'text',
+    ...sync,
+  },
 } as const satisfies Record<string, Record<string, ColumnType>>;
 
 export type TripTableName = keyof typeof tripTables;
@@ -70,6 +94,8 @@ export const tripTableNames = Object.keys(tripTables) as TripTableName[];
 export const serverColumns = new Set([
   'id',
   'owner_id',
+  'created_by_user_id',
+  'owner_user_id',
   'created_at',
   'updated_at',
   'deleted_at',

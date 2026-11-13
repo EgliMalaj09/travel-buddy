@@ -1,23 +1,31 @@
-import type { Flight, IsoDate, Trip, TripStop } from '@/data/types';
+import type { Flight, IsoDate, Place, Trip, TripStop } from '@/data/types';
 
+import { categoryIcons, categoryLabels, placesOn } from './places';
 import { stopDates } from './trips';
 import { flightTitle } from './tripDraft';
 
 /**
  * The "Today" suggestion on Home (KAN-45), for a trip that is happening now.
- * Agreed 12 Nov 2026: until Places exists (KAN-34) it shows what the trip already knows:
- * a travel day between two cities, today's flights and tonight's city. Planned places for today
- * are added here when Places is built.
+ * Agreed 12 Nov 2026: a travel day between two cities, today's flights, the places planned for
+ * today (KAN-34, "Been there" ones last) and tonight's city.
  */
 
 export type TodayIcon =
-  'flag-outline' | 'airplane-outline' | 'car-outline' | 'bed-outline' | 'home-outline';
+  | 'flag-outline'
+  | 'airplane-outline'
+  | 'car-outline'
+  | 'bed-outline'
+  | 'home-outline'
+  | 'checkmark-circle'
+  | (typeof categoryIcons)[keyof typeof categoryIcons];
 
 export interface TodayItem {
   key: string;
   icon: TodayIcon;
   text: string;
   detail?: string;
+  /** Set for a planned place: the row opens it. */
+  placeId?: string;
 }
 
 export function todayPlan(
@@ -25,6 +33,7 @@ export function todayPlan(
   stops: TripStop[],
   flights: Flight[],
   today: IsoDate,
+  places: Place[] = [],
 ): TodayItem[] {
   if (!trip.startDate || !trip.endDate || today < trip.startDate || today > trip.endDate) return [];
   const items: TodayItem[] = [];
@@ -61,6 +70,17 @@ export function todayPlan(
         text: `${from.stop.cityName} → ${to.stop.cityName} today`,
       });
     }
+  }
+
+  for (const p of placesOn(places, today)) {
+    const visited = p.status === 'visited';
+    items.push({
+      key: `place-${p.id}`,
+      icon: visited ? 'checkmark-circle' : categoryIcons[p.category],
+      text: p.title,
+      detail: visited ? 'Been there' : categoryLabels[p.category],
+      placeId: p.id,
+    });
   }
 
   const tonight = dated.find(

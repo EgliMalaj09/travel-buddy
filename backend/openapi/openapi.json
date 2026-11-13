@@ -964,6 +964,56 @@
         ]
       }
     },
+    "/places": {
+      "get": {
+        "tags": [
+          "Places"
+        ],
+        "summary": "The places of one of your trips (deleted ones left out), by planned day, \"any day\" last",
+        "operationId": "ListTripPlaces",
+        "parameters": [
+          {
+            "name": "tripId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripPlacesResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/sync/upload": {
       "post": {
         "tags": [
@@ -1450,6 +1500,174 @@
           }
         }
       },
+      "PlaceDto": {
+        "required": [
+          "id",
+          "tripId",
+          "createdByUserId",
+          "ownerUserId",
+          "scope",
+          "status",
+          "title",
+          "note",
+          "lat",
+          "lng",
+          "countryCode",
+          "cityName",
+          "address",
+          "geoProviderId",
+          "category",
+          "plannedDate",
+          "visitedAt",
+          "source",
+          "isSuggested",
+          "coverMediaId",
+          "copiedFromPlaceId",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tripId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lat": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "lng": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "countryCode": {
+            "type": "string"
+          },
+          "cityName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "address": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "geoProviderId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "plannedDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "visitedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "source": {
+            "type": "string"
+          },
+          "isSuggested": {
+            "type": "boolean"
+          },
+          "coverMediaId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "copiedFromPlaceId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
@@ -1905,6 +2123,20 @@
           }
         }
       },
+      "TripPlacesResponse": {
+        "required": [
+          "places"
+        ],
+        "type": "object",
+        "properties": {
+          "places": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlaceDto"
+            }
+          }
+        }
+      },
       "TripStopDto": {
         "required": [
           "id",
@@ -2054,6 +2286,9 @@
     },
     {
       "name": "Trips"
+    },
+    {
+      "name": "Places"
     },
     {
       "name": "Sync"

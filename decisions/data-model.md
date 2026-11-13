@@ -245,8 +245,8 @@ Pins, planned places and bucket-list items in one entity.
 | `status` | enum: bucket, planned, visited | yes | Pin shape: bucket dotted, planned outlined, visited filled |
 | `title` | string | yes | Max 120 |
 | `note` | string | no | The user's own text |
-| `lat`, `lng` | number | yes | |
-| `countryCode` | ISO country | yes | Used for the globe and passport stamps |
+| `lat`, `lng` | number | no | Changed 12 Nov 2026 (Places, owner agreed): may be empty. A new place takes the position of the city of that trip day; empty when that stop has none (typed offline). The exact spot comes with the Map |
+| `countryCode` | ISO country | yes | Used for the globe and passport stamps. From the stop of that day |
 | `cityName`, `address`, `geoProviderId` | string | no | |
 | `category` | enum: food, sight, stay, transport, other | yes | Default other |
 | `plannedDate` | date | no | |

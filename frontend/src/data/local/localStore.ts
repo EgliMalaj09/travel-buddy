@@ -6,7 +6,9 @@ import { useUiStore } from '@/store/uiStore';
 
 import { notifyDataChanged } from '../changes';
 import { createHttpTripApi } from '../repositories/apiTripRepository';
+import { createLocalPlaceRepository } from '../repositories/localPlaceRepository';
 import { createLocalTripRepository, type LocalDb } from '../repositories/localTripRepository';
+import type { PlaceRepository } from '../repositories/placeRepository';
 import type { TripRepository } from '../repositories/tripRepository';
 import { syncStatusFrom } from './syncStatus';
 import { tripTableNames, tripTables } from './tables';
@@ -105,4 +107,9 @@ function readyDb(): LocalDb {
 /** Trips in the phone's local database, synced by PowerSync. Null where it can't run (web). */
 export function createLocalTrips(): TripRepository | null {
   return createLocalTripRepository(readyDb());
+}
+
+/** Places in the phone's local database, synced by PowerSync. Null where it can't run (web). */
+export function createLocalPlaces(): PlaceRepository | null {
+  return createLocalPlaceRepository(readyDb());
 }

@@ -86,3 +86,37 @@ export interface Flight extends SyncFields {
   seat: string | null;
   terminal: string | null;
 }
+
+export type PlaceStatus = 'bucket' | 'planned' | 'visited';
+export type PlaceCategory = 'food' | 'sight' | 'stay' | 'transport' | 'other';
+
+/**
+ * Data model 11 (AGREED: D1, D2). One record follows a place from bucket list to planned to visited.
+ * `lat`/`lng` are empty until the place has a position (Places, 12 Nov 2026: the app fills in the
+ * city of that trip day when it knows it; an exact spot comes with the Map, KAN-37).
+ */
+export interface Place extends SyncFields {
+  id: string;
+  /** Empty only for bucket-list places. */
+  tripId: string | null;
+  createdByUserId: string;
+  ownerUserId: string | null;
+  scope: 'shared' | 'personal';
+  status: PlaceStatus;
+  title: string;
+  note: string | null;
+  lat: number | null;
+  lng: number | null;
+  countryCode: CountryCode;
+  cityName: string | null;
+  address: string | null;
+  geoProviderId: string | null;
+  category: PlaceCategory;
+  /** The trip day it is planned for; empty means "any day". */
+  plannedDate: IsoDate | null;
+  visitedAt: IsoDateTime | null;
+  source: 'manual' | 'autocapture';
+  isSuggested: boolean;
+  coverMediaId: string | null;
+  copiedFromPlaceId: string | null;
+}

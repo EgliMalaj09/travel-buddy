@@ -19,9 +19,9 @@ export interface LocalDb {
   ): Promise<T>;
 }
 
-type Tx = Parameters<Parameters<LocalDb['writeTransaction']>[0]>[0];
+export type Tx = Parameters<Parameters<LocalDb['writeTransaction']>[0]>[0];
 
-const insert = (tx: Tx, table: string, values: Row) => {
+export const insert = (tx: Tx, table: string, values: Row) => {
   const columns = Object.keys(values);
   return tx.execute(
     `INSERT INTO ${table} (${columns.map((c) => `"${c}"`).join(', ')}) VALUES (${columns.map(() => '?').join(', ')})`,
@@ -29,7 +29,7 @@ const insert = (tx: Tx, table: string, values: Row) => {
   );
 };
 
-const update = (tx: Tx, table: string, id: string, values: Row) => {
+export const update = (tx: Tx, table: string, id: string, values: Row) => {
   const columns = Object.keys(values);
   return tx.execute(
     `UPDATE ${table} SET ${columns.map((c) => `"${c}" = ?`).join(', ')} WHERE id = ?`,
@@ -189,10 +189,11 @@ export function createLocalTripRepository(
     },
     async deleteTrip(id) {
       await db.writeTransaction(async (tx) => {
-        // The trip first: the server then removes its stops and flights with it.
+        // The trip first: the server then removes its stops, flights and places with it.
         await tx.execute('DELETE FROM trips WHERE id = ?', [id]);
         await tx.execute('DELETE FROM trip_stops WHERE trip_id = ?', [id]);
         await tx.execute('DELETE FROM flights WHERE trip_id = ?', [id]);
+        await tx.execute('DELETE FROM places WHERE trip_id = ?', [id]);
       });
       notifyDataChanged();
     },
