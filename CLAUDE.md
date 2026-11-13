@@ -27,7 +27,7 @@ The repository is the memory, not the chat. Long chats get summarised and lose d
 4. **Frontend and backend of the same feature can run at the same time** in two chats, on separate branches. The contract between them is `backend/openapi/openapi.json` (the backend writes it; the frontend runs `npm run api:types`).
 5. **App-wide decisions** (new library, data model change, release plan) go in a separate short "decisions" chat. The result is written to `decisions/` and Confluence, and feature chats pick it up from there.
 6. **Bugs and small changes** get their own short chat pointing at the ticket.
-7. **Every chat ends with:** commit, push, Jira status updated, TODO/docs updated, and the feature's manual test cases added to [`docs/test-cases/ALL-TEST-CASES.md`](docs/test-cases/ALL-TEST-CASES.md) (the only test-case file). If it is not in the repository, it did not happen.
+7. **Every chat ends with:** commit, push, Jira status updated, TODO/docs updated, and the feature's manual test cases added to [`docs/test-cases/ALL-TEST-CASES.md`](docs/test-cases/ALL-TEST-CASES.md) (the only test-case file), and any commands the owner must run added to [`docs/COMMANDS.md`](docs/COMMANDS.md) (not written in the chat). If it is not in the repository, it did not happen.
 8. **If a chat gets long** (Claude shows a summary of earlier messages), finish the current step, push, and continue in a new chat.
 
 ## Hard rules (summary, full text in the linked files)
@@ -55,6 +55,7 @@ When the owner says "start the app" / "run everything" on Windows, run `scripts\
 
 | What | Where |
 | --- | --- |
+| All commands the owner runs (add yours here, never in chat) | [`docs/COMMANDS.md`](docs/COMMANDS.md) |
 | All manual test cases (add yours here) | [`docs/test-cases/ALL-TEST-CASES.md`](docs/test-cases/ALL-TEST-CASES.md) |
 | Data model | [`decisions/data-model.md`](decisions/data-model.md) |
 | Tech stack and why | [`decisions/tech-stack.md`](decisions/tech-stack.md) |
