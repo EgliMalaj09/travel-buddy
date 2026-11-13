@@ -20,6 +20,7 @@ internal sealed partial class TripsService(AppDbContext db) : ITripWriteRules
         foreach (var a in trip.Activities.Where(a => !TripValues.Activities.Contains(a)))
             problems.Add("activities", $"Unknown activity \"{a}\".");
         if (trip.Activities.Distinct().Count() != trip.Activities.Count) problems.Add("activities", "An activity is listed twice.");
+        CheckFinish(problems, trip);
         if (!CountryCode().IsMatch(trip.PassportCountrySnapshot)) problems.Add("passportCountrySnapshot", "Use a 2-letter ISO country code.");
         if (!CurrencyCode().IsMatch(trip.HomeCurrencySnapshot)) problems.Add("homeCurrencySnapshot", "Use a 3-letter ISO currency code.");
         return problems.Result;
@@ -98,7 +99,7 @@ internal sealed partial class TripsService(AppDbContext db) : ITripWriteRules
             .ToListAsync(ct);
         return new MyTripsResponse(
             trips.Select(t => new TripDto(t.Id, t.OwnerId, t.Name, t.Type, t.StartDate, t.EndDate, t.Activities, t.Status, t.FinishedAt,
-                t.CoverMediaId, t.PassportCountrySnapshot, t.HomeCurrencySnapshot, t.ChecklistGeneratedAt, t.ChecklistRulesVersion,
+                t.Rating, t.FinishNote, t.CoverMediaId, t.PassportCountrySnapshot, t.HomeCurrencySnapshot, t.ChecklistGeneratedAt, t.ChecklistRulesVersion,
                 t.AnniversaryEnabled, t.CreatedAt, t.UpdatedAt, t.DeletedAt, t.Version)).ToList(),
             stops.Select(s => new TripStopDto(s.Id, s.TripId, s.Order, s.CountryCode, s.CityName, s.Lat, s.Lng, s.GeoProviderId,
                 s.Nights, s.CreatedAt, s.UpdatedAt, s.DeletedAt, s.Version)).ToList(),
@@ -116,6 +117,28 @@ internal sealed partial class TripsService(AppDbContext db) : ITripWriteRules
 
     public Task<int> CountStopsAsync(Guid tripId, CancellationToken cancellationToken) =>
         db.Set<TripStop>().CountAsync(s => s.TripId == tripId && s.DeletedAt == null, cancellationToken);
+
+    /// <summary>
+    /// Finish trip (KAN-47, decisions/features/11-finish-trip.md). A finished trip has its dates, the time it was
+    /// finished and a rating. The phone sends status, finished_at and rating in one change. Rating and note may stay
+    /// on a trip that was opened again (planned), so finishing it again shows them.
+    /// </summary>
+    private static void CheckFinish(Problems problems, TripFields trip)
+    {
+        if (trip.Rating is { } r && (r < TripValues.RatingMin || r > TripValues.RatingMax))
+            problems.Add("rating", $"The rating is {TripValues.RatingMin} to {TripValues.RatingMax}.");
+        problems.MaxLength("finishNote", trip.FinishNote, TripValues.FinishNoteMax);
+        if (trip.Status == TripValues.Finished)
+        {
+            if (trip.StartDate is null) problems.Add("status", "A trip needs its dates before it can be finished.");
+            if (trip.FinishedAt is null) problems.Add("finishedAt", "A finished trip needs the time it was finished.");
+            if (trip.Rating is null) problems.Add("rating", "A finished trip needs a rating.");
+        }
+        else if (trip.FinishedAt is not null)
+        {
+            problems.Add("finishedAt", "Only a finished trip has a finish time.");
+        }
+    }
 
     private static void CheckTimeZone(Problems problems, string field, string? zone)
     {

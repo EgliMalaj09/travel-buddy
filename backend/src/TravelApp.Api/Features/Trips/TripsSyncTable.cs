@@ -21,7 +21,7 @@ internal sealed class TripsSyncTable(AppDbContext db, ITripWriteRules rules, IEn
 
     private static readonly HashSet<string> TripColumns =
     [
-        "name", "type", "start_date", "end_date", "activities", "status", "finished_at", "cover_media_id",
+        "name", "type", "start_date", "end_date", "activities", "status", "finished_at", "rating", "finish_note", "cover_media_id",
         "passport_country_snapshot", "home_currency_snapshot", "checklist_generated_at", "checklist_rules_version", "anniversary_enabled",
     ];
 
@@ -81,6 +81,8 @@ internal sealed class TripsSyncTable(AppDbContext db, ITripWriteRules rules, IEn
         d.StringList("activities", v => trip.Activities = v ?? []);
         d.Text("status", v => trip.Status = v ?? "");
         d.Timestamp("finished_at", v => trip.FinishedAt = v);
+        d.WholeNumber("rating", v => trip.Rating = v);
+        d.Text("finish_note", v => trip.FinishNote = Clean(v));
         d.Uuid("cover_media_id", v => trip.CoverMediaId = v);
         d.Text("passport_country_snapshot", v => trip.PassportCountrySnapshot = v ?? "");
         d.Text("home_currency_snapshot", v => trip.HomeCurrencySnapshot = v ?? "");
@@ -95,7 +97,7 @@ internal sealed class TripsSyncTable(AppDbContext db, ITripWriteRules rules, IEn
         if (d.Problems.Count > 0) return d.Problems;
 
         var problems = rules.CheckTrip(new TripFields(trip.Name, trip.Type, trip.StartDate, trip.EndDate, trip.Activities,
-            trip.Status, trip.PassportCountrySnapshot, trip.HomeCurrencySnapshot));
+            trip.Status, trip.PassportCountrySnapshot, trip.HomeCurrencySnapshot, trip.FinishedAt, trip.Rating, trip.FinishNote));
         if (problems.Count > 0) return ToColumns(problems);
 
         Touch(trip);

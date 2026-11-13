@@ -18,6 +18,9 @@ public static class TripValues
         ["beach", "city", "culture", "food", "hiking", "skiing", "road_trip", "business", "relaxing"];
 
     public const int NameMax = 120;
+    public const int RatingMin = 1;
+    public const int RatingMax = 5;
+    public const int FinishNoteMax = 200;
     public const int CityNameMax = 120;
     public const int AirlineMax = 60;
     public const int FlightNumberMax = 10;

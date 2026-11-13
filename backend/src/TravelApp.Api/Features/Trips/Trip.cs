@@ -25,6 +25,12 @@ internal sealed class Trip : SyncEntity
 
     public DateTimeOffset? FinishedAt { get; set; }
 
+    /// <summary>"How was it?" from 1 to 5 suns, set by Finish trip (KAN-47). Kept if the trip is opened again.</summary>
+    public int? Rating { get; set; }
+
+    /// <summary>One line to remember the trip by, the user's own words (optional, KAN-47).</summary>
+    public string? FinishNote { get; set; }
+
     public Guid? CoverMediaId { get; set; }
 
     /// <summary>ISO country, copied from the user when the trip is created.</summary>

@@ -1306,6 +1306,11 @@ namespace TravelApp.Api.Data.Migrations
                         .HasColumnType("date")
                         .HasColumnName("end_date");
 
+                    b.Property<string>("FinishNote")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("finish_note");
+
                     b.Property<DateTimeOffset?>("FinishedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("finished_at");
@@ -1333,6 +1338,10 @@ namespace TravelApp.Api.Data.Migrations
                         .HasColumnType("character(2)")
                         .HasColumnName("passport_country_snapshot")
                         .IsFixedLength();
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("integer")
+                        .HasColumnName("rating");
 
                     b.Property<DateOnly?>("StartDate")
                         .HasColumnType("date")
@@ -1371,6 +1380,8 @@ namespace TravelApp.Api.Data.Migrations
                     b.ToTable("trips", null, t =>
                         {
                             t.HasCheckConstraint("ck_trips_dates", "(start_date IS NULL) = (end_date IS NULL) AND (end_date IS NULL OR end_date >= start_date)");
+
+                            t.HasCheckConstraint("ck_trips_rating", "rating IS NULL OR rating BETWEEN 1 AND 5");
 
                             t.HasCheckConstraint("ck_trips_status", "status IN ('planned', 'finished')");
 
