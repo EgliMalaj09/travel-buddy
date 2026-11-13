@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #31 and finish trip (KAN-47).
+Last updated: 13 Nov 2026, after PRs #1 to #32 (finish trip, KAN-47, with its review fixes).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -543,8 +543,10 @@ Create them with **+** on Home and dates in the past.
 | FIN-19 | | Scalar: the same with `"finished_at"`, `"rating": 6` | Rejected: "The rating is 1 to 5." | |
 | FIN-20 | | Scalar: finish a Someday trip (no dates) | Rejected: "A trip needs its dates before it can be finished." | |
 | FIN-21 | | Settings → **Download my data** after finishing a trip | The trip in the file has `rating` and `finishNote` | |
-| FIN-23 | | Finished trip: ••• → **Edit trip**, remove the dates (Someday) → **Save changes** | "A finished trip keeps its dates. Open the trip again first to make it Someday." Changing the name or stops works |
 | FIN-22 | | Design kit screen (if you open it) | Suns, stamps, stat tiles and the passport grid show, in the app's colours | |
+| FIN-23 | | Finished trip: ••• → **Edit trip**, remove the dates (Someday) → **Save changes** | "A finished trip keeps its dates. Open the trip again first to make it Someday." Changing the name or stops works | |
+| FIN-24 | | Same as FIN-23 in **flight mode** | The same message at once; the trip keeps its dates and is still finished after you go back online | |
+| FIN-25 | | Finished trip: ••• → **Open trip again**, then **Edit trip** → remove the dates → **Save changes** | Saved: the trip is now under Someday | |
 
 ## 22. API base and backend checks (KAN-58)
 
