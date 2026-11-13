@@ -1,5 +1,5 @@
 import type { SyncChange, SyncResult } from '../repositories/apiTripRepository';
-import { serverColumns, tripTableNames, type TripTableName } from './tables';
+import { serverColumns, syncedTableNames, type SyncedTableName } from './tables';
 
 /** One waiting change as PowerSync's upload queue gives it (CrudEntry). */
 export interface QueuedChange {
@@ -15,13 +15,18 @@ export interface QueuedBatch {
   complete(): Promise<void>;
 }
 
-const isTripTable = (t: string): t is TripTableName => (tripTableNames as string[]).includes(t);
+const isSyncedTable = (t: string): t is SyncedTableName =>
+  (syncedTableNames as string[]).includes(t);
 
 /** The queue entry in the shape POST /sync/upload takes. Server-only columns are not sent. */
 export function toSyncChange(c: QueuedChange): SyncChange | null {
-  if (!isTripTable(c.table)) return null;
+  if (!isSyncedTable(c.table)) return null;
   const op = c.op as SyncChange['op'];
   if (op === 'DELETE') return { op, type: c.table, id: c.id };
+  // A checklist item is deleted on the phone by setting deleted_at (so its rule is not added again
+  // before the server's copy comes back). The server only knows that as a DELETE.
+  if (c.table === 'checklist_items' && c.opData?.deleted_at)
+    return { op: 'DELETE', type: c.table, id: c.id };
   const data = Object.fromEntries(
     Object.entries(c.opData ?? {}).filter(([column]) => !serverColumns.has(column)),
   );

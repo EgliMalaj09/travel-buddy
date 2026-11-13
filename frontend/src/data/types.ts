@@ -86,3 +86,76 @@ export interface Flight extends SyncFields {
   seat: string | null;
   terminal: string | null;
 }
+
+export type PlaceStatus = 'bucket' | 'planned' | 'visited';
+export type PlaceCategory = 'food' | 'sight' | 'stay' | 'transport' | 'other';
+
+/**
+ * Data model 11 (AGREED: D1, D2). One record follows a place from bucket list to planned to visited.
+ * `lat`/`lng` are empty until the place has a position (Places, 12 Nov 2026: the app fills in the
+ * city of that trip day when it knows it; an exact spot comes with the Map, KAN-37).
+ */
+export interface Place extends SyncFields {
+  id: string;
+  /** Empty only for bucket-list places. */
+  tripId: string | null;
+  createdByUserId: string;
+  ownerUserId: string | null;
+  scope: 'shared' | 'personal';
+  status: PlaceStatus;
+  title: string;
+  note: string | null;
+  lat: number | null;
+  lng: number | null;
+  countryCode: CountryCode;
+  cityName: string | null;
+  address: string | null;
+  geoProviderId: string | null;
+  category: PlaceCategory;
+  /** The trip day it is planned for; empty means "any day". */
+  plannedDate: IsoDate | null;
+  visitedAt: IsoDateTime | null;
+  source: 'manual' | 'autocapture';
+  isSuggested: boolean;
+  coverMediaId: string | null;
+  copiedFromPlaceId: string | null;
+}
+
+export type ChecklistItemType = 'task' | 'packing';
+
+export type TaskCategory =
+  'documents' | 'money' | 'health' | 'phone' | 'transport' | 'stay' | 'other';
+
+export type PackingCategory = 'clothes' | 'toiletries' | 'tech' | 'documents' | 'other';
+
+/** Why an item is on the list. */
+export type ChecklistReason = 'rule' | 'weather' | 'activity' | 'user';
+
+/** Data model 10 (AGREED). Tasks and packing items share one table. */
+export interface ChecklistItem extends SyncFields {
+  id: string;
+  tripId: string;
+  type: ChecklistItemType;
+  title: string;
+  notes: string | null;
+  category: TaskCategory | PackingCategory;
+  /** Done (task) or packed (packing). */
+  done: boolean;
+  doneAt: IsoDateTime | null;
+  /** Set by the server. */
+  doneByUserId: string | null;
+  dueDate: IsoDate | null;
+  /** Packing only. */
+  quantity: number | null;
+  reason: ChecklistReason;
+  /** "auto": made from the rules. "user": added or changed by hand. */
+  source: 'auto' | 'user';
+  /** The rule that made it. Kept after an edit, so the rule does not add it again. */
+  ruleId: string | null;
+  /** Entry-rule items: where to check, with the "check official sources" note. */
+  sourceUrl: string | null;
+  sourceCheckedAt: IsoDate | null;
+  /** Only for personal packing items in shared trips (Part 2). Set by the server. */
+  ownerUserId: string | null;
+  sortOrder: number;
+}

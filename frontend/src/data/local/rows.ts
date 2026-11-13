@@ -1,4 +1,4 @@
-import type { Flight, Trip, TripActivity, TripStop } from '../types';
+import type { ChecklistItem, Flight, Place, Trip, TripActivity, TripStop } from '../types';
 
 /** A row as SQLite returns it. */
 export type Row = Record<string, unknown>;
@@ -106,6 +106,62 @@ export function rowToFlight(r: Row): Flight {
     bookingCode: text(r.booking_code),
     seat: text(r.seat),
     terminal: text(r.terminal),
+    ...sync(r),
+  };
+}
+
+export function rowToPlace(r: Row): Place {
+  return {
+    id: String(r.id),
+    tripId: text(r.trip_id),
+    createdByUserId: text(r.created_by_user_id) ?? '',
+    ownerUserId: text(r.owner_user_id),
+    scope: (text(r.scope) ?? 'shared') as Place['scope'],
+    status: (text(r.status) ?? 'planned') as Place['status'],
+    title: text(r.title) ?? '',
+    note: text(r.note),
+    lat: num(r.lat),
+    lng: num(r.lng),
+    countryCode: text(r.country_code) ?? '',
+    cityName: text(r.city_name),
+    address: text(r.address),
+    geoProviderId: text(r.geo_provider_id),
+    category: (text(r.category) ?? 'other') as Place['category'],
+    plannedDate: date(r.planned_date),
+    visitedAt: isoTime(r.visited_at),
+    source: (text(r.source) ?? 'manual') as Place['source'],
+    // SQLite 0/1, or true/false text from PostgreSQL.
+    isSuggested:
+      r.is_suggested === true ||
+      r.is_suggested === 1 ||
+      r.is_suggested === 'true' ||
+      r.is_suggested === '1',
+    coverMediaId: text(r.cover_media_id),
+    copiedFromPlaceId: text(r.copied_from_place_id),
+    ...sync(r),
+  };
+}
+
+export function rowToChecklistItem(r: Row): ChecklistItem {
+  return {
+    id: String(r.id),
+    tripId: text(r.trip_id) ?? '',
+    type: (text(r.type) ?? 'task') as ChecklistItem['type'],
+    title: text(r.title) ?? '',
+    notes: text(r.notes),
+    category: (text(r.category) ?? 'other') as ChecklistItem['category'],
+    done: r.done === true || r.done === 'true' || num(r.done) === 1,
+    doneAt: isoTime(r.done_at),
+    doneByUserId: text(r.done_by_user_id),
+    dueDate: date(r.due_date),
+    quantity: num(r.quantity),
+    reason: (text(r.reason) ?? 'user') as ChecklistItem['reason'],
+    source: (text(r.source) ?? 'user') as ChecklistItem['source'],
+    ruleId: text(r.rule_id),
+    sourceUrl: text(r.source_url),
+    sourceCheckedAt: date(r.source_checked_at),
+    ownerUserId: text(r.owner_user_id),
+    sortOrder: num(r.sort_order) ?? 0,
     ...sync(r),
   };
 }

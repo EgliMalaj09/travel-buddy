@@ -5,12 +5,14 @@ import { Pressable, View } from 'react-native';
 
 import { ActionSheet, AppText, Card, EmptyState, Screen } from '@/components';
 import { repositories, useAsync, useDataVersion } from '@/data';
+import { ChecklistCard } from '@/features/checklist/ChecklistCard';
 import { formatDateRange, formatDay, todayIso } from '@/lib/dates';
+import { TripPlaces } from '@/features/places/TripPlaces';
 import { activityLabels, directionLabels, flightTitle } from '@/lib/tripDraft';
 import { flagEmoji, phaseLine, stopDates } from '@/lib/trips';
 import { useTheme } from '@/theme/ThemeProvider';
 
-/** Trip screen shell: header, stops, flights, and the ••• menu. Tabs and features come with KAN-53. */
+/** Trip screen shell: header, checklist, stops, places, flights, and the ••• menu. Tabs come with KAN-53. */
 export default function TripScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors, space } = useTheme();
@@ -21,13 +23,14 @@ export default function TripScreen() {
   const version = useDataVersion();
   const { data, loading } = useAsync(async () => {
     const trip = await repositories.trips.getTrip(id);
-    const [stops, flights] = trip
+    const [stops, flights, places] = trip
       ? await Promise.all([
           repositories.trips.listStops(trip.id),
           repositories.trips.listFlights(trip.id),
+          repositories.places.listPlaces(trip.id),
         ])
-      : [[], []];
-    return { trip, stops, flights };
+      : [[], [], []];
+    return { trip, stops, flights, places };
   }, [id, version]);
 
   if (loading && !data) return null;
@@ -100,6 +103,8 @@ export default function TripScreen() {
           ) : null}
         </View>
 
+        <ChecklistCard tripId={trip.id} />
+
         <Card>
           <AppText variant="label">Stops</AppText>
           {stopDates(trip.startDate, data?.stops ?? []).map(({ stop, arrive, leave }) => (
@@ -120,6 +125,8 @@ export default function TripScreen() {
             </View>
           ))}
         </Card>
+
+        <TripPlaces trip={trip} places={data?.places ?? []} today={today} />
 
         {data?.flights.length ? (
           <Card>

@@ -8,7 +8,7 @@ import { flightTitle } from './tripDraft';
  * The service (`src/services/reminders.ts`) turns this list into local notifications.
  *
  * Agreed with the owner on 12 Nov 2026:
- * - "Get ready" 30, 7 and 1 days before the trip. Once the checklist exists (KAN-24) they open it.
+ * - "Get ready" 30, 7 and 1 days before the trip. Tapping one opens the trip's checklist (KAN-24).
  * - Flight: the evening before, and 3 hours before takeoff.
  * - "Pack tonight": the evening before the first day.
  * - Evening reminders use `reminderTime` (19:00). The ones for the same trip on the same evening
@@ -29,7 +29,7 @@ export interface ReminderSettings {
   quietHoursEnd: string;
 }
 
-/** Data model defaults. The switches come with the Settings screen (KAN-21). */
+/** Data model defaults. The user changes them on the Settings screen (KAN-21). */
 export const defaultReminderSettings: ReminderSettings = {
   remindersEnabled: true,
   remindChecklist: true,
@@ -251,4 +251,13 @@ export function formatReminderTime(at: Date, now: Date): string {
     month: 'short',
   }).format(at);
   return `${label} · ${time}`;
+}
+
+/**
+ * Where a tapped reminder goes. "Get ready" and the evening-before message open the checklist
+ * (on top of the trip page, so Back leads to the trip); flight reminders open the trip.
+ */
+export function reminderRoutes(tripId: string, kind: string | null): string[] {
+  const trip = `/trip/${tripId}`;
+  return kind === 'getReady' || kind === 'evening' ? [trip, `/trip/checklist/${tripId}`] : [trip];
 }

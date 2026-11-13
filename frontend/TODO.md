@@ -26,19 +26,19 @@ Suggested order. The owner works on the frontend with **mock data** while the ba
 | [ ] | 4 | 🔌 FE - Offline sync (local DB, upload connector, sync indicator). **Built 12 Nov 2026** (PowerSync + op-sqlite, `local` data mode), waiting for merge and the owner's airplane-mode test on the phone. Still to do later: sync details on tap, logout warning with waiting changes | KAN-15 | KAN-13 | 524289 |
 | [ ] | 5 | FE - Create a trip (**built with mock data on `feature/KAN-18-create-trip`, waiting for owner test**; Mapbox city search and saving to the local database come later). **Trips now save to the server** (KAN-16 PR, 12 Nov 2026): `api` data mode, offline comes with KAN-15 | KAN-18 | KAN-17 (T1–T7) | 557057 |
 | [ ] | 6 | FE - Trip page (header, 5 tabs, quick add) | KAN-53 | KAN-52 (TP1–TP4) | 491538 |
-| [ ] | 7 | FE - Places | KAN-34 | KAN-33 (PL1–PL5) | 622593 |
+| [ ] | 7 | FE - Places (**built 12 Nov 2026**: places per trip day on the trip page, add/edit/delete, "Been there", today's places on Home; location = city of that day (agreed). Bucket list and map pins come with KAN-37. Choices: `../decisions/features/04-places.md`) | KAN-34 | KAN-33 (PL1–PL5) | 622593 |
 | [ ] | 8 | FE - Map | KAN-37 | KAN-36 (M1–M4) | 557074 |
 | [ ] | 9 | FE - Photos and notes | KAN-39 | KAN-38 (PH1–PH6) | 524314 |
-| [ ] | 10 | FE - Smart checklist | KAN-24 | KAN-23 (C1–C6) | 98543 |
+| [ ] | 10 | FE - Smart checklist (**built 13 Nov 2026, PR from `claude/project-thread-1xs6m3`**: rules in `src/lib/checklistRules.ts` made on the phone, offline; trip page card + checklist screen; get-ready/evening reminders open it. Owner to review the rule wording) | KAN-24 | KAN-23 (C1–C6) | 98543 |
 | [ ] | 11 | FE - Packing list | KAN-28 | KAN-27 (K1–K5) | 426033 |
 | [ ] | 12 | FE - Expenses | KAN-42 | KAN-41 (E1–E5) | 98559 |
-| [ ] | 13 | FE - Countdown and reminders (**built 12 Nov 2026, PR from `claude/project-thread-xefm9t`**: local reminders 30/7/1 days, pack tonight, flight evening before + 3 h before; next reminders on Home. Settings switches come with KAN-21; the 30/7 reminders open the checklist once KAN-24 exists) | KAN-32 | KAN-31 (N1–N5) | 491522 |
-| [ ] | 14 | FE - Today suggestion (**built 12 Nov 2026, same PR**: Today card on Home with tonight's city, travel day and today's flights; planned places for today come with KAN-34) | KAN-45 | KAN-44 (TD1–TD3) | 131074 |
+| [ ] | 13 | FE - Countdown and reminders (**built 12 Nov 2026, PR from `claude/project-thread-xefm9t`**: local reminders 30/7/1 days, pack tonight, flight evening before + 3 h before; next reminders on Home. Settings switches come with KAN-21; the 30/7 and evening reminders open the checklist (KAN-24)) | KAN-32 | KAN-31 (N1–N5) | 491522 |
+| [ ] | 14 | FE - Today suggestion (**built 12 Nov 2026, same PR**: Today card on Home with tonight's city, travel day and today's flights; planned places for today added with KAN-34 on 12 Nov 2026) | KAN-45 | KAN-44 (TD1–TD3) | 131074 |
 | [ ] | 15 | FE - Finish trip | KAN-47 | KAN-46 (F1–F4) | 426049 |
 | [ ] | 16 | FE - Globe test (mid-range phone) | KAN-49 | KAN-48 (G1–G5) | 557090 |
 | [ ] | 17 | FE - Globe and lifetime stats | KAN-50 | KAN-48 | 557090 |
 | [ ] | 18 | Template - Passport stamp | KAN-51 | KAN-48 | 557090 |
-| [ ] | 19 | FE - Profile, settings and account deletion | KAN-21 | KAN-20 (P1–P5) | 426017 |
+| [ ] | 19 | FE - Profile, settings and account deletion (**Settings screen built 12 Nov 2026, PR from `claude/project-thread-vvn8j6`**: reminder switches, reminder time, quiet hours, this phone, log out. Settings kept on the phone per account until the server table exists (KAN-22). Still to do: edit profile, delete account (needs KAN-22), units; re-confirm P1–P5) | KAN-21 | KAN-20 (P1–P5) | 426017 |
 | [ ] | 20 | FE - Ship Part 1 builds (EAS, TestFlight, Google Play internal, test checklist). ⚠️ **First decide the final app name and bundle id** (placeholder `app.travelapp.mobile`, cannot change after the first upload) | KAN-60 | KAN-59 (SH1–SH4) | 98575 |
 
 Part 1 is done when a real trip is prepared, travelled offline and finished on both iOS and Android without losing data.

@@ -279,6 +279,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/places": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The places of one of your trips (deleted ones left out), by planned day, "any day" last */
+        get: operations["ListTripPlaces"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/sync/upload": {
         parameters: {
             query?: never;
@@ -396,6 +413,47 @@ export interface components {
             flights: components["schemas"]["FlightDto"][];
             nextCursor: null | string;
         };
+        PlaceDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tripId: null | string;
+            /** Format: uuid */
+            createdByUserId: string;
+            /** Format: uuid */
+            ownerUserId: null | string;
+            scope: string;
+            status: string;
+            title: string;
+            note: null | string;
+            /** Format: double */
+            lat: null | number | string;
+            /** Format: double */
+            lng: null | number | string;
+            countryCode: string;
+            cityName: null | string;
+            address: null | string;
+            geoProviderId: null | string;
+            category: string;
+            /** Format: date */
+            plannedDate: null | string;
+            /** Format: date-time */
+            visitedAt: null | string;
+            source: string;
+            isSuggested: boolean;
+            /** Format: uuid */
+            coverMediaId: null | string;
+            /** Format: uuid */
+            copiedFromPlaceId: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            deletedAt: null | string;
+            /** Format: int64 */
+            version: number | string;
+        };
         ProblemDetails: {
             type?: null | string;
             title?: null | string;
@@ -502,6 +560,9 @@ export interface components {
             deletedAt: null | string;
             /** Format: int64 */
             version: number | string;
+        };
+        TripPlacesResponse: {
+            places: components["schemas"]["PlaceDto"][];
         };
         TripStopDto: {
             /** Format: uuid */
@@ -1351,6 +1412,44 @@ export interface operations {
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
+            };
+        };
+    };
+    ListTripPlaces: {
+        parameters: {
+            query: {
+                tripId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TripPlacesResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

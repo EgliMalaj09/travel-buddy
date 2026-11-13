@@ -99,7 +99,7 @@ export function createMockAuthService(): AuthService {
       db.pendingSignups = db.pendingSignups.filter((p) => p.email !== e);
       db.pendingSignups.push({ email: e, password, consents });
       save(db);
-      console.info(`[mock auth] Sign-up code for ${e}: ${MOCK_CODE}`);
+      console.info(`[mock auth] Sign-up code: ${MOCK_CODE}`);
     },
 
     async verifySignUp(email, code, deviceId) {
@@ -142,7 +142,7 @@ export function createMockAuthService(): AuthService {
         throw new AuthError('invalid_credentials', 'Email or password is not right.');
       }
       if (!user.trustedDevices.includes(deviceId)) {
-        console.info(`[mock auth] New-phone code for ${user.email}: ${MOCK_CODE}`);
+        console.info(`[mock auth] New-phone code: ${MOCK_CODE}`);
         return { kind: 'codeRequired' };
       }
       const session = newSession(db, user);
@@ -180,13 +180,13 @@ export function createMockAuthService(): AuthService {
 
     async resendCode(email, purpose) {
       await delay();
-      console.info(`[mock auth] New ${purpose} code for ${normalise(email)}: ${MOCK_CODE}`);
+      console.info(`[mock auth] New ${purpose} code: ${MOCK_CODE}`);
     },
 
     async forgotPassword(email) {
       await delay();
       // Same answer whether or not the account exists (no account guessing).
-      console.info(`[mock auth] Password reset code for ${normalise(email)}: ${MOCK_CODE}`);
+      console.info(`[mock auth] Password reset code: ${MOCK_CODE}`);
     },
 
     async resetPassword(email, code, newPassword) {

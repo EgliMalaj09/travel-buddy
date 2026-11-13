@@ -10,7 +10,7 @@ namespace TravelApp.Api.Features.Trips;
 /// Only the columns the phone sent are changed (S4: per field, last change wins). Server-only columns
 /// (owner, sync fields) are never taken from the phone. Every write checks that the user owns the trip.
 /// </summary>
-internal sealed class TripsSyncTable(AppDbContext db, ITripWriteRules rules, TimeProvider clock) : ISyncTable
+internal sealed class TripsSyncTable(AppDbContext db, ITripWriteRules rules, IEnumerable<ITripDeleteHook> deleteHooks, TimeProvider clock) : ISyncTable
 {
     public const string TripsTable = "trips";
     public const string StopsTable = "trip_stops";
@@ -63,6 +63,8 @@ internal sealed class TripsSyncTable(AppDbContext db, ITripWriteRules rules, Tim
                 .ExecuteUpdateAsync(u => u.SetProperty(s => s.DeletedAt, at).SetProperty(s => s.UpdatedAt, at).SetProperty(s => s.Version, s => s.Version + 1), ct);
             await db.Set<Flight>().Where(f => f.TripId == trip.Id && f.DeletedAt == null)
                 .ExecuteUpdateAsync(u => u.SetProperty(f => f.DeletedAt, at).SetProperty(f => f.UpdatedAt, at).SetProperty(f => f.Version, f => f.Version + 1), ct);
+            // Records of other features on this trip (places, ...) go too.
+            foreach (var hook in deleteHooks) await hook.TripDeletedAsync(trip.Id, at, ct);
             await db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
             return Fine;

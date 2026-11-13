@@ -6,10 +6,16 @@ import { useUiStore } from '@/store/uiStore';
 
 import { notifyDataChanged } from '../changes';
 import { createHttpTripApi } from '../repositories/apiTripRepository';
+import { createLocalPlaceRepository } from '../repositories/localPlaceRepository';
+import {
+  createLocalChecklistRepository,
+  type ChecklistRepository,
+} from '../repositories/checklistRepository';
 import { createLocalTripRepository, type LocalDb } from '../repositories/localTripRepository';
+import type { PlaceRepository } from '../repositories/placeRepository';
 import type { TripRepository } from '../repositories/tripRepository';
 import { syncStatusFrom } from './syncStatus';
-import { tripTableNames, tripTables } from './tables';
+import { syncedTableNames, syncedTables } from './tables';
 import { uploadBatch } from './uploadChanges';
 
 /** The phone's local database (KAN-15). Opened the first time it is needed. */
@@ -17,7 +23,7 @@ let db: PowerSyncDatabase | null = null;
 
 function schema(): Schema {
   const tables = Object.fromEntries(
-    Object.entries(tripTables).map(([name, columns]) => [
+    Object.entries(syncedTables).map(([name, columns]) => [
       name,
       new Table(Object.fromEntries(Object.entries(columns).map(([c, type]) => [c, column[type]]))),
     ]),
@@ -35,7 +41,7 @@ function open(): PowerSyncDatabase {
   // Every change, on this phone or downloaded from the server, makes the screens load again.
   opened.onChange(
     { onChange: () => notifyDataChanged() },
-    { tables: tripTableNames, throttleMs: 150 },
+    { tables: syncedTableNames, throttleMs: 150 },
   );
   opened.registerListener({
     statusChanged: (status) => useUiStore.getState().setSyncStatus(syncStatusFrom(status)),
@@ -105,4 +111,14 @@ function readyDb(): LocalDb {
 /** Trips in the phone's local database, synced by PowerSync. Null where it can't run (web). */
 export function createLocalTrips(): TripRepository | null {
   return createLocalTripRepository(readyDb());
+}
+
+/** Places in the phone's local database, synced by PowerSync. Null where it can't run (web). */
+export function createLocalPlaces(): PlaceRepository | null {
+  return createLocalPlaceRepository(readyDb());
+}
+
+/** Checklist items in the same local database, synced the same way. */
+export function createLocalChecklist(): ChecklistRepository | null {
+  return createLocalChecklistRepository(readyDb());
 }

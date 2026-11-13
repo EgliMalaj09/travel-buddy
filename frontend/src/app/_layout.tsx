@@ -10,6 +10,7 @@ import { useReminderSync } from '@/features/reminders/useReminderSync';
 import { AnimatedSplash } from '@/features/splash/AnimatedSplash';
 import { takeFirstLaunch } from '@/features/splash/splashPlan';
 import { initSentry, wrapWithSentry } from '@/services/sentry';
+import { useUserSettings } from '@/services/userSettings';
 import { fontAssets } from '@/theme/fonts';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 
@@ -34,6 +35,9 @@ function AppStack() {
   // Trips load for the logged-in user; they load again once the session is back after opening.
   const dataOwner = phase === 'signedIn' ? (user?.id ?? null) : null;
   useEffect(() => setDataOwner(dataOwner), [dataOwner]);
+  // Settings (reminder switches, quiet hours) belong to the account (KAN-21). Loaded before the
+  // reminder hook below runs, so reminders are planned with this user's settings.
+  useEffect(() => useUserSettings.getState().load(dataOwner), [dataOwner]);
   // Reminders on the phone follow the trips; cleared when nobody is logged in (KAN-32).
   useReminderSync(phase === 'signedIn');
 
@@ -72,6 +76,9 @@ function AppStack() {
           <Stack.Screen name="trip/[id]" options={{ title: '' }} />
           <Stack.Screen name="trip/new" options={{ title: '' }} />
           <Stack.Screen name="trip/edit/[id]" options={{ title: '' }} />
+          <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+          <Stack.Screen name="place/edit" options={{ title: '' }} />
+          <Stack.Screen name="trip/checklist/[id]" options={{ title: 'Checklist' }} />
           <Stack.Screen name="design-kit" options={{ title: 'Design kit' }} />
         </Stack.Protected>
       </Stack>
