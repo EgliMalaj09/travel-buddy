@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #45 (up to the legal texts in the app, L-g).
+Last updated: 13 Nov 2026, after PRs #1 to #48 (up to the back office in the start script).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -583,7 +583,7 @@ ATL-14 if you have one: that is the globe test (KAN-49).
 
 ## 23. Back office (KAN-55)
 
-Set up with docs/COMMANDS.md, "Back office" (owner email, start, `npm run dev`, open http://localhost:5173). You need
+Set up with docs/COMMANDS.md, "Back office" (owner email, then `start.cmd`, which also starts the back office; open http://localhost:5173) *(updated 13 Nov)*. You need
 an authenticator app on your phone and **two** app accounts with email and password: yours (owner) and a test one.
 Tip: a second browser (or a private window) lets you be two admins at once.
 
@@ -623,6 +623,8 @@ Tip: a second browser (or a private window) lets you be two admins at once.
 | BO-32 | | Run `scripts\windows\start.cmd` | A window "Travel App - Back office" opens, the script prints `OK  Back office is running on http://localhost:5173`, and the last lines list the back office address. http://localhost:5173 opens the login | |
 | BO-33 | | Run `scripts\windows\stop.cmd`, then open http://localhost:5173 | The back office window is closed and the page no longer loads | |
 | BO-34 | | Run `scripts\windows\start.cmd -NoBackOffice` | "Back office (skipped: -NoBackOffice)"; no back office window; the API and the app start as usual | |
+| BO-35 | | With everything already running, run `scripts\windows\start.cmd` again | "Back office is already running on http://localhost:5173"; no second back office window opens | |
+| BO-36 | | Close everything, delete the folder `backoffice\node_modules`, run `scripts\windows\start.cmd` | "Installing back office packages (a few minutes)...", then the back office starts as in BO-32 | |
 
 ## 24. Beta server (KAN-61)
 
