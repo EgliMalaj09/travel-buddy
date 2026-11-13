@@ -22,7 +22,7 @@ Site: travel-app-couple.atlassian.net. Confluence page id → `https://travel-ap
 | 12 | Today suggestion | 1 | 131074 | KAN-44 | KAN-45 FE |
 | 13 | Finish trip | 1 | 426049 | KAN-46 | KAN-47 FE |
 | 14 | Globe and lifetime stats | 1 | 557090 | KAN-48 | KAN-49 FE test, KAN-50 FE, KAN-51 Template |
-| 15 | Trip page | 1 | 491538 | KAN-52 | KAN-53 FE |
+| 15 | Trip page. First build 13 Nov 2026: choices in [05-trip-page.md](05-trip-page.md) | 1 | 491538 | KAN-52 | KAN-53 FE |
 | 16 | Back office (Part 1) | 1 | 131090 | KAN-54 | KAN-55 BE |
 | 17 | App foundation (do first) | 1 | 426065 | KAN-56 | KAN-57 FE, KAN-58 BE |
 | 18 | Ship Part 1 to devices | 1 | 98575 | KAN-59 | KAN-60 FE, KAN-61 BE, KAN-62 AI legal |

@@ -1,5 +1,4 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { AppText, Card } from '@/components';
@@ -9,8 +8,11 @@ import { useTheme } from '@/theme/ThemeProvider';
 
 import { useChecklist } from './useChecklist';
 
-/** On the trip page: "Checklist · 3 of 12 done" and the next thing to do. Opens the checklist. */
-export function ChecklistCard({ tripId }: { tripId: string }) {
+/**
+ * On the trip page's Plan tab: "Checklist · 3 of 12 done" and the next thing to do.
+ * Tapping it opens the Checklist tab.
+ */
+export function ChecklistCard({ tripId, onPress }: { tripId: string; onPress: () => void }) {
   const { colors, space } = useTheme();
   const { data } = useChecklist(tripId);
   if (!data) return null;
@@ -21,7 +23,7 @@ export function ChecklistCard({ tripId }: { tripId: string }) {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Checklist, ${view.done} of ${view.total} done`}
-      onPress={() => router.push(`/trip/checklist/${tripId}`)}
+      onPress={onPress}
     >
       <Card>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
