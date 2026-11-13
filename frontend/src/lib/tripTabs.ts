@@ -29,7 +29,11 @@ export function openingTripTab(linkTab: unknown, lastTab: TripTab | undefined): 
   return parseTripTab(linkTab) ?? lastTab ?? 'plan';
 }
 
-/** The link to a trip, optionally on one tab. */
+/**
+ * The link to a trip, optionally on one tab. The id is encoded so an odd id from a link or a
+ * notification can never change the path or add query values.
+ */
 export function tripHref(tripId: string, tab?: TripTab): string {
-  return tab && tab !== 'plan' ? `/trip/${tripId}?tab=${tab}` : `/trip/${tripId}`;
+  const path = `/trip/${encodeURIComponent(tripId)}`;
+  return tab && tab !== 'plan' ? `${path}?tab=${tab}` : path;
 }

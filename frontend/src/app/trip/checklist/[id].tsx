@@ -1,4 +1,4 @@
-import { Redirect, useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams, type Href } from 'expo-router';
 
 import { tripHref } from '@/lib/tripTabs';
 
@@ -8,5 +8,5 @@ import { tripHref } from '@/lib/tripTabs';
  */
 export default function TripChecklistRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  return <Redirect href={tripHref(id, 'checklist') as never} />;
+  return <Redirect href={tripHref(id, 'checklist') as Href} />;
 }

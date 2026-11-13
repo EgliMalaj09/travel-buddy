@@ -18,5 +18,7 @@ describe('trip page tabs (KAN-53)', () => {
     expect(tripHref('t1')).toBe('/trip/t1');
     expect(tripHref('t1', 'plan')).toBe('/trip/t1');
     expect(tripHref('t1', 'checklist')).toBe('/trip/t1?tab=checklist');
+    // An odd id cannot change the path or add query values.
+    expect(tripHref('a/b?tab=x', 'places')).toBe('/trip/a%2Fb%3Ftab%3Dx?tab=places');
   });
 });

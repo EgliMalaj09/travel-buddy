@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Stack, router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -44,6 +44,10 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
   // nothing on web.
   const [sheet, setSheet] = useState<'menu' | 'delete' | 'add' | 'checklistItem' | null>(null);
 
+  // The pause before a second sheet opens; cleared if the page closes first.
+  const sheetTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(sheetTimer.current), []);
+
   const openTab = setTab;
   // A new link to the same page (a reminder tapped while it is open) moves to that tab.
   const [seenLinkTab, setSeenLinkTab] = useState(linkTab);
@@ -86,7 +90,10 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
     router.back();
   };
   // Opening a second sheet right after the first one closes needs a short pause on iOS.
-  const then = (next: typeof sheet) => () => setTimeout(() => setSheet(next), 300);
+  const openSheetNext = (next: typeof sheet) => () => {
+    clearTimeout(sheetTimer.current);
+    sheetTimer.current = setTimeout(() => setSheet(next), 300);
+  };
   const onTrip =
     !!trip.startDate && !!trip.endDate && today >= trip.startDate && today <= trip.endDate;
   const addPlace = () =>
@@ -118,7 +125,7 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
         title={trip.name}
         actions={[
           { label: 'Edit trip', onPress: () => router.push(`/trip/edit/${trip.id}`) },
-          { label: 'Delete trip', destructive: true, onPress: then('delete') },
+          { label: 'Delete trip', destructive: true, onPress: openSheetNext('delete') },
         ]}
         onClose={() => setSheet(null)}
       />
@@ -135,7 +142,7 @@ export function TripScreen({ id, linkTab }: { id: string; linkTab?: unknown }) {
         message="Photos, notes and expenses come in the next updates."
         actions={[
           { label: onTrip ? 'Place for today' : 'Place', onPress: addPlace },
-          { label: 'Checklist item', onPress: then('checklistItem') },
+          { label: 'Checklist item', onPress: openSheetNext('checklistItem') },
         ]}
         onClose={() => setSheet(null)}
       />
