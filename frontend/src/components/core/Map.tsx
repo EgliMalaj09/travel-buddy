@@ -43,10 +43,12 @@ export function AppMap({
   const padding = { top: space.xxl, right: space.xxl, bottom: space.xxl, left: space.xxl };
   const camera = useRef<CameraRef>(null);
   const viewKey = JSON.stringify(view);
-  const firstKey = useRef(viewKey);
+  // The view the camera is at now: the first one is set by initialViewState.
+  const shownKey = useRef(viewKey);
 
   useEffect(() => {
-    if (viewKey === firstKey.current) return;
+    if (viewKey === shownKey.current) return;
+    shownKey.current = viewKey;
     const next = JSON.parse(viewKey) as MapView;
     if (next.kind === 'bounds') camera.current?.fitBounds(next.bounds, { padding, duration: 600 });
     else camera.current?.flyTo({ center: next.center, zoom: next.zoom, duration: 600 });
