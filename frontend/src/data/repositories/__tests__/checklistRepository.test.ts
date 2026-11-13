@@ -2,6 +2,8 @@ import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 
 import { autoItemId, planChecklist } from '@/lib/checklist';
 import { checklistSuggestions } from '@/lib/checklistRules';
+import { packingSuggestions } from '@/lib/packingRules';
+import { unknownWeather } from '@/lib/weather';
 
 import { syncedTables } from '../../local/tables';
 import { toSyncChange } from '../../local/uploadChanges';
@@ -107,6 +109,75 @@ describe.each(kinds)('checklist repository (%s)', (_name, make) => {
         checklist_rules_version: string;
       };
       expect(trip.checklist_rules_version).toBe('v1');
+    }
+  });
+
+  it('packing items: rule items with how many, own items, quantity edits, trip version untouched', async () => {
+    const { repo, sql } = make();
+    const packing = packingSuggestions({
+      trip: {
+        startDate: '2027-04-12',
+        endDate: '2027-04-15',
+        activities: [],
+        passportCountrySnapshot: 'AL',
+      },
+      stops: [{ countryCode: 'IT', nights: 3 }],
+      flights: [],
+      weather: unknownWeather,
+    });
+    await repo.applyPlan('t1', planChecklist('t1', [], packing));
+    let items = await repo.listItems('t1');
+    const socks = items.find((i) => i.id === autoItemId('t1', 'pack-socks'))!;
+    expect(socks).toMatchObject({ type: 'packing', category: 'clothes', quantity: 4 });
+
+    // The trip gets longer: an untouched item follows; an edited one keeps the user's number.
+    const longer = packingSuggestions({
+      trip: {
+        startDate: '2027-04-12',
+        endDate: '2027-04-19',
+        activities: [],
+        passportCountrySnapshot: 'AL',
+      },
+      stops: [{ countryCode: 'IT', nights: 7 }],
+      flights: [],
+      weather: unknownWeather,
+    });
+    await repo.editItem(autoItemId('t1', 'pack-tops'), {
+      title: 'T-shirts',
+      notes: null,
+      category: 'clothes',
+      quantity: 2,
+    });
+    items = await repo.listItems('t1');
+    await repo.applyPlan('t1', planChecklist('t1', items, longer));
+    items = await repo.listItems('t1');
+    expect(items.find((i) => i.id === autoItemId('t1', 'pack-socks'))!.quantity).toBe(8);
+    expect(items.find((i) => i.id === autoItemId('t1', 'pack-tops'))).toMatchObject({
+      quantity: 2,
+      source: 'user',
+    });
+
+    const own = await repo.addItem(
+      't1',
+      { title: 'Camera', notes: null, category: 'tech', quantity: 1 },
+      'packing',
+    );
+    expect(own).toMatchObject({ type: 'packing', quantity: 1, source: 'user' });
+    await expect(
+      repo.addItem(
+        't1',
+        { title: 'Socks', notes: null, category: 'clothes', quantity: 0 },
+        'packing',
+      ),
+    ).rejects.toThrow('How many: 1 to 99.');
+
+    if (sql) {
+      const trip = sql
+        .prepare("SELECT checklist_rules_version AS v FROM trips WHERE id = 't1'")
+        .get() as {
+        v: string | null;
+      };
+      expect(trip.v).toBeNull();
     }
   });
 

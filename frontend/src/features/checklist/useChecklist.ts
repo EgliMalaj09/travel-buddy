@@ -2,8 +2,20 @@ import { repositories, useAsync, useDataVersion } from '@/data';
 import { checklistView, planChecklist, type ChecklistView } from '@/lib/checklist';
 import { CHECKLIST_RULES_VERSION, checklistSuggestions } from '@/lib/checklistRules';
 
-/** One update per trip at a time, so two screens open at once don't write the same items twice. */
+/**
+ * One list update per trip at a time (to-dos and packing share the table), so two screens open at
+ * once don't write the same items twice.
+ */
 const running = new Map<string, Promise<void>>();
+
+export async function oneAtATime(tripId: string, work: () => Promise<void>): Promise<void> {
+  const run = (running.get(tripId) ?? Promise.resolve()).then(work);
+  running.set(
+    tripId,
+    run.catch(() => undefined),
+  );
+  await run;
+}
 
 /**
  * Brings the trip's checklist in line with the rules, then returns it ready to show.
@@ -23,8 +35,7 @@ export async function loadChecklist(
 
   // A finished trip keeps its list as it was.
   if (trip.status !== 'finished') {
-    const before = running.get(tripId) ?? Promise.resolve();
-    const run = before.then(async () => {
+    await oneAtATime(tripId, async () => {
       const plan = planChecklist(
         tripId,
         await repositories.checklist.listItems(tripId),
@@ -32,11 +43,6 @@ export async function loadChecklist(
       );
       await repositories.checklist.applyPlan(tripId, plan, CHECKLIST_RULES_VERSION);
     });
-    running.set(
-      tripId,
-      run.catch(() => undefined),
-    );
-    await run;
   }
 
   const items = await repositories.checklist.listItems(tripId);

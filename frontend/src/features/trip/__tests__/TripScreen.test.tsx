@@ -59,7 +59,7 @@ describe('Trip page with tabs (KAN-53)', () => {
   it('opens on Plan with the header, the summaries, stops and flights', async () => {
     await render(<TripScreen id="trip-rome-florence" />);
     expect(await screen.findByText('Rome & Florence')).toBeTruthy();
-    for (const label of ['Plan', 'Places', 'Checklist', 'Photos', 'Expenses']) {
+    for (const label of ['Plan', 'Places', 'Checklist', 'Packing', 'Photos', 'Expenses']) {
       expect(screen.getByRole('tab', { name: label })).toBeTruthy();
     }
     expect(screen.getByText('Places · 1 planned')).toBeTruthy();
@@ -87,11 +87,21 @@ describe('Trip page with tabs (KAN-53)', () => {
     expect(await screen.findByText('Add your own item')).toBeTruthy();
   });
 
+  it('the Packing tab (KAN-28): list by group with how many, and "no weather yet" in mock mode', async () => {
+    await render(<TripScreen id="trip-rome-florence" linkTab="packing" />);
+    expect(await screen.findByText('Add something to pack')).toBeTruthy();
+    expect(screen.getByText('No weather yet')).toBeTruthy();
+    expect(screen.getByText('Clothes')).toBeTruthy();
+    expect(screen.getByText(/^Underwear × \d+$/)).toBeTruthy();
+    expect(screen.getByText(/^0 of \d+ packed$/)).toBeTruthy();
+  });
+
   it('quick add offers a place and a checklist item', async () => {
     await render(<TripScreen id="trip-rome-florence" />);
     await screen.findByText('Rome & Florence');
     await fireEvent.press(screen.getByLabelText('Quick add'));
     expect(screen.getByText('Add to this trip')).toBeTruthy();
+    expect(screen.getByText('Something to pack')).toBeTruthy();
     await fireEvent.press(screen.getByText('Place'));
     expect(mockPush).toHaveBeenCalledWith({
       pathname: '/place/edit',

@@ -125,6 +125,20 @@ const slug = (s: string) =>
     .slice(0, 30);
 
 /**
+ * The plug adapter a traveller needs: "G" (UK style) going to the UK, Ireland, Malta or Cyprus
+ * from elsewhere, "EU" going from those to the rest of Europe, or null. The packing list uses it too.
+ */
+export function plugAdapterNeeded(
+  passport: CountryCode | null,
+  abroad: CountryCode[],
+): 'G' | 'EU' | null {
+  if (abroad.some((c) => PLUG_G.has(c)) && !(passport && PLUG_G.has(passport))) return 'G';
+  if (passport && PLUG_G.has(passport) && abroad.some((c) => EUROPE.has(c) && !PLUG_G.has(c)))
+    return 'EU';
+  return null;
+}
+
+/**
  * The items the rules want for this trip, in list order. The same trip always gives the same
  * rule ids, so the phone can tell which items are new, still wanted, or no longer needed.
  */
@@ -322,13 +336,11 @@ export function checklistSuggestions({
       sourceUrl: passportEeaCh ? LINKS.roaming : null,
     });
   }
-  const needsPlugG = abroad.some((c) => PLUG_G.has(c)) && !(passport && PLUG_G.has(passport));
-  const needsPlugEu =
-    !!passport && PLUG_G.has(passport) && abroad.some((c) => EUROPE.has(c) && !PLUG_G.has(c));
-  if (needsPlugG || needsPlugEu) {
+  const plug = plugAdapterNeeded(passport, abroad);
+  if (plug) {
     add({
       ruleId: 'plug-adapter',
-      title: needsPlugG ? 'Get a UK-style plug adapter' : 'Get a European plug adapter',
+      title: plug === 'G' ? 'Get a UK-style plug adapter' : 'Get a European plug adapter',
       category: 'phone',
       dueDate: due(7),
     });

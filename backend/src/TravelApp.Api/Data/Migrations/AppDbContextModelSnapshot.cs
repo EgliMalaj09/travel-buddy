@@ -1026,6 +1026,74 @@ namespace TravelApp.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TravelApp.Api.Features.Weather.WeatherCacheEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<DateTimeOffset>("FetchedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fetched_at");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("kind");
+
+                    b.Property<int>("Lat10")
+                        .HasColumnType("integer")
+                        .HasColumnName("lat10");
+
+                    b.Property<int>("Lng10")
+                        .HasColumnType("integer")
+                        .HasColumnName("lng10");
+
+                    b.Property<double>("MaxC")
+                        .HasColumnType("double precision")
+                        .HasColumnName("max_c");
+
+                    b.Property<double>("MinC")
+                        .HasColumnType("double precision")
+                        .HasColumnName("min_c");
+
+                    b.Property<int?>("PrecipitationChance")
+                        .HasColumnType("integer")
+                        .HasColumnName("precipitation_chance");
+
+                    b.Property<double>("PrecipitationMm")
+                        .HasColumnType("double precision")
+                        .HasColumnName("precipitation_mm");
+
+                    b.Property<double>("SnowCm")
+                        .HasColumnType("double precision")
+                        .HasColumnName("snow_cm");
+
+                    b.HasKey("Id")
+                        .HasName("pk_weather_cache");
+
+                    b.HasIndex("FetchedAt")
+                        .HasDatabaseName("ix_weather_cache_fetched_at");
+
+                    b.HasIndex("Kind", "Lat10", "Lng10", "Date")
+                        .IsUnique()
+                        .HasDatabaseName("ix_weather_cache_kind_lat10_lng10_date");
+
+                    b.ToTable("weather_cache", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_weather_cache_chance", "precipitation_chance IS NULL OR precipitation_chance BETWEEN 0 AND 100");
+
+                            t.HasCheckConstraint("ck_weather_cache_kind", "kind IN ('forecast', 'typical')");
+
+                            t.HasCheckConstraint("ck_weather_cache_position", "lat10 BETWEEN -900 AND 900 AND lng10 BETWEEN -1800 AND 1800");
+                        });
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.HasOne("TravelApp.Api.Features.Auth.User", null)

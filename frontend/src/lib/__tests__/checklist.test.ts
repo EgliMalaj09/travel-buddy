@@ -214,9 +214,9 @@ describe('small helpers', () => {
     expect(dueLabel(null, '2027-04-12')).toBeNull();
   });
 
-  it('get-ready and evening reminders open the checklist; flight reminders open the trip', () => {
+  it('get-ready opens the checklist, the evening before opens packing; flight reminders open the trip', () => {
     expect(reminderRoutes('t1', 'getReady')).toEqual(['/trip/t1?tab=checklist']);
-    expect(reminderRoutes('t1', 'evening')).toEqual(['/trip/t1?tab=checklist']);
+    expect(reminderRoutes('t1', 'evening')).toEqual(['/trip/t1?tab=packing']);
     expect(reminderRoutes('t1', 'flightSoon')).toEqual(['/trip/t1']);
     expect(reminderRoutes('t1', null)).toEqual(['/trip/t1']);
   });

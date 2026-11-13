@@ -130,6 +130,14 @@ Login uses ASP.NET Core Identity with `User` as the Identity user (its own login
 
 Note (AGREED 11 Nov 2026, KAN-12): `firstName`, `passportCountry`, `residenceCountry` and `homeCurrency` are empty in the database between sign-up and profile setup; the consent fields are empty for Google/Apple users until profile setup. The app treats `onboardingCompletedAt` as "profile done".
 
+## 5c. WeatherCache (AGREED 13 Nov 2026 with KAN-29, server only, never synced)
+
+Table `weather_cache`. A cache of the weather provider's answers for the packing list, so the same place and days are not asked for again and again. **No personal data:** no user id, no trip id; the position is rounded to 1 decimal (about 11 km), so one row serves everybody near that point.
+
+Fields: `id`, `kind` (forecast, typical), `lat10` (rounded latitude × 10, e.g. 41.9 → 419), `lng10`, `date`, `minC`, `maxC`, `precipitationMm`, `precipitationChance` (0-100, may be empty), `snowCm`, `fetchedAt`. Unique on (`kind`, `lat10`, `lng10`, `date`).
+
+Forecast rows are fresh for 3 hours, typical rows (average of the last 3 years) for 30 days. Stale rows are still used when the provider is down. Old rows can be deleted at any time (a cleanup job may delete rows older than 60 days later).
+
 ## 6. AppConfig (AGREED, read-only, set in the back office, cached for offline)
 
 `photoQualityByPlan`, `maxPhotoSizeMB`, `minAppVersion`, feature flags (for example `printAlbumEnabled`), `freeTripLimit`.

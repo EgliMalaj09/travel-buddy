@@ -255,9 +255,11 @@ export function formatReminderTime(at: Date, now: Date): string {
 }
 
 /**
- * Where a tapped reminder goes. "Get ready" and the evening-before message open the trip page on
- * its Checklist tab (KAN-53); flight reminders open the trip page.
+ * Where a tapped reminder goes. "Get ready" opens the trip page on its Checklist tab (KAN-53),
+ * the evening-before message ("Pack tonight") on its Packing tab (KAN-28); flight reminders open
+ * the trip page.
  */
 export function reminderRoutes(tripId: string, kind: string | null): string[] {
-  return [tripHref(tripId, kind === 'getReady' || kind === 'evening' ? 'checklist' : undefined)];
+  const tab = kind === 'getReady' ? 'checklist' : kind === 'evening' ? 'packing' : undefined;
+  return [tripHref(tripId, tab)];
 }

@@ -25,7 +25,7 @@ Suggested order. Foundation and sync come first; the frontend's sync test (KAN-1
 | [ ] | 6 | BE - Photos and notes (Blob Storage, upload URLs, thumbnails) | KAN-40 | KAN-38 (PH1–PH6) | 524314 |
 | [ ] | 7 | BE - Smart checklist. **Built 13 Nov 2026, waiting for merge and manual test**: `checklist_items` table + migration, writes through `POST /sync/upload`, PowerSync stream `my_checklist_items` (sends deleted auto items too). Rules live in the app for V1 (agreed 13 Nov 2026); a rule set endpoint comes later | KAN-25 | KAN-23 (C1–C6) | 98543 |
 | [ ] | 8 | AI - Smart checklist rule set (owner reviews) | KAN-26 | KAN-23 | 98543 |
-| [ ] | 9 | BE - Packing list (weather endpoint and cache) | KAN-29 | KAN-27 (K1–K5) | 426033 |
+| [ ] | 9 | BE - Packing list (weather endpoint and cache). **Built 13 Nov 2026, waiting for merge and manual test**: `GET /weather/days?lat=&lng=&from=&to=` (forecast up to 15 days ahead, then the typical weather of the last 3 years), Open-Meteo behind `IWeatherProvider`, `weather_cache` table + migration (forecast fresh 3 h, typical 30 days, stale rows served when the provider is down, else 503). Position rounded to ~11 km before caching and before calling the provider; the HTTP client's URL logs are removed (GDPR) | KAN-29 | KAN-27 (K1–K5) | 426033 |
 | [ ] | 10 | AI - Packing list rules | KAN-30 | KAN-27 | 426033 |
 | [ ] | 11 | BE - Expenses (Expense, FxRate, daily FX job) | KAN-43 | KAN-41 (E1–E5) | 98559 |
 | [ ] | 12 | BE - Profile, settings and account deletion | KAN-22 | KAN-20 (P1–P5) | 426017 |
