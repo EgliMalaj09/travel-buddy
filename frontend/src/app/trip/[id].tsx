@@ -5,13 +5,14 @@ import { Pressable, View } from 'react-native';
 
 import { ActionSheet, AppText, Card, EmptyState, Screen } from '@/components';
 import { repositories, useAsync, useDataVersion } from '@/data';
+import { ChecklistCard } from '@/features/checklist/ChecklistCard';
 import { formatDateRange, formatDay, todayIso } from '@/lib/dates';
 import { TripPlaces } from '@/features/places/TripPlaces';
 import { activityLabels, directionLabels, flightTitle } from '@/lib/tripDraft';
 import { flagEmoji, phaseLine, stopDates } from '@/lib/trips';
 import { useTheme } from '@/theme/ThemeProvider';
 
-/** Trip screen shell: header, stops, places, flights, and the ••• menu. Tabs come with KAN-53. */
+/** Trip screen shell: header, checklist, stops, places, flights, and the ••• menu. Tabs come with KAN-53. */
 export default function TripScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors, space } = useTheme();
@@ -101,6 +102,8 @@ export default function TripScreen() {
             </AppText>
           ) : null}
         </View>
+
+        <ChecklistCard tripId={trip.id} />
 
         <Card>
           <AppText variant="label">Stops</AppText>

@@ -1,4 +1,4 @@
-import type { Flight, Place, Trip, TripActivity, TripStop } from '../types';
+import type { ChecklistItem, Flight, Place, Trip, TripActivity, TripStop } from '../types';
 
 /** A row as SQLite returns it. */
 export type Row = Record<string, unknown>;
@@ -138,6 +138,30 @@ export function rowToPlace(r: Row): Place {
       r.is_suggested === '1',
     coverMediaId: text(r.cover_media_id),
     copiedFromPlaceId: text(r.copied_from_place_id),
+    ...sync(r),
+  };
+}
+
+export function rowToChecklistItem(r: Row): ChecklistItem {
+  return {
+    id: String(r.id),
+    tripId: text(r.trip_id) ?? '',
+    type: (text(r.type) ?? 'task') as ChecklistItem['type'],
+    title: text(r.title) ?? '',
+    notes: text(r.notes),
+    category: (text(r.category) ?? 'other') as ChecklistItem['category'],
+    done: r.done === true || r.done === 'true' || num(r.done) === 1,
+    doneAt: isoTime(r.done_at),
+    doneByUserId: text(r.done_by_user_id),
+    dueDate: date(r.due_date),
+    quantity: num(r.quantity),
+    reason: (text(r.reason) ?? 'user') as ChecklistItem['reason'],
+    source: (text(r.source) ?? 'user') as ChecklistItem['source'],
+    ruleId: text(r.rule_id),
+    sourceUrl: text(r.source_url),
+    sourceCheckedAt: date(r.source_checked_at),
+    ownerUserId: text(r.owner_user_id),
+    sortOrder: num(r.sort_order) ?? 0,
     ...sync(r),
   };
 }

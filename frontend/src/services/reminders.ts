@@ -116,13 +116,14 @@ export async function clearReminders(): Promise<void> {
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
-/** Calls `open(tripId)` when the user taps a reminder (also one that opened the app). */
-export function onReminderTapped(open: (tripId: string) => void): () => void {
+/** Calls `open(tripId, kind)` when the user taps a reminder (also one that opened the app). */
+export function onReminderTapped(open: (tripId: string, kind: string | null) => void): () => void {
   if (!remindersSupported) return () => {};
   configure();
   const handle = (response: Notifications.NotificationResponse | null) => {
-    const tripId = response?.notification.request.content.data?.tripId;
-    if (typeof tripId === 'string') open(tripId);
+    const data = response?.notification.request.content.data;
+    const tripId = data?.tripId;
+    if (typeof tripId === 'string') open(tripId, typeof data?.kind === 'string' ? data.kind : null);
   };
   const last = Notifications.getLastNotificationResponse();
   if (last) {

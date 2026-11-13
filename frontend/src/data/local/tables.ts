@@ -87,8 +87,35 @@ export const tripTables = {
   },
 } as const satisfies Record<string, Record<string, ColumnType>>;
 
-export type TripTableName = keyof typeof tripTables;
-export const tripTableNames = Object.keys(tripTables) as TripTableName[];
+/** Smart checklist (KAN-24). Booleans are 0/1. Deleted auto items stay as rows with deleted_at set. */
+export const checklistTables = {
+  checklist_items: {
+    trip_id: 'text',
+    type: 'text',
+    title: 'text',
+    notes: 'text',
+    category: 'text',
+    done: 'integer',
+    done_at: 'text',
+    done_by_user_id: 'text',
+    due_date: 'text',
+    quantity: 'integer',
+    reason: 'text',
+    source: 'text',
+    rule_id: 'text',
+    source_url: 'text',
+    source_checked_at: 'text',
+    owner_user_id: 'text',
+    sort_order: 'integer',
+    ...sync,
+  },
+} as const satisfies Record<string, Record<string, ColumnType>>;
+
+/** Every table PowerSync keeps on the phone and the app writes. */
+export const syncedTables = { ...tripTables, ...checklistTables };
+
+export type SyncedTableName = keyof typeof syncedTables;
+export const syncedTableNames = Object.keys(syncedTables) as SyncedTableName[];
 
 /** Set by the server only. The phone keeps them for reading but never sends them. */
 export const serverColumns = new Set([
@@ -100,4 +127,6 @@ export const serverColumns = new Set([
   'updated_at',
   'deleted_at',
   'version',
+  'done_by_user_id',
+  'owner_user_id',
 ]);

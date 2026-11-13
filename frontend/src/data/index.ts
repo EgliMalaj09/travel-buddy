@@ -1,12 +1,23 @@
 import { notifyOwnerChanged } from './changes';
-import { createLocalPlaces, createLocalTrips, setLocalOwner } from './local/localStore';
+import {
+  createLocalChecklist,
+  createLocalPlaces,
+  createLocalTrips,
+  setLocalOwner,
+} from './local/localStore';
 import { createApiPlaceRepository } from './repositories/apiPlaceRepository';
+import {
+  createMemoryChecklistRepository,
+  type ChecklistRepository,
+} from './repositories/checklistRepository';
 import { createApiTripRepository } from './repositories/apiTripRepository';
 import { createMockPlaceRepository, type PlaceRepository } from './repositories/placeRepository';
 import { createMockTripRepository, type TripRepository } from './repositories/tripRepository';
 export type { PlaceInput, PlaceRepository } from './repositories/placeRepository';
 export { PLACE_NOTE_MAX, PLACE_TITLE_MAX, placeInputProblem } from './repositories/placeRepository';
 
+export type { ChecklistEdit, ChecklistRepository } from './repositories/checklistRepository';
+export { checklistEditProblem } from './repositories/checklistRepository';
 export type {
   FlightInput,
   StopInput,
@@ -62,7 +73,18 @@ const chosen = createRepositories(pickDataMode());
 /** The data source in use ("local" falls back to "api" where there is no local database: web). */
 export const dataMode: DataMode = chosen.mode;
 
-export const repositories: Repositories = chosen.repos;
+/**
+ * Checklist items: in the local database in "local" mode. Mock mode and the web preview keep
+ * them in memory (gone after a reload): the server has no checklist read endpoint, the phone
+ * gets them through PowerSync.
+ */
+const checklist: ChecklistRepository =
+  (dataMode === 'local' ? createLocalChecklist() : null) ?? createMemoryChecklistRepository();
+
+export const repositories: Repositories & { checklist: ChecklistRepository } = {
+  ...chosen.repos,
+  checklist,
+};
 
 let owner: string | null = null;
 
@@ -77,6 +99,7 @@ export function setDataOwner(userId: string | null): void {
   if (dataMode === 'local') setLocalOwner(userId);
   repositories.trips.reset?.();
   repositories.places.reset?.();
+  repositories.checklist.reset?.();
   notifyOwnerChanged();
 }
 

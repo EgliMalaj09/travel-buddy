@@ -23,3 +23,9 @@ streams:
   my_bucket_list:
     auto_subscribe: true
     query: select * from places where deleted_at is null and trip_id is null and created_by_user_id = auth.user_id()
+  # Smart checklist (KAN-24/25): the checklist items of the user's trips.
+  # Deleted auto items are sent too (with deleted_at set), so the phone knows not to make them again
+  # ("a deleted auto item stays deleted"). The phone shows only rows where deleted_at is null.
+  my_checklist_items:
+    auto_subscribe: true
+    query: select * from checklist_items where (deleted_at is null or source = 'auto') and trip_id in (select id from trips where owner_id = auth.user_id() and deleted_at is null)

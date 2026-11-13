@@ -55,7 +55,7 @@ export function HomeScreen({ firstName, now = new Date() }: { firstName?: string
     const reminders = planReminders({ ...(await loadReminderInput()), now: new Date() });
     const permission = await reminderPermission();
     return { trips, stopsByTrip, focus, flights, places, reminders, permission };
-  }, [version, today, reminderSettings]);
+  }, [version, today, JSON.stringify(reminderSettings)]);
 
   const header = (
     <View

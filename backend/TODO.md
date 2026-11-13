@@ -23,7 +23,7 @@ Suggested order. Foundation and sync come first; the frontend's sync test (KAN-1
 | [ ] | 4 | BE - Create a trip (Trip, TripStop, **Flight** (new, 11 Nov 2026), validation). **Merged to `main` 11 Nov 2026, waiting for manual test**: tables + migration, write rules for the sync endpoint, sync streams. The phone's writes reach it once KAN-16 (sync write endpoint) exists | KAN-19 | KAN-17 (T1–T7) | 557057 |
 | [ ] | 5 | BE - Places. **Built 12 Nov 2026, waiting for merge and manual test**: `places` table + migration, `POST /sync/upload` type `places`, `GET /places?tripId=`, PowerSync streams `my_places` and `my_bucket_list`, a deleted trip deletes its places (`ITripDeleteHook`) | KAN-35 | KAN-33 (PL1–PL5) | 622593 |
 | [ ] | 6 | BE - Photos and notes (Blob Storage, upload URLs, thumbnails) | KAN-40 | KAN-38 (PH1–PH6) | 524314 |
-| [ ] | 7 | BE - Smart checklist (rule set storage and endpoint) | KAN-25 | KAN-23 (C1–C6) | 98543 |
+| [ ] | 7 | BE - Smart checklist. **Built 13 Nov 2026, waiting for merge and manual test**: `checklist_items` table + migration, writes through `POST /sync/upload`, PowerSync stream `my_checklist_items` (sends deleted auto items too). Rules live in the app for V1 (agreed 13 Nov 2026); a rule set endpoint comes later | KAN-25 | KAN-23 (C1–C6) | 98543 |
 | [ ] | 8 | AI - Smart checklist rule set (owner reviews) | KAN-26 | KAN-23 | 98543 |
 | [ ] | 9 | BE - Packing list (weather endpoint and cache) | KAN-29 | KAN-27 (K1–K5) | 426033 |
 | [ ] | 10 | AI - Packing list rules | KAN-30 | KAN-27 | 426033 |

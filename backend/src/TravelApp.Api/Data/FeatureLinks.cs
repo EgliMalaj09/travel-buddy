@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Places;
+using TravelApp.Api.Features.Checklist;
 using TravelApp.Api.Features.Trips;
 
 namespace TravelApp.Api.Data;
@@ -26,4 +27,11 @@ internal sealed class PlaceLinks : IEntityTypeConfiguration<Place>
         builder.HasOne<Trip>().WithMany().HasForeignKey(p => p.TripId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne<User>().WithMany().HasForeignKey(p => p.CreatedByUserId).OnDelete(DeleteBehavior.Cascade);
     }
+}
+
+internal sealed class ChecklistTripLink : IEntityTypeConfiguration<ChecklistItem>
+{
+    // A trip's checklist goes with it when the trip row is finally removed.
+    public void Configure(EntityTypeBuilder<ChecklistItem> builder) =>
+        builder.HasOne<Trip>().WithMany().HasForeignKey(i => i.TripId).OnDelete(DeleteBehavior.Cascade);
 }

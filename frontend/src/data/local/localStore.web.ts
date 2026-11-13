@@ -1,3 +1,4 @@
+import type { ChecklistRepository } from '../repositories/checklistRepository';
 import type { TripRepository } from '../repositories/tripRepository';
 import type { PlaceRepository } from '../repositories/placeRepository';
 
@@ -12,5 +13,9 @@ export function createLocalTrips(): TripRepository | null {
 }
 
 export function createLocalPlaces(): PlaceRepository | null {
+  return null;
+}
+
+export function createLocalChecklist(): ChecklistRepository | null {
   return null;
 }

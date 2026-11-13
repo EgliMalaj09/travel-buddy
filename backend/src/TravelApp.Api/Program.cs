@@ -2,6 +2,7 @@ using Scalar.AspNetCore;
 using TravelApp.Api.Data;
 using TravelApp.Api.Features.AppInfo;
 using TravelApp.Api.Features.Auth;
+using TravelApp.Api.Features.Checklist;
 using TravelApp.Api.Features.Health;
 using TravelApp.Api.Features.Places;
 using TravelApp.Api.Features.Sync;
@@ -26,6 +27,7 @@ builder.Services.AddHealthFeature();
 builder.Services.AddAuthFeature(builder.Configuration);
 builder.Services.AddTripsFeature();
 builder.Services.AddPlacesFeature();
+builder.Services.AddChecklistFeature();
 builder.Services.AddSyncFeature();
 
 // The web build of the app (npm run web, http://localhost:8081) calls the API from another port,
