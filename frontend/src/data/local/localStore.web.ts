@@ -1,3 +1,4 @@
+import type { ChecklistRepository } from '../repositories/checklistRepository';
 import type { TripRepository } from '../repositories/tripRepository';
 
 /**
@@ -7,5 +8,9 @@ import type { TripRepository } from '../repositories/tripRepository';
 export function setLocalOwner(_userId: string | null): void {}
 
 export function createLocalTrips(): TripRepository | null {
+  return null;
+}
+
+export function createLocalChecklist(): ChecklistRepository | null {
   return null;
 }

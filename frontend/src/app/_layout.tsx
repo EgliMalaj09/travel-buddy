@@ -72,6 +72,7 @@ function AppStack() {
           <Stack.Screen name="trip/[id]" options={{ title: '' }} />
           <Stack.Screen name="trip/new" options={{ title: '' }} />
           <Stack.Screen name="trip/edit/[id]" options={{ title: '' }} />
+          <Stack.Screen name="trip/checklist/[id]" options={{ title: 'Checklist' }} />
           <Stack.Screen name="design-kit" options={{ title: 'Design kit' }} />
         </Stack.Protected>
       </Stack>

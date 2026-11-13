@@ -464,6 +464,130 @@ namespace TravelApp.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TravelApp.Api.Features.Checklist.ChecklistItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("category");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("Done")
+                        .HasColumnType("boolean")
+                        .HasColumnName("done");
+
+                    b.Property<DateTimeOffset?>("DoneAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("done_at");
+
+                    b.Property<Guid?>("DoneByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("done_by_user_id");
+
+                    b.Property<DateOnly?>("DueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("due_date");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<Guid?>("OwnerUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<int?>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("RuleId")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("rule_id");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("source");
+
+                    b.Property<DateOnly?>("SourceCheckedAt")
+                        .HasColumnType("date")
+                        .HasColumnName("source_checked_at");
+
+                    b.Property<string>("SourceUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("source_url");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("title");
+
+                    b.Property<Guid>("TripId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("trip_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_checklist_items");
+
+                    b.HasIndex("TripId", "SortOrder")
+                        .HasDatabaseName("ix_checklist_items_trip_id_sort_order");
+
+                    b.ToTable("checklist_items", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_checklist_items_category", "(type = 'task' AND category IN ('documents', 'money', 'health', 'phone', 'transport', 'stay', 'other')) OR (type = 'packing' AND category IN ('clothes', 'toiletries', 'tech', 'documents', 'other'))");
+
+                            t.HasCheckConstraint("ck_checklist_items_quantity", "quantity IS NULL OR (type = 'packing' AND quantity BETWEEN 1 AND 99)");
+
+                            t.HasCheckConstraint("ck_checklist_items_reason", "reason IN ('rule', 'weather', 'activity', 'user')");
+
+                            t.HasCheckConstraint("ck_checklist_items_source", "source IN ('auto', 'user')");
+
+                            t.HasCheckConstraint("ck_checklist_items_type", "type IN ('task', 'packing')");
+                        });
+                });
+
             modelBuilder.Entity("TravelApp.Api.Features.Trips.Flight", b =>
                 {
                     b.Property<Guid>("Id")
@@ -805,6 +929,16 @@ namespace TravelApp.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_trusted_devices_asp_net_users_user_id");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Features.Checklist.ChecklistItem", b =>
+                {
+                    b.HasOne("TravelApp.Api.Features.Trips.Trip", null)
+                        .WithMany()
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_checklist_items_trip_trip_id");
                 });
 
             modelBuilder.Entity("TravelApp.Api.Features.Trips.Flight", b =>

@@ -1,9 +1,9 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 
 import { useDataVersion } from '@/data';
-import { planReminders } from '@/lib/reminders';
+import { planReminders, reminderRoutes } from '@/lib/reminders';
 import { clearReminders, onReminderTapped, scheduleReminders } from '@/services/reminders';
 import { captureError } from '@/services/sentry';
 
@@ -54,6 +54,8 @@ export function useReminderSync(signedIn: boolean): void {
 
   useEffect(() => {
     if (!signedIn) return;
-    return onReminderTapped((tripId) => router.push(`/trip/${tripId}`));
+    return onReminderTapped((tripId, kind) => {
+      for (const path of reminderRoutes(tripId, kind)) router.push(path as Href);
+    });
   }, [signedIn]);
 }

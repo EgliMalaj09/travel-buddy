@@ -86,3 +86,42 @@ export interface Flight extends SyncFields {
   seat: string | null;
   terminal: string | null;
 }
+
+export type ChecklistItemType = 'task' | 'packing';
+
+export type TaskCategory =
+  'documents' | 'money' | 'health' | 'phone' | 'transport' | 'stay' | 'other';
+
+export type PackingCategory = 'clothes' | 'toiletries' | 'tech' | 'documents' | 'other';
+
+/** Why an item is on the list. */
+export type ChecklistReason = 'rule' | 'weather' | 'activity' | 'user';
+
+/** Data model 10 (AGREED). Tasks and packing items share one table. */
+export interface ChecklistItem extends SyncFields {
+  id: string;
+  tripId: string;
+  type: ChecklistItemType;
+  title: string;
+  notes: string | null;
+  category: TaskCategory | PackingCategory;
+  /** Done (task) or packed (packing). */
+  done: boolean;
+  doneAt: IsoDateTime | null;
+  /** Set by the server. */
+  doneByUserId: string | null;
+  dueDate: IsoDate | null;
+  /** Packing only. */
+  quantity: number | null;
+  reason: ChecklistReason;
+  /** "auto": made from the rules. "user": added or changed by hand. */
+  source: 'auto' | 'user';
+  /** The rule that made it. Kept after an edit, so the rule does not add it again. */
+  ruleId: string | null;
+  /** Entry-rule items: where to check, with the "check official sources" note. */
+  sourceUrl: string | null;
+  sourceCheckedAt: IsoDate | null;
+  /** Only for personal packing items in shared trips (Part 2). Set by the server. */
+  ownerUserId: string | null;
+  sortOrder: number;
+}

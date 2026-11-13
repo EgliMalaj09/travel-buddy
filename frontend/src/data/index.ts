@@ -1,8 +1,14 @@
 import { notifyOwnerChanged } from './changes';
-import { createLocalTrips, setLocalOwner } from './local/localStore';
+import { createLocalChecklist, createLocalTrips, setLocalOwner } from './local/localStore';
+import {
+  createMemoryChecklistRepository,
+  type ChecklistRepository,
+} from './repositories/checklistRepository';
 import { createApiTripRepository } from './repositories/apiTripRepository';
 import { createMockTripRepository, type TripRepository } from './repositories/tripRepository';
 
+export type { ChecklistEdit, ChecklistRepository } from './repositories/checklistRepository';
+export { checklistEditProblem } from './repositories/checklistRepository';
 export type {
   FlightInput,
   StopInput,
@@ -44,7 +50,18 @@ const chosen = createTrips(pickDataMode());
 /** The data source in use ("local" falls back to "api" where there is no local database: web). */
 export const dataMode: DataMode = chosen.mode;
 
-export const repositories: { trips: TripRepository } = { trips: chosen.trips };
+/**
+ * Checklist items: in the local database in "local" mode. Mock mode and the web preview keep
+ * them in memory (gone after a reload): the server has no checklist read endpoint, the phone
+ * gets them through PowerSync.
+ */
+const checklist: ChecklistRepository =
+  (dataMode === 'local' ? createLocalChecklist() : null) ?? createMemoryChecklistRepository();
+
+export const repositories: { trips: TripRepository; checklist: ChecklistRepository } = {
+  trips: chosen.trips,
+  checklist,
+};
 
 let owner: string | null = null;
 
@@ -58,6 +75,7 @@ export function setDataOwner(userId: string | null): void {
   owner = userId;
   if (dataMode === 'local') setLocalOwner(userId);
   repositories.trips.reset?.();
+  repositories.checklist.reset?.();
   notifyOwnerChanged();
 }
 

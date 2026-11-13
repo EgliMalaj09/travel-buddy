@@ -47,6 +47,7 @@ function fakeServer(reject?: (c: SyncChange) => string | null) {
     trips: new Map(),
     trip_stops: new Map(),
     flights: new Map(),
+    checklist_items: new Map(),
   };
   const uploads: SyncChange[][] = [];
   const sync = { createdAt: '2026-11-12T10:00:00Z', updatedAt: '2026-11-12T10:00:00Z' };
