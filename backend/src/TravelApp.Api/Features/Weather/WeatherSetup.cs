@@ -1,3 +1,4 @@
+using TravelApp.Api.Features.Admin;
 using System.Threading.RateLimiting;
 using TravelApp.Api.Shared;
 
@@ -12,6 +13,7 @@ public static class WeatherSetup
     {
         services.AddOptions<WeatherOptions>().Bind(configuration.GetSection(WeatherOptions.Section));
         services.AddScoped<WeatherService>();
+        services.AddScoped<IServiceStatusCheck, WeatherStatusCheck>();
         var perMinute = configuration.GetValue<int?>(
             $"{WeatherOptions.Section}:{nameof(WeatherOptions.RequestsPerMinutePerUser)}") ?? 60;
         services.AddRateLimiter(o => o.AddPolicy(RateLimitPolicy, http => RateLimitPartition.GetFixedWindowLimiter(

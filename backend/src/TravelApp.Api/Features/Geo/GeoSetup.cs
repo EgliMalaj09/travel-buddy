@@ -1,3 +1,4 @@
+using TravelApp.Api.Features.Admin;
 using System.Threading.RateLimiting;
 using TravelApp.Api.Shared;
 
@@ -11,6 +12,7 @@ public static class GeoSetup
     public static IServiceCollection AddGeoFeature(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<GeoOptions>().Bind(configuration.GetSection(GeoOptions.Section));
+        services.AddScoped<IServiceStatusCheck, GeoStatusCheck>();
         var perMinute = configuration.GetValue<int?>(
             $"{GeoOptions.Section}:{nameof(GeoOptions.RequestsPerMinutePerUser)}") ?? 30;
         services.AddRateLimiter(o => o.AddPolicy(RateLimitPolicy, http => RateLimitPartition.GetFixedWindowLimiter(

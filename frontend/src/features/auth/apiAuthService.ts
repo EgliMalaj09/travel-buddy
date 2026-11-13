@@ -22,12 +22,14 @@ const knownCodes: readonly AuthErrorCode[] = [
   'invalid_token',
   'consent_required',
   'account_deleted',
+  'account_suspended',
   'not_deleted',
 ];
 
 const fallbackMessages: Record<number, string> = {
   400: 'Check what you typed and try again.',
   401: 'Please log in again.',
+  403: 'This account is suspended. Contact support.',
   409: 'This email already has an account. Log in instead.',
   429: 'Too many tries. Wait a little and try again.',
 };

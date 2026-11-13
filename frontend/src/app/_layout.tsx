@@ -9,7 +9,9 @@ import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
 import { usePhotoSync } from '@/features/photos/usePhotoSync';
 import { useReminderSync } from '@/features/reminders/useReminderSync';
 import { AnimatedSplash } from '@/features/splash/AnimatedSplash';
+import { UpdateRequired } from '@/features/update/UpdateRequired';
 import { takeFirstLaunch } from '@/features/splash/splashPlan';
+import { updateRequired, useAppConfig } from '@/services/appConfig';
 import { initSentry, wrapWithSentry } from '@/services/sentry';
 import { useUserSettings } from '@/services/userSettings';
 import { fontAssets } from '@/theme/fonts';
@@ -32,6 +34,9 @@ function AppStack() {
   }, []);
   const splashDone = useCallback(() => setShowSplash(false), []);
   const signedIn = phase === 'signedIn' || phase === 'loading';
+  // The back office can ask old versions to update (AppConfig.minAppVersion, KAN-55).
+  const appConfig = useAppConfig();
+  const mustUpdate = updateRequired(appConfig.config);
 
   // Trips load for the logged-in user; they load again once the session is back after opening.
   const dataOwner = phase === 'signedIn' ? (user?.id ?? null) : null;
@@ -95,6 +100,7 @@ function AppStack() {
           <Stack.Screen name="design-kit" options={{ title: 'Design kit' }} />
         </Stack.Protected>
       </Stack>
+      {mustUpdate && !showSplash ? <UpdateRequired onRetry={appConfig.recheck} /> : null}
       {showSplash && (
         <AnimatedSplash
           firstLaunch={firstLaunch}

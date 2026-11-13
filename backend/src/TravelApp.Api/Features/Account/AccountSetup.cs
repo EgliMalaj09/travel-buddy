@@ -16,6 +16,7 @@ public static class AccountSetup
     {
         services.AddOptions<AccountOptions>().Bind(configuration.GetSection(AccountOptions.Section));
         services.AddScoped<AccountService>();
+        services.AddScoped<IAccountAdmin>(sp => sp.GetRequiredService<AccountService>());
         services.AddScoped<ISyncTable, UserSettingsSyncTable>();
         services.AddScoped<IUserData, SettingsUserData>();
         services.AddHostedService<AccountPurgeJob>();

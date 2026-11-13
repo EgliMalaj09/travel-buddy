@@ -198,6 +198,162 @@ namespace TravelApp.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TravelApp.Api.Features.Admin.AdminAuditEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("action");
+
+                    b.Property<Guid?>("AdminUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("admin_user_id");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("details");
+
+                    b.Property<string>("TargetId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("target_id");
+
+                    b.Property<string>("TargetType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("target_type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_admin_audit");
+
+                    b.HasIndex("At")
+                        .HasDatabaseName("ix_admin_audit_at");
+
+                    b.ToTable("admin_audit", (string)null);
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Features.Admin.AdminMember", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("FailedCodes")
+                        .HasColumnType("integer")
+                        .HasColumnName("failed_codes");
+
+                    b.Property<DateTimeOffset?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTimeOffset?>("LockedUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_until");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("role");
+
+                    b.Property<DateTimeOffset?>("TotpConfirmedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("totp_confirmed_at");
+
+                    b.Property<long>("TotpLastStep")
+                        .HasColumnType("bigint")
+                        .HasColumnName("totp_last_step");
+
+                    b.Property<string>("TotpSecret")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("totp_secret");
+
+                    b.HasKey("UserId")
+                        .HasName("pk_admin_members");
+
+                    b.ToTable("admin_members", (string)null);
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Features.AppConfig.AppConfigRow", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<string>("FeatureFlags")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("feature_flags");
+
+                    b.Property<int>("FreeTripLimit")
+                        .HasColumnType("integer")
+                        .HasColumnName("free_trip_limit");
+
+                    b.Property<int>("MaxPhotoSizeMb")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_photo_size_mb");
+
+                    b.Property<string>("MinAppVersion")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("min_app_version");
+
+                    b.Property<string>("PhotoQualityByPlan")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("photo_quality_by_plan");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_app_config");
+
+                    b.ToTable("app_config", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_app_config_singleton", "id = 1");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            FeatureFlags = "{}",
+                            FreeTripLimit = 1,
+                            MaxPhotoSizeMb = 15,
+                            MinAppVersion = "1.0.0",
+                            PhotoQualityByPlan = "{\"free\":\"compressed\",\"paid\":\"full\"}",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 13, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Version = 1L
+                        });
+                });
+
             modelBuilder.Entity("TravelApp.Api.Features.Auth.AuthCode", b =>
                 {
                     b.Property<Guid>("Id")
@@ -512,6 +668,15 @@ namespace TravelApp.Api.Data.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)")
                         .HasColumnName("suggested_first_name");
+
+                    b.Property<DateTimeOffset?>("SuspendedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("suspended_at");
+
+                    b.Property<string>("SuspensionReason")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("suspension_reason");
 
                     b.Property<DateTimeOffset?>("TermsAcceptedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1572,6 +1737,16 @@ namespace TravelApp.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_settings_asp_net_users_id");
+                });
+
+            modelBuilder.Entity("TravelApp.Api.Features.Admin.AdminMember", b =>
+                {
+                    b.HasOne("TravelApp.Api.Features.Auth.User", null)
+                        .WithOne()
+                        .HasForeignKey("TravelApp.Api.Features.Admin.AdminMember", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_admin_members_asp_net_users_user_id");
                 });
 
             modelBuilder.Entity("TravelApp.Api.Features.Auth.RefreshToken", b =>

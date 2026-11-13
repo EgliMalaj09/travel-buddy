@@ -1,3 +1,4 @@
+using TravelApp.Api.Features.Admin;
 using TravelApp.Api.Data;
 
 namespace TravelApp.Api.Features.Health;
@@ -8,6 +9,7 @@ public static class HealthEndpoints
     public static IServiceCollection AddHealthFeature(this IServiceCollection services)
     {
         services.AddHealthChecks().AddDbContextCheck<AppDbContext>("database");
+        services.AddScoped<IServiceStatusCheck, DatabaseStatusCheck>();
         return services;
     }
 

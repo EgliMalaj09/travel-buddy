@@ -1,3 +1,4 @@
+using TravelApp.Api.Features.Admin;
 using TravelApp.Api.Features.Account;
 using TravelApp.Api.Features.Sync;
 using TravelApp.Api.Features.Trips;
@@ -16,6 +17,7 @@ public static class PlacesSetup
         services.AddScoped<ITripDeleteHook>(sp => sp.GetRequiredService<PlacesService>());
         services.AddScoped<ISyncTable, PlacesSyncTable>();
         services.AddScoped<IUserData, PlacesUserData>();
+        services.AddScoped<IAdminMetrics, PlacesAdminMetrics>();
         return services;
     }
 }

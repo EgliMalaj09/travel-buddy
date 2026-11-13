@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Testcontainers.PostgreSql;
 using TravelApp.Api.Data;
+using TravelApp.Api.Features.Admin;
 using TravelApp.Api.Features.Auth;
 using TravelApp.Api.Features.Fx;
 using TravelApp.Api.Features.Geo;
@@ -28,6 +29,9 @@ namespace TravelApp.Api.Tests.Infrastructure;
 public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17-alpine").Build();
+
+    /// <summary>Becomes the first back office owner on its first admin login (Admin:OwnerEmails).</summary>
+    public const string AdminOwnerEmail = "owner-admin@example.com";
 
     public CapturingEmailSender Emails { get; } = new();
 
@@ -52,6 +56,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("ConnectionStrings:Database", _postgres.GetConnectionString());
         builder.UseSetting("Auth:SigningKeyPem", SigningKeys.NewKeyPem());
         builder.UseSetting("Auth:RequestsPerMinutePerIp", "100000");
+        builder.UseSetting("Admin:OwnerEmails:0", AdminOwnerEmail);
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<IAuthEmailSender>();
@@ -63,6 +68,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.AddHttpClient<IWeatherProvider, OpenMeteoProvider>().ConfigurePrimaryHttpMessageHandler(() => Weather);
             services.AddHttpClient<IFxProvider, FreeCurrencyApiProvider>().ConfigurePrimaryHttpMessageHandler(() => Fx);
             services.AddHttpClient<IGeoProvider, PhotonProvider>().ConfigurePrimaryHttpMessageHandler(() => Geo);
+            services.AddHttpClient(AdminStatusService.HttpClientName).ConfigurePrimaryHttpMessageHandler(() => new StatusStub());
             services.RemoveAll<IMediaStorage>();
             services.AddSingleton<IMediaStorage>(MediaFiles);
         });
@@ -114,4 +120,11 @@ internal sealed class FakeLeakedPasswordCheck : ILeakedPasswordCheck
     public const string Leaked = "password123456";
 
     public Task<bool> IsLeakedAsync(string password, CancellationToken ct) => Task.FromResult(password == Leaked);
+}
+
+/// <summary>Every outside service on the status page answers 200 (no real calls from tests).</summary>
+internal sealed class StatusStub : HttpMessageHandler
+{
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+        Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK));
 }

@@ -72,7 +72,8 @@ public sealed partial class SessionService(
         }
 
         var user = await db.Set<User>().SingleOrDefaultAsync(u => u.Id == current.UserId, ct);
-        if (!current.IsActive(now) || user is null || user.DeletedAt is not null)
+        // A suspended account (back office, KAN-55) gets no new token; the app goes to the login, which says why.
+        if (!current.IsActive(now) || user is null || user.DeletedAt is not null || user.SuspendedAt is not null)
         {
             return new(null);
         }

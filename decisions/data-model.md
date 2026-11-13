@@ -98,6 +98,8 @@ erDiagram
 | `onboardingCompletedAt` | timestamp | no | |
 | `status` | enum: active, deletion_requested | yes | server |
 | `deletionRequestedAt`, `deleteAfter` | timestamp | no | server. Set by "Delete my account"; everything is erased at `deleteAfter` (30 days later) unless restored (KAN-22, agreed 13 Nov 2026) |
+| `suspendedAt` | timestamp | no | server. Set by the back office (KAN-55): no login or refresh until lifted |
+| `suspensionReason` | enum: abuse, fraud, security, legal, other | no | server. A code only, never free text (KAN-55) |
 | sync fields | | yes | |
 
 ## 4. UserSettings (AGREED, synced, one per account)
@@ -147,6 +149,8 @@ Forecast rows are fresh for 3 hours, typical rows (average of the last 3 years) 
 `photoQualityByPlan`, `maxPhotoSizeMB`, `minAppVersion`, feature flags (for example `printAlbumEnabled`), `freeTripLimit`.
 
 PROPOSED additions: `staticDataVersion` and `staticDataUrl` (to update countries and currencies without an app release).
+
+Built 13 Nov 2026 (KAN-55) as table `app_config` with one row (id 1): `minAppVersion` (default "1.0.0"), `maxPhotoSizeMb` (15), `freeTripLimit` (1), `photoQualityByPlan` (jsonb, `{"free":"compressed","paid":"full"}`), `featureFlags` (jsonb, name → on/off), `version` (goes up on each change), `updatedAt`. Read by the phone with `GET /app-config`; changed only in the back office.
 
 ## 7. Trip (AGREED)
 
@@ -459,6 +463,14 @@ How the app checks it:
 Pricing itself is still open (handoff section 9, item 7). This shape works for per-trip, yearly pass and subscription.
 
 ---
+
+## 19b. Back office tables (server only, KAN-55, built 13 Nov 2026)
+
+Never synced to phones. See decisions/features/16-back-office.md.
+
+**AdminMember** (`admin_members`): `userId` (the account, also the key; goes when the account is erased), `role` (viewer, support, owner), `totpSecret` (authenticator key, encrypted), `totpConfirmedAt`, `totpLastStep` (a code works once), `failedCodes`, `lockedUntil`, `createdAt`, `createdBy`, `lastLoginAt`.
+
+**AdminAuditEntry** (`admin_audit`): `id`, `at`, `adminUserId`, `action` (for example `user.suspended`), `targetType`, `targetId`, `details` (codes only). No personal data. Kept 2 years.
 
 ## 20. Not in this version
 

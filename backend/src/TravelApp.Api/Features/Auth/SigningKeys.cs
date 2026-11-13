@@ -44,6 +44,9 @@ public sealed class SigningKeys : IDisposable
         return new JwkDto("EC", "P-256", Base64UrlEncoder.Encode(p.Q.X), Base64UrlEncoder.Encode(p.Q.Y), Key.KeyId, SecurityAlgorithms.EcdsaSha256, "sig");
     }
 
+    /// <summary>The private key number, only to derive other keys from it (<see cref="AdminAccess.DeriveKey"/>).</summary>
+    internal byte[] PrivateKeyBytes() => _ecdsa.ExportParameters(includePrivateParameters: true).D!;
+
     /// <summary>Creates a new P-256 private key in PEM format.</summary>
     public static string NewKeyPem()
     {

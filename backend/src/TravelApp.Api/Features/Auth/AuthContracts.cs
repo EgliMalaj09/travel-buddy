@@ -146,6 +146,9 @@ public static class AuthErrorCodes
     /// <summary>The account is waiting to be erased: the phone removes this account's data and shows the login.</summary>
     public const string AccountDeleted = "account_deleted";
 
+    /// <summary>The back office suspended this account (KAN-55). The app shows "Contact support".</summary>
+    public const string AccountSuspended = "account_suspended";
+
     /// <summary>Restore asked for an account that is not waiting to be erased.</summary>
     public const string NotDeleted = "not_deleted";
 }
@@ -155,3 +158,103 @@ public sealed record JwkDto(string Kty, string Crv, string X, string Y, string K
 
 /// <summary>Public keys of our access tokens. PowerSync reads them (jwks_uri).</summary>
 public sealed record JwksResponse(IReadOnlyList<JwkDto> Keys);
+
+// ---------------------------------------------------------------------------------------------------------------
+// Back office (KAN-55). Auth owns the accounts and the signing key; the Admin feature only uses these interfaces.
+// ---------------------------------------------------------------------------------------------------------------
+
+/// <summary>Password check and tokens for the back office login.</summary>
+public interface IAdminAccess
+{
+    /// <summary>
+    /// Checks email + password with the same lockout as the app (5 wrong tries, 15 minutes).
+    /// Suspended accounts and accounts waiting to be erased never pass.
+    /// </summary>
+    Task<AdminPasswordResult> CheckPasswordAsync(string email, string password, CancellationToken ct);
+
+    /// <summary>A signed token (ES256, our issuer) for <paramref name="audience"/> with "sub" = the user id.</summary>
+    string IssueToken(Guid userId, string audience, TimeSpan lifetime);
+
+    /// <summary>The user id of a token made by <see cref="IssueToken"/> for this audience, or null when it is not valid.</summary>
+    Task<Guid?> ReadTokenAsync(string token, string audience);
+
+    /// <summary>A 32-byte key for <paramref name="purpose"/>, derived from the signing key (no extra secret to keep).</summary>
+    byte[] DeriveKey(string purpose);
+
+    /// <summary>"aud" of back office access tokens.</summary>
+    string AdminAudience { get; }
+}
+
+/// <param name="UserId">Set when the password is right.</param>
+/// <param name="Locked">Too many wrong tries; wait 15 minutes.</param>
+public sealed record AdminPasswordResult(Guid? UserId, bool Locked);
+
+/// <summary>Accounts as the back office sees them.</summary>
+public interface IUserDirectory
+{
+    /// <summary>
+    /// Newest first. <paramref name="query"/> is a user id or part of an email (3+ characters);
+    /// <paramref name="status"/> is active, suspended or deletion_requested.
+    /// </summary>
+    Task<DirectoryPage> SearchAsync(string? query, string? status, int page, int pageSize, CancellationToken ct);
+
+    Task<DirectoryUser?> GetAsync(Guid userId, CancellationToken ct);
+
+    /// <summary>Emails of these users (to show admins and audit entries, masked by the caller).</summary>
+    Task<IReadOnlyDictionary<Guid, string>> EmailsAsync(IReadOnlyCollection<Guid> userIds, CancellationToken ct);
+
+    /// <summary>The account with this email that can log in with a password, or null.</summary>
+    Task<Guid?> FindWithPasswordAsync(string email, CancellationToken ct);
+
+    /// <summary>Suspends the account and ends every session. False when there is no such account.</summary>
+    Task<bool> SuspendAsync(Guid userId, string reason, CancellationToken ct);
+
+    Task<bool> UnsuspendAsync(Guid userId, CancellationToken ct);
+
+    /// <summary>Ends every session on every phone (for example a lost phone).</summary>
+    Task<bool> SignOutEverywhereAsync(Guid userId, CancellationToken ct);
+
+    /// <summary>Accounts waiting to be erased, soonest first.</summary>
+    Task<IReadOnlyList<DirectoryUser>> DeletionRequestsAsync(int max, CancellationToken ct);
+
+    /// <summary>Counts for the dashboard.</summary>
+    Task<DirectoryTotals> TotalsAsync(DateTimeOffset now, CancellationToken ct);
+}
+
+public sealed record DirectoryPage(IReadOnlyList<DirectoryUser> Users, int Total);
+
+/// <summary>One account. No profile fields (name, countries): the back office does not need them.</summary>
+public sealed record DirectoryUser(
+    Guid Id,
+    string Email,
+    string Status,
+    IReadOnlyList<string> AuthProviders,
+    bool HasPassword,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? OnboardingCompletedAt,
+    string? TermsVersion,
+    DateTimeOffset? TermsAcceptedAt,
+    string? PrivacyVersion,
+    DateTimeOffset? PrivacyAcceptedAt,
+    bool MarketingConsent,
+    DateTimeOffset? DeletionRequestedAt,
+    DateTimeOffset? DeleteAfter,
+    DateTimeOffset? SuspendedAt,
+    string? SuspensionReason,
+    DateTimeOffset? LastActiveAt,
+    int ActiveSessions);
+
+/// <param name="ActiveLast7Days">Accounts with a session started or refreshed in the last 7 days.</param>
+/// <param name="SignUpsPerDay">Last 30 days, oldest first, one entry per day (UTC) including days with 0.</param>
+public sealed record DirectoryTotals(
+    int Total,
+    int Active,
+    int Suspended,
+    int DeletionRequested,
+    int NewLast7Days,
+    int NewLast30Days,
+    int ActiveLast7Days,
+    int ActiveLast30Days,
+    IReadOnlyList<DayCount> SignUpsPerDay);
+
+public sealed record DayCount(DateOnly Day, int Count);

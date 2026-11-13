@@ -32,6 +32,16 @@ public interface IAccountsToPurge
     Task<IReadOnlyList<Guid>> DueAsync(DateTimeOffset now, int max, CancellationToken cancellationToken);
 }
 
+/// <summary>Export and erase on request, for the back office (KAN-55: GDPR requests that come by email).</summary>
+public interface IAccountAdmin
+{
+    /// <summary>The same file as "Download my data".</summary>
+    Task<AccountExportResponse> ExportAsync(Guid userId, CancellationToken cancellationToken);
+
+    /// <summary>Erases the account and all its data now, without the 30 days. Cannot be undone.</summary>
+    Task EraseNowAsync(Guid userId, CancellationToken cancellationToken);
+}
+
 /// <summary>"Download my data": every record the server keeps about the user, as JSON.</summary>
 /// <param name="ExportedAt">When the file was made.</param>
 /// <param name="FormatVersion">Changes when the shape of the file changes.</param>

@@ -62,6 +62,12 @@ public sealed class User : IdentityUser<Guid>
     /// <summary>server. From this moment the account and all its data are erased for good (30 days after the request).</summary>
     public DateTimeOffset? DeleteAfter { get; set; }
 
+    /// <summary>server. Set by the back office (KAN-55): no login and no refresh until it is lifted. Empty for a normal account.</summary>
+    public DateTimeOffset? SuspendedAt { get; set; }
+
+    /// <summary>server. Why the account was suspended, one of <see cref="SuspensionReasons"/> (a code, never free text).</summary>
+    public string? SuspensionReason { get; set; }
+
     // Sync fields (the User row syncs like every other record).
     public DateTimeOffset CreatedAt { get; set; }
 
@@ -90,6 +96,20 @@ public static class UserStatus
 {
     public const string Active = "active";
     public const string DeletionRequested = "deletion_requested";
+}
+
+/// <summary>Why the back office suspended an account. Codes only: free text could hold personal data.</summary>
+public static class SuspensionReasons
+{
+    public const string Abuse = "abuse";
+    public const string Fraud = "fraud";
+    public const string Security = "security";
+    public const string Legal = "legal";
+    public const string Other = "other";
+
+    public static readonly IReadOnlyList<string> All = [Abuse, Fraud, Security, Legal, Other];
+
+    public const string Pattern = "^(abuse|fraud|security|legal|other)$";
 }
 
 public static class AuthProvider

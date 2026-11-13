@@ -114,7 +114,7 @@ Same as the frontend (see `../frontend/README.md`):
 | Login | Our own: ASP.NET Identity, Google and Apple ID tokens checked by us, email 6-digit code; access token 15 min, refresh token 60 days | AGREED (L1–L3) |
 | Email | Azure Communication Services | AGREED (L4) |
 | Files | Azure Blob Storage (EU); records hold keys, never URLs; short-lived upload and read URLs | Proposed in data model |
-| Back office | Blazor or Razor Pages at `/admin` in the same app; admin role + 2FA (B1–B3) | Re-confirm (KAN-54) |
+| Back office | Separate web app in `../backoffice/` (owner's request 13 Nov 2026) calling `/admin` endpoints here; roles viewer/support/owner, password + authenticator code (TOTP), own token audience, audit log (decisions/features/16-back-office.md) | AGREED app, rest PROPOSED (KAN-55) |
 | Background jobs | Daily jobs in the API host to start; heavy renders as Azure Container Apps jobs (V1) | Re-confirm |
 | CI | GitHub Actions (AF3) | Re-confirm |
 
@@ -141,6 +141,8 @@ One API project organised by feature (`src/TravelApp.Api/Features/<Feature>/`) p
 | Me | `GET /me`, `POST /me/profile` (KAN-12, also edits the profile); `POST /me/delete`, `POST /me/restore`, `GET /me/export` (KAN-22). Settings sync as table `user_settings` |
 | Sync (KAN-16) | `POST /sync/upload`: the phone's waiting changes `{ op: PUT/PATCH/DELETE, type: table, id, data: { snake_case columns } }`, one result per change (`ok` or `rejected` + reasons); PowerSync Sync Streams for reads |
 | Trips | `GET /trips?limit=50&after=<cursor>`: your trips with stops and flights, one page at a time (default 50, max 100; follow `nextCursor` until it is empty). The app reads here until PowerSync is on the phone |
+| App config (KAN-55) | `GET /app-config` (public): minimum app version, photo limits, feature switches; the phone keeps the last copy |
+| Back office (KAN-55) | `POST /admin/auth/login`, `/admin/auth/verify`; `GET /admin/me`, `/admin/dashboard`, `/admin/services`, `/admin/config` (PUT owner), `/admin/users` (+ `/{id}`, `/{id}/suspend`, `/unsuspend`, `/sign-out`, `/export`, `/erase`), `/admin/deletions`, `/admin/members` (+ PUT, DELETE, `/reset-2fa`), `/admin/audit`. Back office token only (audience `travel-app-admin`) |
 | Rules and data | `GET /checklist-rules?version=`, `GET /weather/days?lat=&lng=&from=&to=` (KAN-29: max 31 days, forecast up to 15 days ahead then "typical" weather, cached in `weather_cache`), FX rates for trip dates |
 | Media (KAN-40) | `GET /media?tripId=` (the trip's photo records), `PUT /media/{id}/thumbnail` and `PUT /media/{id}/file` (raw `image/jpeg`, 1 MB / 15 MB, the record must be synced first; EXIF removed before storing), `GET /media/{id}/thumbnail` and `/file` (owner only). Records are written through `POST /sync/upload` type `media` |
 | Part 2 | `POST /trips/{id}/invite-link`, `POST /invites/{token}/accept`, member remove and leave, `POST /trips/{id}/video`, RevenueCat webhook |

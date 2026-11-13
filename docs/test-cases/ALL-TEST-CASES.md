@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #34 (the Atlas, KAN-49/50/51, with its review fixes).
+Last updated: 13 Nov 2026, after PRs #1 to #35 (up to the Atlas and its gap cases) and the back office (KAN-55).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -34,9 +34,10 @@ Old ids from the earlier files are in the **Was** column, so older results still
 20. [Profile, my data and deleting the account](#20-profile-my-data-and-deleting-the-account-kan-21-kan-22)
 21. [Finish trip, recap and passport stamp](#21-finish-trip-recap-and-passport-stamp-kan-47)
 22. [Atlas: globe, lifetime stats and passport](#22-atlas-globe-lifetime-stats-and-passport-kan-49-kan-50-kan-51)
-23. [API base and backend checks](#23-api-base-and-backend-checks-kan-58)
-24. [Privacy: no personal data in logs (GDPR)](#24-privacy-no-personal-data-in-logs-gdpr)
-25. [Known gaps](#25-known-gaps)
+23. [Back office](#23-back-office-kan-55)
+24. [API base and backend checks](#24-api-base-and-backend-checks-kan-58)
+25. [Privacy: no personal data in logs (GDPR)](#25-privacy-no-personal-data-in-logs-gdpr)
+26. [Known gaps](#26-known-gaps)
 
 ---
 
@@ -577,7 +578,43 @@ ATL-14 if you have one: that is the globe test (KAN-49).
 | ATL-18 | | Finished trip whose country is on no other finished trip: ••• → **Open trip again**, then open Atlas | That country is grey again, its stamp and row are gone, and the tiles count one country and one trip less | |
 | ATL-19 | | Compare Home's **Your travels** tiles with the Atlas tiles | Same numbers for countries, trips and days away | |
 
-## 23. API base and backend checks (KAN-58)
+## 23. Back office (KAN-55)
+
+Set up with docs/COMMANDS.md, "Back office" (owner email, start, `npm run dev`, open http://localhost:5173). You need
+an authenticator app on your phone and **two** app accounts with email and password: yours (owner) and a test one.
+Tip: a second browser (or a private window) lets you be two admins at once.
+
+| Id | Was | Steps | Expected | Last run |
+| --- | --- | --- | --- | --- |
+| BO-01 | | Open http://localhost:5173, log in with your email and password | "Set up your authenticator app" with a QR code and the key in groups of 4 | |
+| BO-02 | | Scan the QR code with the authenticator app, type its 6-digit code, **Continue** | Dashboard opens; your email and OWNER at the bottom of the side menu; all 7 pages in the menu | |
+| BO-03 | | Log out, log in again | No QR code this time: only "Code from your authenticator app". The current code works | |
+| BO-04 | | At the code step type a wrong code 5 times | After 4: "That code is not right…"; the 5th: "Too many tries. Wait 15 minutes…"; even the right code is refused for 15 minutes | |
+| BO-05 | | Log in with a wrong password, then with the test account's right password (it is not in the team) | Both say exactly "Email or password is not right." | |
+| BO-06 | | Dashboard | Account tiles (accounts, active 7 days, new 30 days, waiting to be erased, suspended), the sign-ups bar chart (hover a bar: day and number), content tiles (trips, places, photos, storage…) | |
+| BO-07 | | **Accounts**: type 3+ letters of the test account's email, **Search** | The account is listed with a **masked** email (`u***@…`), status Active, login, joined date | |
+| BO-08 | | Open the account | Full email, login methods, dates, consents with versions, counts, trips as dates and stops only (no trip names or places) | |
+| BO-09 | | **Suspend account**, reason Abuse. Then on the phone, log in with the test account | Back office: status Suspended, reason shown, phones signed in 0. Phone: "This account is suspended. Contact support." | |
+| BO-10 | | On a phone that was logged in with the test account when you suspended it, wait 15 minutes or close and reopen the app | It goes back to the login screen | |
+| BO-11 | | **Lift suspension**, log in on the phone again | Status Active; the phone logs in normally | |
+| BO-12 | | **Sign out everywhere** on the test account | Phones signed in 0; the phone asks to log in again within 15 minutes | |
+| BO-13 | | **Download data (GDPR)** | A `travel-app-export-<id>.json` file downloads, same content as the app's "Download my data" | |
+| BO-14 | | **Erase now**: try the button without typing, then type `ERASE` | Button stays off until ERASE is typed; then back to Accounts and the account is gone; the phone cannot log in any more | |
+| BO-15 | | Try to suspend or erase **your own** account (or any team member) | The buttons are off and a note says to remove them from the team first | |
+| BO-16 | | In the app, delete a test account (Profile → Delete my account). Open **Deletion queue** | It is listed (masked email) with the date it will be erased and "in 30 days" | |
+| BO-17 | | **App settings**: change "Free trips per account", add a switch `testSwitch`, turn it on, **Save settings** | "Saved…"; version goes up by 1 | |
+| BO-18 | | In two browsers open App settings, save in one, then save a change in the other | The second says "Someone saved the settings first. Reload and try again." | |
+| BO-19 | | Set **Minimum app version** to `9.0.0`, save. Close and reopen the app on the phone | The app shows "Update the app" with **Check again**. Set it back to `1.0.0`, tap **Check again**: the app works again | |
+| BO-20 | | **Services** | Cards for PostgreSQL, photo storage (Development only), codes in the API log (Development only), Open-Meteo, Currency API, Photon, OpenFreeMap, PowerSync, each with "Now" and "Before launch" | |
+| BO-21 | | **Team**: add the test account (sign it up again if you erased it) as **Viewer**. Log in as it in the second browser | It sets up its own authenticator; the menu shows only Dashboard, App settings and Services; settings are read only | |
+| BO-22 | | As owner change it to **Support**; in the second browser open Accounts | Works at once (no new login). Then **Remove** it: its next click logs it out | |
+| BO-23 | | Try to remove yourself or change your own role | Not possible (the controls for "you" are off) | |
+| BO-24 | | **Audit log** | Every action above is listed with who (masked), what and when; filter by action works; no email in the details column | |
+| BO-25 | | Wait 30 minutes on any page, then click something | Back to the login with "You were logged out… Back office sessions last 30 minutes" | |
+| BO-26 | | Make the browser narrow (phone size) and switch the computer to dark mode | Menu moves to the top; everything readable in dark mode | |
+| BO-27 | | Scalar: **GET /me** with a back office token, and **GET /admin/me** with an app token | Both 401 (the two kinds of token cannot be swapped) | |
+
+## 24. API base and backend checks (KAN-58)
 
 | Id | Was | Steps | Expected | Last run |
 | --- | --- | --- | --- | --- |
@@ -587,7 +624,7 @@ ATL-14 if you have one: that is the globe test (KAN-49).
 | API-04 | A-04, D-02 | `cd C:\dev\tb\backend` then `dotnet test` (Docker running) | All tests pass (161 on 13 Nov 2026, with finish trip) | ✅ |
 | API-05 | | `cd C:\dev\tb\frontend` then `npm run check` | All checks and tests pass (283 on 13 Nov 2026, with finish trip) | |
 
-## 24. Privacy: no personal data in logs (GDPR)
+## 25. Privacy: no personal data in logs (GDPR)
 
 Core rule: logs, errors and crash reports hold only ids, status codes and timings. Never emails, names, tokens, passwords, trip or place details or locations.
 
@@ -601,8 +638,9 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 | GDPR-06 | | Change settings, Download my data, delete and restore an account. Read the API window | Only ids, status codes and timings: no email, name, settings values or export content | |
 | GDPR-07 | | Finish a trip with a note, open the recap and stamp. Read the API window and the Expo / Metro window | No trip name, note, rating or countries printed | |
 | GDPR-08 | | Open the Atlas, tap stamps and countries, drag the globe. Read the Expo / Metro window and the API window | No countries, trip names or positions printed; the API gets no new calls from the Atlas | |
+| GDPR-09 | | Do BO-01 to BO-27. Read the API window and the browser console (F12 → Console) | API window: only ids, roles and timings ("Back office login by <id> (owner)", "Account <id> suspended…"); no email, password, code, search words or settings values. Browser console: nothing printed | |
 
-## 25. Known gaps
+## 26. Known gaps
 
 1. After profile setup the spec says "Create your first trip" or "Look around first"; the app goes straight to Home.
 2. Stops are reordered with arrows and removed with a bin, not drag and swipe.
@@ -615,3 +653,4 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 9. Expenses are personal to one traveller for now; shared expenses and splitting (D6) come with shared trips in Part 2. Linking an expense to a place comes later.
 10. The free Currency API has no service promise: before the public launch, check it is still fine or move to a paid source (on the switch list).
 11. The map needs internet the first time an area is shown; areas seen before stay in the phone's map cache. Downloading whole regions for offline use is a later paid feature (data model).
+12. Back office: a suspended account's phone keeps working for up to 15 minutes (until its access token ends). There is no moderation yet because nothing is shared in Part 1; it comes with shared trips (Part 2 back office).
