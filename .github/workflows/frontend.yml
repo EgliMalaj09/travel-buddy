@@ -2,9 +2,9 @@ name: Frontend
 
 on:
   push:
-    paths: ['frontend/**', '.github/workflows/frontend.yml']
+    paths: ['frontend/**', 'legal/**', '.github/workflows/frontend.yml']
   pull_request:
-    paths: ['frontend/**', '.github/workflows/frontend.yml']
+    paths: ['frontend/**', 'legal/**', '.github/workflows/frontend.yml']
 
 jobs:
   check:
@@ -20,6 +20,8 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      - name: Legal texts in the app match legal/*.md (run npm run legal:texts after editing them)
+        run: npm run legal:texts && git diff --exit-code -- src/data/static/legalTexts.ts
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run format:check

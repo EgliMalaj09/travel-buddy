@@ -58,7 +58,7 @@ or company, postal address, contact email, country for the terms, supervisory au
 | L-d | How long is data kept? | Matches the code: account until deleted, then erased 30 days later (+7 days for backups), deleted photos 30 days, trusted phones 1 year after last use, server logs 30 days, team log 2 years, crash reports up to 90 days | PROPOSED |
 | L-e | Age | 16 or older (already asked at sign-up) | AGREED earlier (onboarding) |
 | L-f | Entry rules | Not official advice, check official sources, we are not responsible for refused boarding. A short note, a line per item, and a full note. Replaces the current shorter wording when agreed (with the KAN-26 rule review) | PROPOSED |
-| L-g | Showing them in the app | Not built yet. Proposal for KAN-60: links on sign-up ("terms" and "privacy policy" open the text) and on the You tab under About, read from the bundled text. Needs the owner's OK before building | OPEN |
+| L-g | Showing them in the app | Built 13 Nov 2026. Links "Read the terms" and "Read the privacy policy" under the consent box on sign-up and profile setup, plus "Visa and entry rules" on the You tab (About). The checklist note uses the short entry-rules note and links to the full one. The texts are bundled in the app (`frontend/src/data/static/legalTexts.ts`, made by `npm run legal:texts` from `legal/*.md`), so they open offline and before signing in; "Lawyer" notes are left out. CI fails if the bundled copy is older than `legal/` | AGREED (owner card, 13 Nov 2026) |
 | L-h | Open points for the lawyer | Legal bases (crash reports have no opt-out yet), processor agreements (Microsoft, PowerSync, email provider, Sentry), transfer wording for non-EU parent companies, liability section for the owner's country, DPO / EU representative | Open (lawyer) |
 
 ## KAN-60: phone builds
@@ -74,5 +74,5 @@ before any TestFlight, Google Play or `production` build.
 | P-c | Mock mode out of release builds | Release builds (`__DEV__` false) **always** use the real login and never sample trips, whatever the settings say (`pickAuthMode`, `pickDataMode`, tested). Development keeps mock mode | PROPOSED (built) |
 | P-d | Safety at build time | `app.config.js` stops a `beta` or `production` build when the API or PowerSync address is missing or not `https://`, or a mock mode is set | PROPOSED (built) |
 | P-e | Free Apple signing | Xcode's free personal team cannot sign Sign in with Apple or push. `FREE_APPLE_SIGNING=1` leaves both out of that build only (local reminders need no push). "Continue with Apple" does not work in it | PROPOSED (built) |
-| P-f | Showing the legal texts in the app (L-g) | Not built; needs the owner's OK. The beta can start without it (testers are the owners) | OPEN |
+| P-f | Showing the legal texts in the app (L-g) | Built 13 Nov 2026 (see L-g). New feature component `LegalLinks`, screen `features/legal/LegalScreen`, route `/legal/[doc]` (privacy, terms, entry-rules) | AGREED (owner card, 13 Nov 2026) |
 | P-g | Version number | Stays `1.0.0`; EAS counts build numbers (`appVersionSource: remote`). The back office's `minAppVersion` can force an update later | PROPOSED |

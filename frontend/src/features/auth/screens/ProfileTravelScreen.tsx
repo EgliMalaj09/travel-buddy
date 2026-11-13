@@ -5,7 +5,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { z } from 'zod';
 
-import { AppText, Button, Checkbox, OptionPicker } from '@/components';
+import { AppText, Button, Checkbox, LegalLinks, OptionPicker } from '@/components';
+import { openLegal } from '@/features/legal/openLegal';
 import { countries, currencies, currencyForCountry, deviceCountry } from '@/data/static/countries';
 import { flagEmoji } from '@/lib/trips';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -188,6 +189,7 @@ export function ProfileTravelScreen() {
               />
             )}
           />
+          <LegalLinks onOpen={openLegal} />
           <Controller
             control={control}
             name="marketingConsent"

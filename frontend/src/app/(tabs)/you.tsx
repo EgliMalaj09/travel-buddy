@@ -2,7 +2,8 @@ import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 
-import { AppText, Button, Card, Screen, SyncIndicator } from '@/components';
+import { AppText, Button, Card, LegalLinks, Screen, SyncIndicator } from '@/components';
+import { openLegal } from '@/features/legal/openLegal';
 import { dataMode } from '@/data';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { findCountry } from '@/data/static/countries';
@@ -46,6 +47,7 @@ export default function YouScreen() {
           <AppText variant="date">Crash reporting: {sentryEnabled ? 'on' : 'off'}</AppText>
           <SyncIndicator showLabel />
         </View>
+        <LegalLinks entryRules onOpen={openLegal} />
       </Card>
 
       <Button title="Open design kit" kind="secondary" onPress={() => router.push('/design-kit')} />

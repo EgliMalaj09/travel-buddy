@@ -12,4 +12,8 @@
 
 **Rule:** when the app or the API starts collecting something new, or a new outside service is added, update the
 privacy policy in the same PR and raise the version (`draft-2`, …). Users then accept the new version (built later).
+
+**The app shows these files** (sign-up, profile setup, You → About, the checklist note). After editing any file here, run
+`cd frontend && npm run legal:texts` and commit the changed `frontend/src/data/static/legalTexts.ts` in the same PR.
+The Frontend check on GitHub fails if you forget. Quotes that start with "Lawyer" are notes for the lawyer and are not shown in the app.
 Choices behind these texts: [`../decisions/features/18-ship-part-1.md`](../decisions/features/18-ship-part-1.md), KAN-62.

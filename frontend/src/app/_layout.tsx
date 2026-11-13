@@ -99,6 +99,8 @@ function AppStack() {
           <Stack.Screen name="trip/checklist/[id]" options={{ title: 'Checklist' }} />
           <Stack.Screen name="design-kit" options={{ title: 'Design kit' }} />
         </Stack.Protected>
+        {/* Privacy policy, terms and entry-rules note (KAN-62): readable before sign-up too. */}
+        <Stack.Screen name="legal/[doc]" options={{ title: '' }} />
       </Stack>
       {mustUpdate && !showSplash ? <UpdateRequired onRetry={appConfig.recheck} /> : null}
       {showSplash && (

@@ -3,12 +3,18 @@ import { View } from 'react-native';
 
 import { ActionSheet, AppText, Button, Card, EmptyState } from '@/components';
 import { repositories, type ChecklistItem, type TaskCategory } from '@/data';
+import { legalTexts } from '@/data/static/legalTexts';
 import { todayIso } from '@/lib/dates';
+import { openLegal } from '@/features/legal/openLegal';
+import { parseLegal, plainText, section } from '@/lib/legalText';
 import { useTheme } from '@/theme/ThemeProvider';
 
 import { ChecklistItemRow } from './ChecklistItemRow';
 import { ChecklistItemSheet } from './ChecklistItemSheet';
 import { useChecklist } from './useChecklist';
+
+/** The short entry-rules note from legal/entry-rules-disclaimer.md (KAN-62). */
+const ENTRY_RULES_NOTE = plainText(parseLegal(section(legalTexts.entryRules, 'Short note')));
 
 /**
  * The trip's checklist (KAN-24), shown in the trip page's Checklist tab (KAN-53): made from the
@@ -98,10 +104,13 @@ export function ChecklistList({ tripId }: { tripId: string }) {
             }}
           />
         </View>
-        <AppText variant="caption">
-          Made from your passport, stops, dates and activities. Entry rules change: always check
-          official sources before you travel.
-        </AppText>
+        <AppText variant="caption">Made from your passport, stops, dates and activities.</AppText>
+        <AppText variant="caption">{ENTRY_RULES_NOTE}</AppText>
+        <Button
+          kind="ghost"
+          title="About visa and entry rules"
+          onPress={() => openLegal('entry-rules')}
+        />
       </View>
 
       {problem ? (

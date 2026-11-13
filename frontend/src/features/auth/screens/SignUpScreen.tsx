@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, View } from 'react-native';
 
-import { AppText, Button, Checkbox, OrDivider, SocialButtons } from '@/components';
+import { AppText, Button, Checkbox, LegalLinks, OrDivider, SocialButtons } from '@/components';
+import { openLegal } from '@/features/legal/openLegal';
 import { useTheme } from '@/theme/ThemeProvider';
 
 import { useAuth } from '../AuthProvider';
@@ -113,6 +114,7 @@ export function SignUpScreen() {
             />
           )}
         />
+        <LegalLinks onOpen={openLegal} />
         <Controller
           control={control}
           name="marketingConsent"

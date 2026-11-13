@@ -107,11 +107,25 @@ Success: `Passed!` with 0 failed (194 tests on 13 Nov 2026).
 cd C:\dev\tb\frontend
 npm run check
 ```
-Success: `Tests: … passed`, 0 failed (300 on 13 Nov 2026).
+Success: `Tests: … passed`, 0 failed (305 on 13 Nov 2026).
 
 ## Per feature (newest first)
 
 After each feature: **Get the newest code**, **Stop**, **Start** (above), plus what the feature says here.
+
+### Legal texts inside the app (L-g), 13 Nov 2026
+**Nothing to run today.** Only when you (or the lawyer) change a file in `legal/`, for example to fill in the
+`[placeholders]`: the app keeps its own copy, so refresh it and commit both (PowerShell on Windows):
+```powershell
+cd C:\dev\tb\frontend
+npm run legal:texts
+cd ..
+git add legal frontend/src/data/static/legalTexts.ts
+git commit -m "Update legal texts"
+git push
+```
+Success: `git commit` lists `legalTexts.ts` among the changed files. If you forget, the Frontend check on GitHub
+fails at "Legal texts in the app match legal/*.md". Test cases: LEGAL-09 to LEGAL-14.
 
 ### Phone builds for the beta (KAN-60), 13 Nov 2026
 **Nothing to run for local development**: your normal app works as before. These steps are for the day the

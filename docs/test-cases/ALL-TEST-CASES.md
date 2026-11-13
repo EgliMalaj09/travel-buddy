@@ -2,7 +2,7 @@
 
 **This is the only place for manual test cases.** Every new feature, fix or PR adds its cases here, in its feature's section (or a new section), in the same table format, before it is merged. Don't start a separate test file. Update a case when a feature changes it, and mark it *(updated DD Mon)*.
 
-Last updated: 13 Nov 2026, after PRs #1 to #42 (up to the phone builds, KAN-60).
+Last updated: 13 Nov 2026, after PRs #1 to #44 and the legal texts in the app (L-g).
 
 **How to report:** reply with the id and **pass** or **fail** (for a fail, say what you saw). Example: `TRIP-05 pass`, `PLACE-07 fail: nothing happens`.
 
@@ -662,7 +662,12 @@ sure they match what the app really does before the lawyer sees them.
 | LEGAL-06 | | Privacy policy section 7: follow the paths it gives (You → Settings → Download my data / Delete my account) | The buttons are where the policy says | |
 | LEGAL-07 | | Compare the entry-rules short note with the note at the bottom of a trip's checklist | Same meaning; the policy's version is the one to use once you agree it (with KAN-26) | |
 | LEGAL-08 | | Sign up a new test account (ticking "I am 16 or older" and "I accept the terms and the privacy policy"). In the back office open that account (BO-08) | The consents show version `draft-1` for terms and privacy, the same version written at the top of `legal/terms.md` and `legal/privacy-policy.md`. When the texts get a new version, both must change together | |
-| LEGAL-09 | | On sign-up, tap "terms" and "privacy policy"; on the You tab look under **About** | The texts open in the app | ⏸ not built yet (decision L-g, proposed for KAN-60) |
+| LEGAL-09 | | On the sign-up screen, under "I accept the terms and the privacy policy", tap **Read the terms**, go back, then tap **Read the privacy policy** | Each text opens in the app with a back arrow, without signing in. A "DRAFT for legal review" box is at the top; headings, bullets and the tables (shown as small cards) are readable. No "Lawyer" notes are shown | |
+| LEGAL-10 | | Sign in with a new account that still needs profile setup; on the "Your travel" step tap **Read the terms** and **Read the privacy policy** | Same texts open; going back keeps what you typed and ticked | |
+| LEGAL-11 | | You tab → **About** card | Three links: Read the terms, Read the privacy policy, Visa and entry rules. Each opens its text | |
+| LEGAL-12 | | Open a trip's checklist and look at the note at the bottom | It reads "Made from your passport, stops, dates and activities." plus the short entry-rules note from `legal/entry-rules-disclaimer.md`. Tap **About visa and entry rules**: the full note opens with the title "About visa and entry rules" | |
+| LEGAL-13 | | Change one word in `legal/terms.md` on a test branch without running `npm run legal:texts`, and push | The Frontend check on GitHub fails at "Legal texts in the app match legal/*.md". After `cd frontend && npm run legal:texts` and a new commit it passes | |
+| LEGAL-14 | | Turn on airplane mode, then open the privacy policy from the You tab | It opens: the texts are inside the app, not loaded from the internet | |
 
 ## 26. Phone builds for the beta (KAN-60)
 
@@ -726,4 +731,4 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 10. The free Currency API has no service promise: before the public launch, check it is still fine or move to a paid source (on the switch list).
 11. The map needs internet the first time an area is shown; areas seen before stay in the phone's map cache. Downloading whole regions for offline use is a later paid feature (data model).
 12. Back office: a suspended account's phone keeps working for up to 15 minutes (until its access token ends). There is no moderation yet because nothing is shared in Part 1; it comes with shared trips (Part 2 back office).
-13. The legal texts can't be opened in the app yet (no links on sign-up or under About): decision L-g, proposed for KAN-60.
+13. ~~The legal texts can't be opened in the app yet (no links on sign-up or under About): decision L-g, proposed for KAN-60.~~ Done 13 Nov 2026: links on sign-up, profile setup, the You tab and the checklist note (LEGAL-09 to LEGAL-14).
