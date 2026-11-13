@@ -182,8 +182,8 @@ email and Google login do.
 must be decided first (store upload rule). Ask Claude.
 
 ### Beta server (KAN-61), 13 Nov 2026
-**Nothing to run for local development.** The steps below are only for the day you set up the beta server, after
-you have answered the hosting card with "Azure free account". They create things in Azure; the free account
+**Nothing to run for local development.** The steps below are only for the day you set up the beta server (you
+chose the Azure free account on 13 Nov 2026). They create things in Azure; the free account
 covers them for 12 months (then about €15-25 a month, mostly the database). Choices:
 `decisions/features/18-ship-part-1.md`. Do them in order, one block at a time. Keep every password the steps make
 in your password manager; **never paste them into a file inside the repo or into a chat**.
