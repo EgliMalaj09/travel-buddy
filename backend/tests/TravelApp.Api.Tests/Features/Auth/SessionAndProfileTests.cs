@@ -197,6 +197,22 @@ public sealed class SessionAndProfileTests(ApiFactory factory)
     }
 
     [Fact]
+    public async Task Social_login_answers_503_when_the_provider_cannot_be_reached()
+    {
+        using var client = new AuthTestClient(factory);
+        var (nonce, _) = NewNonce();
+
+        var apple = await client.Post("/auth/apple", new SocialLoginRequest("unreachable", AuthTestClient.NewDevice(), Nonce: nonce));
+        var google = await client.Post("/auth/google", new SocialLoginRequest("unreachable", AuthTestClient.NewDevice()));
+        // No nonce: refused before Apple is asked, so it is a clean 401 even when Apple is down.
+        var appleNoNonce = await client.Post("/auth/apple", new SocialLoginRequest("unreachable", AuthTestClient.NewDevice()));
+
+        await AuthTestClient.AssertError(apple, HttpStatusCode.ServiceUnavailable, AuthErrorCodes.ProviderUnavailable);
+        await AuthTestClient.AssertError(google, HttpStatusCode.ServiceUnavailable, AuthErrorCodes.ProviderUnavailable);
+        await AuthTestClient.AssertError(appleNoNonce, HttpStatusCode.Unauthorized, AuthErrorCodes.InvalidToken);
+    }
+
+    [Fact]
     public async Task Google_login_checks_the_nonce_only_when_the_token_has_one()
     {
         using var client = new AuthTestClient(factory);

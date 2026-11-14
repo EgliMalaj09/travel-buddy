@@ -63,6 +63,22 @@ public sealed class GeoSearchTests(ApiFactory factory) : IAsyncLifetime
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.DoesNotContain("41,8902", body, StringComparison.Ordinal);
+        Assert.Contains("The request could not be read.", body, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("/geo/reverse?lat=4,1&lng=12.5")] // would otherwise be read as 41, a valid but wrong point
+    [InlineData("/geo/search?q=rome&lat=41.9&lng=1,2")]
+    [InlineData("/weather/days?lat=4,1&lng=12.5&from=2026-11-13&to=2026-11-14")]
+    public async Task A_position_with_a_comma_is_refused(string url)
+    {
+        var response = await Get(url);
+        var body = await response.Content.ReadAsStringAsync(Ct);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains("The request could not be read.", body, StringComparison.Ordinal);
+        Assert.DoesNotContain("4,1", body, StringComparison.Ordinal);
+        Assert.DoesNotContain("1,2", body, StringComparison.Ordinal);
     }
 
     [Fact]

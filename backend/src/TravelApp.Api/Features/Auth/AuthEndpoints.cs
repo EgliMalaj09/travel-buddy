@@ -30,9 +30,11 @@ public static class AuthEndpoints
         auth.MapPost("/login/verify", VerifyLogin).WithName("VerifyLogin")
             .WithSummary("Code from the new-phone email; logs in and trusts this phone for 1 year");
         auth.MapPost("/google", (SocialLoginRequest r, AuthService s, CancellationToken ct) => Social(AuthProvider.Google, r, s, ct))
-            .WithName("LoginWithGoogle").WithSummary("Google ID token; logs in or creates the account");
+            .WithName("LoginWithGoogle").WithSummary("Google ID token; logs in or creates the account")
+            .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         auth.MapPost("/apple", (SocialLoginRequest r, AuthService s, CancellationToken ct) => Social(AuthProvider.Apple, r, s, ct))
-            .WithName("LoginWithApple").WithSummary("Apple ID token; logs in or creates the account");
+            .WithName("LoginWithApple").WithSummary("Apple ID token; logs in or creates the account")
+            .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         auth.MapPost("/code/resend", ResendCode).WithName("ResendCode")
             .WithSummary("Sends a new code for a sign-up or new-phone login (1 per minute, 5 per hour)");
         auth.MapPost("/password/forgot", ForgotPassword).WithName("ForgotPassword")

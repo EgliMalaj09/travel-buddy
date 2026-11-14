@@ -105,7 +105,10 @@ export interface TripRecap {
   spentPending: number;
   /** Countries of this trip, in trip order. */
   countries: string[];
-  /** Countries this trip added to the passport (no earlier finished trip went there). */
+  /**
+   * Countries this trip added to the passport: no other finished trip went there. A trip finished
+   * later than another trip to the same country never counts it as new, even when its dates are older.
+   */
   newCountries: string[];
   /** Countries in the passport, this trip included. */
   countriesTotal: number;
@@ -123,9 +126,13 @@ export function tripRecap(input: {
   const { trip, stops, places, photoCount, spent, allTrips, stopsByTrip } = input;
   const countries = tripCountries(stops);
   const stamps = passportStamps(allTrips, stopsByTrip);
-  const newCountries = stamps
-    .filter((s) => s.tripId === trip.id && countries.includes(s.countryCode))
-    .map((s) => s.countryCode);
+  const stampedBefore = new Set(
+    passportStamps(
+      allTrips.filter((t) => t.id !== trip.id),
+      stopsByTrip,
+    ).map((s) => s.countryCode),
+  );
+  const newCountries = countries.filter((code) => !stampedBefore.has(code));
   return {
     days: trip.startDate && trip.endDate ? daysBetween(trip.startDate, trip.endDate) + 1 : 0,
     placesVisited: places.filter((p) => !p.deletedAt && p.status === 'visited').length,

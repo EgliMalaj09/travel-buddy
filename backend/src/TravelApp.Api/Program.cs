@@ -66,6 +66,7 @@ app.UseStatusCodePages();
 // The default policy (web build of the app) exists in development only; the "admin" policy (back office) everywhere.
 app.UseCors();
 app.UseAuthFeature();
+app.UsePlainNumberQueries("/geo", "/weather");
 
 if (app.Environment.IsDevelopment())
 {

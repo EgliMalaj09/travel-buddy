@@ -79,6 +79,9 @@ export function LoginPage() {
         {endedBecause === 'expired' && !step ? (
           <Banner title="You were logged out">Back office sessions last 30 minutes. Nothing was lost; log in again.</Banner>
         ) : null}
+        {endedBecause === 'removed' && !step ? (
+          <Banner title="You were logged out">An owner removed your back office access or reset your login. Ask an owner if you need it back.</Banner>
+        ) : null}
         {error ? <Banner tone="err">{error}</Banner> : null}
 
         {!step ? (
