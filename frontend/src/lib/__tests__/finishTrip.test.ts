@@ -93,6 +93,33 @@ describe('tripRecap', () => {
     });
     expect(recap.countriesTotal).toBe(passportStamps(data.trips, stopsByTrip).length + 1);
   });
+
+  it('does not call a country new when another finished trip went there, even an older-dated one finished later', () => {
+    const lisbonDone = { ...lisbon, status: 'finished' as const, finishedAt: today };
+    const older = {
+      ...lisbonDone,
+      id: 'lisbon-older',
+      startDate: '2026-05-01',
+      endDate: '2026-05-04',
+      finishedAt: '2027-03-21',
+    };
+    const more = new Map(stopsByTrip).set(
+      older.id,
+      stopsByTrip.get(lisbon.id)!.map((s) => ({ ...s, tripId: older.id })),
+    );
+    const trips = [...data.trips.filter((t) => t.id !== lisbon.id), lisbonDone, older];
+    const recap = tripRecap({
+      trip: older,
+      stops: more.get(older.id)!,
+      places: [],
+      photoCount: 0,
+      spent: { totalHome: 0, pending: 0 },
+      allTrips: trips,
+      stopsByTrip: more,
+    });
+    expect(recap.newCountries).toEqual([]);
+    expect(recap.countries).toEqual(['PT']);
+  });
 });
 
 describe('words', () => {

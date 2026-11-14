@@ -17,8 +17,13 @@ public sealed record ExternalIdentity(string Subject, string Email, string? Firs
 /// <summary>Checks a Google or Apple ID token. Returns null when the token is not valid.</summary>
 public interface IExternalTokenValidator
 {
+    /// <exception cref="ExternalProviderUnavailableException">The provider's public keys could not be loaded.</exception>
     Task<ExternalIdentity?> ValidateAsync(string provider, string idToken, CancellationToken ct);
 }
+
+/// <summary>Google's or Apple's key server could not be reached, so no token can be checked right now.</summary>
+public sealed class ExternalProviderUnavailableException(string provider, Exception inner)
+    : Exception($"{provider} keys could not be loaded", inner);
 
 /// <summary>
 /// Checks ID tokens with Microsoft's token libraries against Google's and Apple's public keys (A7).
@@ -53,7 +58,18 @@ internal sealed partial class OpenIdTokenValidator : IExternalTokenValidator
         }
 
         var (manager, issuers) = _providers[provider];
-        var config = await manager.GetConfigurationAsync(ct);
+        OpenIdConnectConfiguration config;
+        try
+        {
+            config = await manager.GetConfigurationAsync(ct);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            // Only the provider and the error type: never the token (GDPR core rule).
+            LogKeysUnavailable(provider, ex.GetType().Name);
+            throw new ExternalProviderUnavailableException(provider, ex);
+        }
+
         var result = await new JsonWebTokenHandler().ValidateTokenAsync(idToken, new TokenValidationParameters
         {
             ValidIssuers = issuers,
@@ -86,6 +102,9 @@ internal sealed partial class OpenIdTokenValidator : IExternalTokenValidator
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "{Provider} login is not configured (no client ids)")]
     private partial void LogNotConfigured(string provider);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "{Provider} keys could not be loaded ({Error})")]
+    private partial void LogKeysUnavailable(string provider, string error);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "{Provider} ID token refused")]
     private partial void LogInvalid(string provider, Exception? ex);

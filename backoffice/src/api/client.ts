@@ -10,11 +10,16 @@ export const apiBaseUrl = (import.meta.env.VITE_API_URL ?? 'http://localhost:500
 
 let token: string | null = null;
 let onExpired: (() => void) | null = null;
+let onForbidden: (() => void) | null = null;
 
-/** Set by the AuthProvider: the token to send, and what to do when the API says it is no longer valid. */
-export function setAuth(next: string | null, expired: (() => void) | null) {
+/**
+ * Set by the AuthProvider: the token to send, what to do when the API says it is no longer valid (401),
+ * and what to do when the API says the role cannot do something (403: the role may have been lowered).
+ */
+export function setAuth(next: string | null, expired: (() => void) | null, forbidden: (() => void) | null = null) {
   token = next;
   onExpired = expired;
+  onForbidden = forbidden;
 }
 
 const auth: Middleware = {
@@ -23,7 +28,11 @@ const auth: Middleware = {
     return request;
   },
   onResponse({ response, request }) {
-    if (response.status === 401 && token && !new URL(request.url).pathname.startsWith('/admin/auth/')) onExpired?.();
+    const path = new URL(request.url).pathname;
+    if (token && !path.startsWith('/admin/auth/')) {
+      if (response.status === 401) onExpired?.();
+      else if (response.status === 403 && path !== '/admin/me') onForbidden?.();
+    }
     return response;
   },
 };

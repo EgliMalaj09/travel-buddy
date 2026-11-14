@@ -184,6 +184,7 @@ Open http://localhost:5001/scalar.
 | AUTH-17 | S-17 | `GET /.well-known/jwks.json` | One EC key (ES256) | ✅ |
 | AUTH-18 | S-18 | `POST /auth/google` with any text as idToken | 401 `invalid_token` | ✅ |
 | AUTH-19 | | `POST /auth/apple` with a token but no `nonce` | 401 `invalid_token` (Apple tokens must carry a nonce) | |
+| AUTH-20 | | *(Quick test, ask Claude)* `POST /auth/apple` with a nonce, or `POST /auth/google`, while Apple's / Google's key server can't be reached *(added 14 Nov, test-run fixes)* | 503 `provider_unavailable` "This login is not available right now. Try again in a moment, or log in with email."; the API window shows only "Apple keys could not be loaded (…)", no crash and no token | |
 
 ## 7. Create and edit a trip (KAN-18)
 
@@ -538,7 +539,7 @@ Create them with **+** on Home and dates in the past.
 | FIN-09 | | Phone setting **Reduce motion** on (iOS: Accessibility → Motion; Android: Remove animations), finish another trip | Recap numbers and stamp appear at once, no movement | |
 | FIN-10 | | Trip with expenses in another currency added in flight mode (not converted yet), finish it in flight mode | It finishes (saved on the phone). Spent says "converting…" for those expenses | |
 | FIN-11 | | Recap → **Stamp my passport** | "<Country> is in your passport", the new stamp lands among the earlier ones. **Done** goes back to the trip page (or Home if you started there) | |
-| FIN-12 | | Finish a second trip to a country already stamped | Stamp screen: "<Country> was already in your passport"; no second stamp for it | |
+| FIN-12 | | Finish a second trip to a country already stamped. Also try it the other way round: finish the newer trip first, then an **older** trip to the same country *(updated 14 Nov, test-run fixes)* | Stamp screen: "<Country> was already in your passport" both times; no second stamp for it (the stamp shows the month of your first visit) | |
 | FIN-13 | | Finished trip: open it, Plan tab | Card "Trip finished" with the suns, your note and **See recap** (opens the recap again). No packing card. Home no longer asks about it | |
 | FIN-14 | | Finished trip: ••• → **Open trip again** | Back to planned (Trips list by its dates), the "Trip finished" card goes. Finish again: your suns and note are already filled in | |
 | FIN-15 | | **Atlas** tab *(updated 13 Nov, atlas)* | A stamp per country of your finished trips in the Passport strip. Opening a trip again removes its country if no other finished trip went there. More Atlas cases in section 22 | |
@@ -610,7 +611,7 @@ Tip: a second browser (or a private window) lets you be two admins at once.
 | BO-19 | | Set **Minimum app version** to `9.0.0`, save. Close and reopen the app on the phone | The app shows "Update the app" with **Check again**. Set it back to `1.0.0`, tap **Check again**: the app works again | |
 | BO-20 | | **Services** | Cards for PostgreSQL, photo storage (Development only), codes in the API log (Development only), Open-Meteo, Currency API, Photon, OpenFreeMap, PowerSync, each with "Now" and "Before launch" | |
 | BO-21 | | **Team**: add the test account (sign it up again if you erased it) as **Viewer**. Log in as it in the second browser | It sets up its own authenticator; the menu shows only Dashboard, App settings and Services; settings are read only | |
-| BO-22 | | As owner change it to **Support**; in the second browser open Accounts | Works at once (no new login). Then **Remove** it: its next click logs it out | |
+| BO-22 | | As owner change it to **Support**; in the second browser open Accounts | Works at once (no new login). Then **Remove** it: its next click logs it out with "An owner removed your back office access or reset your login" (not the 30-minutes message) *(updated 14 Nov, test-run fixes)* | |
 | BO-23 | | Try to remove yourself or change your own role | Not possible (the controls for "you" are off) | |
 | BO-24 | | **Audit log** | Every action above is listed with who (masked), what and when; filter by action works; no email in the details column | |
 | BO-25 | | Wait 30 minutes on any page, then click something | Back to the login with "You were logged out… Back office sessions last 30 minutes" | |
@@ -625,6 +626,7 @@ Tip: a second browser (or a private window) lets you be two admins at once.
 | BO-34 | | Run `scripts\windows\start.cmd -NoBackOffice` | "Back office (skipped: -NoBackOffice)"; no back office window; the API and the app start as usual | |
 | BO-35 | | With everything already running, run `scripts\windows\start.cmd` again | "Back office is already running on http://localhost:5173"; no second back office window opens | |
 | BO-36 | | Close everything, delete the folder `backoffice\node_modules`, run `scripts\windows\start.cmd` | "Installing back office packages (a few minutes)...", then the back office starts as in BO-32 | |
+| BO-37 | | Member logged in as **Support** in the second browser. As owner lower it to **Viewer**, then click into the second browser window (or wait a minute) *(added 14 Nov, test-run fixes)* | The menu loses **Accounts** and the role under the email says **viewer**, without logging in again | |
 
 ## 24. Beta server (KAN-61)
 
@@ -724,6 +726,7 @@ Core rule: logs, errors and crash reports hold only ids, status codes and timing
 | GDPR-08 | | Open the Atlas, tap stamps and countries, drag the globe. Read the Expo / Metro window and the API window | No countries, trip names or positions printed; the API gets no new calls from the Atlas | |
 | GDPR-09 | | Do BO-01 to BO-27. Read the API window and the browser console (F12 → Console) | API window: only ids, roles and timings ("Back office login by <id> (owner)", "Account <id> suspended…"); no email, password, code, search words or settings values. Browser console: nothing printed | |
 | GDPR-10 | | On the beta server: sign up, log in and reset a password (BETA-07), then read the logs (BETA-08 command) and the back office audit log | Only ids, purposes, status codes and timings. No email address, code, password or SMTP reply text; a failed email shows only "Code email (login) not sent, SMTP status …" | |
+| GDPR-11 | | Scalar: **GET /geo/reverse** with `lat=4,1` and `lng=12.5`, and **GET /weather/days** with `lat=4,1` *(added 14 Nov, test-run fixes)* | 400 "The request could not be read." (before, `4,1` was read as 41, a wrong place); the value is not in the answer or the API window | |
 
 ## 29. Known gaps
 

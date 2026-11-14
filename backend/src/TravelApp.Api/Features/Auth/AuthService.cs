@@ -42,6 +42,7 @@ public sealed class AuthService(
     internal static readonly AuthFailure PasswordLeaked = new(400, AuthErrorCodes.PasswordLeaked, "This password appears in known data leaks. Choose another one.");
     internal static readonly AuthFailure ConsentRequired = new(400, AuthErrorCodes.ConsentRequired, "Confirm you are 16 or older and accept the terms and privacy.");
     internal static readonly AuthFailure InvalidToken = new(401, AuthErrorCodes.InvalidToken, "The sign-in could not be checked. Try again.");
+    internal static readonly AuthFailure ProviderUnavailable = new(503, AuthErrorCodes.ProviderUnavailable, "This login is not available right now. Try again in a moment, or log in with email.");
     internal static readonly AuthFailure SessionExpired = new(401, AuthErrorCodes.SessionExpired, "Please log in again.");
     internal static readonly AuthFailure Suspended = new(403, AuthErrorCodes.AccountSuspended, "This account is suspended. Contact support.");
     internal static readonly AuthFailure AccountDeleted = new(401, AuthErrorCodes.AccountDeleted, "This account is waiting to be deleted. Log in to restore it.");
@@ -189,7 +190,22 @@ public sealed class AuthService(
     /// <summary>Google or Apple: finds the account by provider id, then by confirmed email (L3), or creates it.</summary>
     public async Task<AuthResult<SessionResponse>> SocialLoginAsync(string provider, SocialLoginRequest request, CancellationToken ct)
     {
-        var identity = await external.ValidateAsync(provider, request.IdToken, ct);
+        // Apple tokens must come with the app's nonce: refuse at once, without asking Apple.
+        if (provider == AuthProvider.Apple && string.IsNullOrEmpty(request.Nonce))
+        {
+            return InvalidToken;
+        }
+
+        ExternalIdentity? identity;
+        try
+        {
+            identity = await external.ValidateAsync(provider, request.IdToken, ct);
+        }
+        catch (ExternalProviderUnavailableException)
+        {
+            return ProviderUnavailable;
+        }
+
         if (identity is null || !NonceMatches(provider, identity.Nonce, request.Nonce))
         {
             return InvalidToken;

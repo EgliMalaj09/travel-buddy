@@ -151,6 +151,9 @@ public static class AuthErrorCodes
 
     /// <summary>Restore asked for an account that is not waiting to be erased.</summary>
     public const string NotDeleted = "not_deleted";
+
+    /// <summary>Google's or Apple's key server could not be reached: try again later, or log in with email.</summary>
+    public const string ProviderUnavailable = "provider_unavailable";
 }
 
 /// <summary>A public signing key (JSON Web Key, EC P-256).</summary>
